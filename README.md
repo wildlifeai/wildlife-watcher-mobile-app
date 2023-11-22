@@ -12,11 +12,11 @@ Project overview:- [Youtube](https://www.youtube.com/watch?v=Ima3n2EYfeE)
 
 Home                |  Dashboard              | Menu                
 :-------------------------:|:-------------------------:|:-------------------------:
-![](https://github.com/wildlifeai/wildlife_watcher_mobile_app/blob/master/screenshots/ww_home_page.png?raw=true) |![](https://github.com/wildlifeai/wildlife_watcher_mobile_app//blob/master/screenshots/ww_devices_dashboard.png?raw=true)|![](https://github.com/wildlifeai/wildlife_watcher_mobile_app//blob/master/screenshots/ww_left_menu.png?raw=true)|
+![](https://github.com/wildlifeai/wildlife_watcher_mobile_app/blob/main/screenshots/ww_home_page.png?raw=true) |![](https://github.com/wildlifeai/wildlife_watcher_mobile_app//blob/main/screenshots/ww_devices_dashboard.png?raw=true)|![](https://github.com/wildlifeai/wildlife_watcher_mobile_app//blob/main/screenshots/ww_left_menu.png?raw=true)|
 
 Connecting         | Device     
 :-------------------------:|:-------------------------:
-![](https://github.com/wildlifeai/wildlife_watcher_mobile_app//blob/master/screenshots/ww_connecting.png?raw=true) |![](https://github.com/wildlifeai/wildlife_watcher_mobile_app//blob/master/screenshots/ww_device_connected.png?raw=true)
+![](https://github.com/wildlifeai/wildlife_watcher_mobile_app//blob/main/screenshots/ww_connecting.png?raw=true) |![](https://github.com/wildlifeai/wildlife_watcher_mobile_app//blob/main/screenshots/ww_device_connected.png?raw=true)
 
 
 
