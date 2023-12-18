@@ -1,0 +1,90 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+platform :ios do
+  desc "Build a debug version of the app"
+  lane :build_debug do
+    install_provisioning_profile(path: "./fastlane/profile.mobileprovision")
+    import_certificate(
+      keychain_name: "login.keychain",
+      certificate_path: "./fastlane/cert.p12",
+      certificate_password: ENV["IOS_CERT_PASSWORD"]
+    )
+
+    build_ios_app(
+      silent: true,
+      scheme: 'WildlifeWatcher', 
+      configuration: "Debug",
+      workspace: './ios/WildlifeWatcher.xcworkspace', 
+      output_directory: './ios/ipa', 
+      output_name: 'WildlifeWatcher.ipa',
+      buildlog_path: './ios/logs',
+      xcargs: "-allowProvisioningUpdates",
+      suppress_xcode_output: true
+      
+    )
+  end
+
+  desc "Build a release version of the app"
+  lane :build_release do
+    install_provisioning_profile(path: "./fastlane/profile.mobileprovision")
+    import_certificate(
+      keychain_name: "login.keychain",
+      certificate_path: "./fastlane/cert.p12",
+      certificate_password: ENV["IOS_CERT_PASSWORD"]
+    )
+
+    build_ios_app(
+      silent: true,
+      scheme: 'WildlifeWatcher', 
+      configuration: "Release",
+      workspace: './ios/WildlifeWatcher.xcworkspace', 
+      output_directory: './ios/ipa', 
+      output_name: 'WildlifeWatcher.ipa',
+      buildlog_path: './ios/logs',
+      xcargs: "-allowProvisioningUpdates",
+      suppress_xcode_output: true
+      
+    )
+  end
+end
+platform :android do
+  desc "Build a release version of the app"
+  lane :build_release do
+    gradle(
+      project_dir: "./android",
+      task: "assemble",
+      build_type: "Release"
+    )
+
+    android_set_version_name(
+      version_name: ENV["APP_VERSION"],
+      gradle_file: './android/app/build.gradle'
+    )
+
+    android_set_version_code(
+      version_code: ENV['APP_CODE_VERSION'],
+      gradle_file: './android/app/build.gradle'
+    )
+
+    firebase_app_distribution(
+      app: ENV["APP_ID"],
+      android_artifact_path: ENV["ANDROID_ARTEFACT_PATH"],
+      service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
+      testers: ENV['TESTERS']
+    )
+  end
+end
