@@ -1,50 +1,77 @@
-# wildlife-watcher-mobile-app
+# Wildlife Watcher mobile app
 
-Mobile app to communicate with the Wildlife Watchers. They are a wildlife camera that records animals and uses AI to identify them.
+Welcome to the development repository of the Wildlife Watcher mobile app. This document provides instructions for setting up and running the project on your local machine.
 
-Project overview: [Youtube](https://www.youtube.com/watch?v=Ima3n2EYfeE)
+The Wildlife Watcher mobile app allows users to communicate with Wildlife Watcher cameras that record animals and use AI to identify them.
+
+**Project Overview**: [Watch on YouTube](https://www.youtube.com/watch?v=Ima3n2EYfeE)
+
+## Prerequisites
+
+Make sure you have the following prerequisites installed on your machine:
+
+- **Node.js**: Version 18 or higher
+- **Ruby**: Version 2.6.10 or higher
+
+## Getting Started
+
+1. Clone this repository to your local machine:
+
+    ```bash
+    git clone https://github.com/your-username/your-project.git
+    cd your-project
+    ```
+
+2. Install project dependencies:
+
+    ```bash
+    npm install
+    ```
+
+3. Start the Metro bundler:
+
+    ```bash
+    npx react-native start
+    ```
+
+## iOS Setup
+
+For iOS development, follow these additional steps:
+
+1. Install Bundler and necessary gems:
+
+    ```bash
+    gem install bundler
+    bundle install
+    ```
+
+2. Prepare Pods:
+
+    ```bash
+    bundle exec pod install --project-directory=ios
+    ```
+
+3. Run the project in development mode:
+
+    ```bash
+    npx react-native run-ios
+    ```
+
+## Android Setup
+
+For Android development, run the project in development mode:
+
+```bash
+npx react-native run-android
+```
 
 ## Contributing
 
-If you wish to contribute a change to any of the existing features or add new to this repo, send a [pull request](https://github.com/wildlifeai/wildlife-watcher-mobile-app/pulls).
-
-## Developing
-
-To start the app, make sure you have the following prerequisites:
-
-- node ">=18"
-- ruby ">= 2.6.10"
-
-Then run:
-
-`npm install`
-
-`npx react-native start`
-
-to start the Metro bundler.
-
-### iOS
-
-Run the following commands:
-
-`gem install bundler` then `bundle install`.
-
-To prepare the Pods:
-
-`bundle exec pod install --project-directory=ios`
-
-Run the project in development mode:
-
-`npx react-native run-ios`
-
-### Android
-
-Run the project in development mode:
-
-`npx react-native run-android`
+If you wish to contribute to this project, submit a [pull request](https://github.com/wildlifeai/wildlife-watcher-mobile-app/pulls).
 
 ## Created & Maintained By
 
-[Miha Drofenik](https://github.com/Burzo), [Victor Anton](https://github.com/victor-wildlife)
+- [Miha Drofenik](https://github.com/Burzo)
+- [Victor Anton](https://github.com/victor-wildlife)
 
 If you find this project helpful, consider [donating to Wildlife.ai](https://givealittle.co.nz/donate/org/wildlifeai)
