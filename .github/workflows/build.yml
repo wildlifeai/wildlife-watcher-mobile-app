@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Build and Deploy to App Distribution
 
 on:
   workflow_dispatch:
@@ -38,7 +38,7 @@ jobs:
   #     - name: Cache cocoapods
   #       uses: actions/cache@v3
   #       with:
-  #         path: /ios/Pods
+  #         path: ./ios/Pods
   #         key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
   #         restore-keys: |
   #           ${{ runner.os }}-pods-
@@ -88,8 +88,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
+            ./android/.gradle/caches
+            ./android/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
