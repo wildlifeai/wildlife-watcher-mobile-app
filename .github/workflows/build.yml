@@ -73,9 +73,9 @@ jobs:
           json: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
           dir: './android/app'
       - name: Copy keystore file
-        run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" | base64 --decode > ./keystores/release.keystore
+        run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" | base64 --decode > ./android/keystores/release.keystore
       - name: Copy keystore properties file
-        run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE_PROPS }}" | base64 --decode > ./keystores/release.keystore.properties
+        run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE_PROPS }}" | base64 --decode > ./android/keystores/release.keystore.properties
       - name: Install npm dependency
         run: npm install
       - name: Install bundler
