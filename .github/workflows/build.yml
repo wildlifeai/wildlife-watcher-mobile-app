@@ -85,14 +85,14 @@ jobs:
       - name: Install gem plugins
         run: |
           bundle install
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ./android/.gradle/caches
-            ./android/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      # - uses: actions/cache@v3
+      #   with:
+      #     path: |
+      #       ./android/.gradle/caches
+      #       ./android/.gradle/wrapper
+      #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-gradle-
       - name: Run fastlane
         run: |
           echo ${{ github.run_id }}
