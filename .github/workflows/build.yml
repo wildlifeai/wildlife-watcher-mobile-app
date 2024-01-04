@@ -12,7 +12,7 @@ jobs:
   #   runs-on: [self-hosted, 'macOS']
   #   steps:
   #     - name: Cancel previous runs
-  #       uses: styfle/cancel-workflow-action@0.9.1
+  #       uses: styfle/cancel-workflow-action@0.12.0
   #     - name: Checkout repo from dev branch
   #       uses: actions/checkout@v3
   #       with:
@@ -57,7 +57,7 @@ jobs:
       image: reactnativecommunity/react-native-android
     steps:
       - name: Cancel previous runs
-        uses: styfle/cancel-workflow-action@0.9.1
+        uses: styfle/cancel-workflow-action@0.12.0
       - name: Checkout repo from dev branch
         uses: actions/checkout@v3
         with:
