@@ -64,12 +64,6 @@ end
 platform :android do
   desc "Build a release version of the app"
   lane :build_release do
-    gradle(
-      project_dir: "./android",
-      task: "assemble",
-      build_type: "Release"
-    )
-
     android_set_version_name(
       version_name: ENV["APP_VERSION"],
       gradle_file: './android/app/build.gradle'
@@ -78,6 +72,12 @@ platform :android do
     android_set_version_code(
       version_code: ENV['APP_CODE_VERSION'],
       gradle_file: './android/app/build.gradle'
+    )
+    
+    gradle(
+      project_dir: "./android",
+      task: "assemble",
+      build_type: "Release"
     )
 
     firebase_app_distribution(
