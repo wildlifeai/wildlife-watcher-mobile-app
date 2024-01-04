@@ -95,6 +95,7 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Run fastlane
         run: |
+          echo ${{ github.run_id }}
           bundle exec fastlane android build_release
         env:
           APP_VERSION: '0.0.1'
