@@ -95,10 +95,10 @@ jobs:
       #       ${{ runner.os }}-gradle-
       - name: Run fastlane
         run: |
-          echo ${{ github.run_id }}
+          echo ${{ github.run_number }}
           bundle exec fastlane android build_release
         env:
           APP_VERSION: '0.0.1'
-          APP_CODE_VERSION: ${{ github.run_id }}
+          APP_CODE_VERSION: ${{ github.run_number }}
           APP_ID: ${{ secrets.APP_ID }}
           ANDROID_ARTEFACT_PATH: ${{ secrets.ANDROID_ARTEFACT_PATH }}
