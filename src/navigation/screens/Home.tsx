@@ -65,7 +65,7 @@ export const Home = memo(() => {
 		startScan()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
-	console.log(devicesToDisplay)
+
 	return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
 			<View style={[styles.wrapper, { paddingBottom: bottom }]}>

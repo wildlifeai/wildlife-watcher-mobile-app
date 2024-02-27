@@ -21,7 +21,7 @@ export const DeviceItem = React.memo(
 		return (
 			<TouchableOpacity
 				style={styles.card}
-				onPress={() => go}
+				onPress={() => go(item)}
 				onLongPress={() => disconnect(item)}
 			>
 				<View

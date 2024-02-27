@@ -32,8 +32,6 @@ export const DEFAULT_PERIPHERAL: (id: string) => ExtendedPeripheral = (
 	uponUnlock: [],
 	intervals: {},
 	rssi: 0,
-	isInBootloader: false,
-	firmwareUpgrading: false,
 	advertising: {},
 })
 

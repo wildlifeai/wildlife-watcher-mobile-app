@@ -281,9 +281,9 @@ export const useBle = (): ReturnType => {
 				try {
 					log(`Device ${deviceIdentification} will try to connect`)
 
-					if (Platform.OS === "android") {
-						await BleManager.createBond(newPeripheral.id)
-					}
+					// if (Platform.OS === "android") {
+					// 	await BleManager.createBond(newPeripheral.id)
+					// }
 
 					await invokeWithTimeout(
 						() => BleManager.connect(newPeripheral.id),

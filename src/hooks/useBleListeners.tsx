@@ -19,7 +19,6 @@ import {
 } from "./../redux/slices/devicesSlice"
 import { deviceLogChange } from "./../redux/slices/logsSlice"
 import { useInterval } from "../hooks/useInterval"
-import { DEVICE_NAME } from "../utils/constants"
 import { scanStop } from "../redux/slices/scanningSlice"
 import { useDeviceActions } from "../providers/BleEngineProvider"
 
@@ -61,6 +60,7 @@ const readlineParser = (data: UpdateValueEventType) => {
 	buffers[peripheral] = Buffer.concat([buffers[peripheral], Buffer.from(value)])
 
 	// Check for newline character in the received data
+	console.log(buffers[peripheral])
 	const newlineIndex = buffers[peripheral].indexOf("\n")
 
 	if (newlineIndex !== -1) {
@@ -184,9 +184,10 @@ export const useBleListeners = () => {
 
 	const discoveredPeripheralEvent = useCallback(
 		(peripheral: ExtendedPeripheral) => {
-			if (peripheral.name !== DEVICE_NAME) return
+			// if (peripheral.name !== DEVICE_NAME) return
 			peripheral = {
 				...DEFAULT_PERIPHERAL(peripheral.id),
+				device: peripheral,
 			}
 
 			/**
