@@ -1,0 +1,388 @@
+import React, { useCallback, useEffect, useRef } from "react"
+
+import { Platform } from "react-native"
+
+import BleManager from "react-native-ble-manager"
+import { Peripheral } from "react-native-ble-manager"
+
+import {
+	BLE_CHARACTERISTIC_READ_UUID,
+	BLE_SERVICE_UUID,
+} from "../utils/constants"
+import { invokeWithTimeout, sleep } from "../utils/helpers"
+import { guard, log, logError } from "../utils/logger"
+import { useAppDispatch, useAppSelector } from "../redux"
+import {
+	deviceConfigClear,
+	deviceConfigInitiated,
+} from "../redux/slices/configurationSlice"
+import {
+	ExtendedPeripheral,
+	deviceDisconnect,
+	deviceLoading,
+	deviceUpdate,
+} from "../redux/slices/devicesSlice"
+import { deviceLogChange } from "../redux/slices/logsSlice"
+import { scanError, scanStart } from "../redux/slices/scanningSlice"
+import { useInterval } from "../hooks/useInterval"
+import { clearAllDeviceIntervals, writeToDevice } from "../utils/helpers"
+
+export type ReturnType = {
+	startScan: () => void
+	connectDevice: (
+		peripheral: ExtendedPeripheral,
+		timeout?: number,
+	) => Promise<ExtendedPeripheral>
+	disconnectDevice: (peripheral: ExtendedPeripheral) => void
+	write: (peripheral: ExtendedPeripheral, data: string[]) => Promise<void>
+	enginePause: (toggle: boolean) => void
+	pingsPause: (toggle: boolean) => void
+	enginePaused: React.MutableRefObject<boolean>
+	pingsPaused: React.MutableRefObject<boolean>
+}
+
+type FunctionEngine = {
+	fun: Function
+	lane: "slow" | "normal"
+	canBeIgnored?: boolean
+	pausesTheEngine?: boolean
+	waitsBeforeExecution?: number
+}
+
+export type BleRequestKeys = any
+export type BleRequestConstructOptions = any
+
+export type WriteData = [
+	BleRequestKeys,
+	BleRequestConstructOptions,
+	{ engineStop?: boolean; waitsBeforeExecution?: number }?,
+]
+
+const PAUSE_NORMAL_COMMANDS = 20
+
+/**
+ * These commands can have a bigger pause implemented after they're executed.
+ */
+const SLOW_COMMANDS: string[] = []
+const PAUSE_SLOW_COMMANDS = 500
+
+/**
+ * This special command will be ignored by the engine if
+ * BLE is writing any information at that moment.
+ */
+const PING_REQUEST: string[] = []
+
+export const useBle = (): ReturnType => {
+	const { initialized } = useAppSelector((state) => state.bleLibrary)
+
+	const devices = useAppSelector((state) => state.devices)
+	const scanning = useAppSelector((state) => state.scanning)
+
+	const dispatch = useAppDispatch()
+
+	const bleWriteFunctionsToCall = useRef<FunctionEngine[]>([])
+	const isBleWriting = useRef(false)
+	const enginePauseRef = useRef(false)
+	const pingsPauseRef = useRef(false)
+
+	const clearPings = () => {
+		bleWriteFunctionsToCall.current = bleWriteFunctionsToCall.current.filter(
+			({ canBeIgnored }) => !canBeIgnored,
+		)
+	}
+
+	/**
+	 * Heart of the BLE - device bridge. It makes sure functions are
+	 * called with a delay, it's actually possible to be faster then
+	 * the device buffer. The lane concept makes sure that the device CPU has enough time
+	 * to react to certain events.
+	 */
+	useInterval(async () => {
+		if (enginePauseRef.current) {
+			clearPings()
+			return
+		}
+
+		if (isBleWriting.current) {
+			return
+		}
+
+		isBleWriting.current = true
+		if (bleWriteFunctionsToCall.current.length > 0) {
+			while (bleWriteFunctionsToCall.current.length > 0) {
+				const next = bleWriteFunctionsToCall.current.shift()
+				if (next) {
+					const {
+						fun,
+						lane,
+						canBeIgnored,
+						pausesTheEngine,
+						waitsBeforeExecution,
+					} = next
+
+					if (pingsPauseRef.current && canBeIgnored) {
+						log(`Pinging paused`)
+					} else {
+						if (waitsBeforeExecution) {
+							log(`Waiting to execute for ${waitsBeforeExecution} ms.`)
+							await sleep(waitsBeforeExecution)
+						}
+						await fun()
+						if (lane === "slow") {
+							await sleep(PAUSE_SLOW_COMMANDS)
+						} else {
+							await sleep(PAUSE_NORMAL_COMMANDS)
+						}
+
+						/**
+						 * Some commands can pause the engine to avoid bugs.
+						 * Always make sure to resume the engine.
+						 */
+						if (pausesTheEngine) {
+							enginePause(pausesTheEngine)
+							break
+						}
+					}
+				}
+			}
+		}
+		isBleWriting.current = false
+	}, 1000)
+
+	const enginePause = useCallback((toggle: boolean) => {
+		log(`Engine turning: ${toggle ? "off" : "on"}`)
+		enginePauseRef.current = toggle
+	}, [])
+
+	const pingsPause = useCallback((toggle: boolean) => {
+		log(`Pinging paused: ${toggle ? "YES" : "NO"}`)
+		pingsPauseRef.current = toggle
+	}, [])
+
+	const startScan = useCallback(async () => {
+		if (!initialized) return
+
+		if (!scanning.isScanning) {
+			try {
+				pingsPause(true)
+				await BleManager.scan([], __DEV__ ? 6 : 8)
+				log("Scan started")
+				dispatch(scanStart())
+			} catch (e: any) {
+				logError(e)
+				dispatch(scanError(e))
+			}
+		}
+	}, [initialized, scanning.isScanning, pingsPause, dispatch])
+
+	const disconnectDevice = useCallback(
+		async (peripheral: Peripheral | ExtendedPeripheral) => {
+			if (!initialized) return
+			bleWriteFunctionsToCall.current = []
+			await guard(() => BleManager.disconnect(peripheral.id))
+			dispatch(deviceDisconnect({ id: peripheral.id }))
+		},
+		[dispatch, initialized],
+	)
+
+	const write = useCallback(
+		async (peripheral: ExtendedPeripheral, data: string[]) => {
+			if (!initialized) return
+
+			const currentPeripheral = devices[peripheral.id]
+
+			if (currentPeripheral) {
+				dispatch(
+					deviceConfigInitiated({
+						id: peripheral.id,
+						data,
+					}),
+				)
+			}
+
+			/**
+			 * Simply maps the data in preparation for the BLE functions
+			 * engine.
+			 */
+			interface MappedData extends Omit<FunctionEngine, "fun"> {
+				str: string | undefined
+			}
+
+			const mappedData: MappedData[] = data.map((command) => {
+				return {
+					str: command,
+					lane: SLOW_COMMANDS.find((str) => command.includes(str))
+						? "slow"
+						: "normal",
+					canBeIgnored: PING_REQUEST.includes(command),
+				}
+			})
+
+			mappedData.forEach(({ str, ...rest }) => {
+				bleWriteFunctionsToCall.current.push({
+					fun: () =>
+						writeToDevice(peripheral, str)
+							.then((e?: Error) => {
+								if (e) {
+									log(
+										`Disconnecting device ${
+											peripheral.id
+										} due to an error (${JSON.stringify(e)})`,
+									)
+									disconnectDevice(peripheral)
+								}
+							})
+							.catch(() => {
+								log(
+									`Disconnecting device ${peripheral.id} due to an error while calling writeToDevice`,
+								)
+								disconnectDevice(peripheral)
+							}),
+					...rest,
+				})
+			})
+		},
+		[devices, disconnectDevice, dispatch, initialized],
+	)
+
+	const isDeviceReconnecting = useRef<{ [x: string]: boolean }>({})
+
+	const connectDevice = useCallback(
+		async (peripheral: ExtendedPeripheral, timeout?: number) => {
+			if (!initialized || peripheral.loading || scanning.isScanning)
+				return peripheral
+
+			/**
+			 * If multiple connectDevice functions are called for a certain device,
+			 * this makes sure to avoid any idiotic disconnects when some calls
+			 * timeout after some calls already succeed.
+			 *
+			 * Basically, use the timeout.
+			 */
+			if (isDeviceReconnecting.current[peripheral.id]) {
+				log(
+					`Cancelling the connection request for ${peripheral.id}. connectDevice is already running.`,
+				)
+				return peripheral
+			}
+
+			/** Clean up intervals */
+			clearAllDeviceIntervals(peripheral)
+
+			isDeviceReconnecting.current[peripheral.id] = true
+
+			const newPeripheral = { ...peripheral }
+
+			dispatch(deviceLoading({ id: newPeripheral.id, loading: true }))
+
+			const deviceIdentification = newPeripheral.name
+
+			if (!newPeripheral.connected) {
+				try {
+					log(`Device ${deviceIdentification} will try to connect`)
+
+					if (Platform.OS === "android") {
+						await BleManager.createBond(newPeripheral.id)
+					}
+
+					await invokeWithTimeout(
+						() => BleManager.connect(newPeripheral.id),
+						"BleManager.connect",
+						timeout,
+					)
+
+					dispatch(deviceLogChange({ id: newPeripheral.id, log: "" }))
+					dispatch(deviceConfigClear({ id: newPeripheral.id }))
+
+					log(`Device ${deviceIdentification} connected`)
+
+					await invokeWithTimeout(
+						() => BleManager.retrieveServices(newPeripheral.id),
+						"BleManager.retrieveServices",
+						timeout,
+					)
+
+					log(`Device ${deviceIdentification} services retireved`)
+
+					await BleManager.startNotification(
+						newPeripheral.id,
+						BLE_SERVICE_UUID,
+						BLE_CHARACTERISTIC_READ_UUID,
+					)
+
+					log(`Device ${deviceIdentification} notifications started`)
+
+					/** Acts as the PING request */
+					const ping = () => guard(() => write(newPeripheral, ["ver"]))
+
+					newPeripheral.connected = true
+
+					newPeripheral.intervals = {
+						ping: setInterval(async () => await ping(), 2000),
+					}
+
+					dispatch(deviceUpdate({ ...newPeripheral }))
+				} catch (e: any) {
+					log(e)
+					log("Connecting to device failed, disconnecting device.")
+					await disconnectDevice(newPeripheral)
+				}
+			}
+
+			dispatch(deviceLoading({ id: newPeripheral.id, loading: false }))
+
+			if (isDeviceReconnecting.current[peripheral.id]) {
+				isDeviceReconnecting.current[peripheral.id] = false
+			}
+
+			return newPeripheral
+		},
+		[initialized, scanning.isScanning, dispatch, write, disconnectDevice],
+	)
+
+	const removeLeftoverDevices = useCallback(() => {
+		if (!initialized) return
+
+		BleManager.getConnectedPeripherals([]).then(async (results) => {
+			// Otherwise we unpair everything, ups.
+			results = results.filter((device) => device.name === "WW")
+
+			if (results.length === 0) {
+				log("No connected devices found when checking cached peripherals")
+				return
+			}
+
+			results.map(async (peripheral) => {
+				if (
+					Platform.OS === "android" &&
+					(await BleManager.isPeripheralConnected(peripheral.id, [
+						BLE_SERVICE_UUID,
+					]))
+				) {
+					log(
+						`Connected device ${peripheral.id} found when the app was initialized, clearing it from cache`,
+					)
+					await guard(() => BleManager.removePeripheral(peripheral.id))
+					await disconnectDevice(peripheral)
+				}
+			})
+		})
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [initialized])
+
+	useEffect(() => {
+		removeLeftoverDevices()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [initialized])
+
+	return {
+		startScan,
+		connectDevice,
+		disconnectDevice,
+		write,
+		enginePause,
+		enginePaused: enginePauseRef,
+		pingsPause,
+		pingsPaused: pingsPauseRef,
+	}
+}

@@ -1,0 +1,18 @@
+{
+	"semi": false,
+	"useTabs": true,
+	"arrowParens": "always",
+	"trailingComma": "all",
+	"importOrderSeparation": true,
+	"importOrderSortSpecifiers": true,
+	"importOrder": [
+		"^react$",
+		"^react-native$",
+		"^[^./]*$",
+		"<THIRD_PARTY_MODULES>",
+		"^[./]+(redux)[/][a-zA-Z/]+",
+		"^[./]+(components)[/][a-zA-Z/]+",
+		"^[./]+(assets)[/][a-zA-Z/]+",
+		"^[.][/][a-zA-Z]+[.]sass"
+	]
+}
