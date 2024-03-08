@@ -102,4 +102,4 @@ jobs:
           APP_CODE_VERSION: ${{ github.run_number }}
           APP_ID: ${{ secrets.APP_ID }}
           ANDROID_ARTEFACT_PATH: ${{ secrets.ANDROID_ARTEFACT_PATH }}
-          TESTERS: ${{ env.TESTERS }}
+          TESTERS: ${{ vars.TESTERS }}
