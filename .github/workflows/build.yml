@@ -63,16 +63,16 @@ jobs:
         id: add-firebase-credentials
         uses: jsdaniell/create-json@v1.2.2
         with:
-          name: 'wildlife-watcher-service-account.json'
+          name: "wildlife-watcher-service-account.json"
           json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-          dir: './fastlane'
+          dir: "./fastlane"
       - name: create-json
         id: add-android-credentials
         uses: jsdaniell/create-json@v1.2.2
         with:
-          name: 'google-services.json'
+          name: "google-services.json"
           json: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
-          dir: './android/app'
+          dir: "./android/app"
       - name: Copy keystore file
         run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" | base64 --decode > ./android/keystores/release.keystore
       - name: Copy keystore properties file
@@ -98,7 +98,8 @@ jobs:
           echo ${{ github.run_number }}
           bundle exec fastlane android build_release
         env:
-          APP_VERSION: '0.0.1'
+          APP_VERSION: "0.0.1"
           APP_CODE_VERSION: ${{ github.run_number }}
           APP_ID: ${{ secrets.APP_ID }}
           ANDROID_ARTEFACT_PATH: ${{ secrets.ANDROID_ARTEFACT_PATH }}
+          TESTERS: ${{ env.TESTERS }}
