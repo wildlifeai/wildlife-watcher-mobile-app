@@ -21,6 +21,7 @@ import { deviceLogChange } from "./../redux/slices/logsSlice"
 import { useInterval } from "../hooks/useInterval"
 import { scanStop } from "../redux/slices/scanningSlice"
 import { useDeviceActions } from "../providers/BleEngineProvider"
+import { DEVICE_NAME } from "../utils/constants"
 
 export const bleManagerEmitter = new NativeEventEmitter(
 	NativeModules.BleManager,
@@ -41,41 +42,76 @@ export type UpdateValueEventType = {
  *
  * BLE manager events will trigger this function that uses
  * the global object to keep track of each peripherals buffer
- * and emits an event once a newline is actually detected.
+ * and emits an event.
+ *
+ * At the moment, it seems that firmware doesn't return any
+ * newlines so we just emit each event as if a new line was
+ * detected after it.
  *
  * Sine this logic is only used in this file, I didn't
  * extract it.
  */
-const buffers: {
-	[peripheral: string]: Buffer
-} = {}
+// const buffers: {
+// 	[peripheral: string]: Buffer
+// } = {}
 
 const readlineParser = (data: UpdateValueEventType) => {
 	const { value, peripheral } = data
 
-	if (!buffers[peripheral]) {
-		buffers[peripheral] = Buffer.from([])
-	}
-
-	buffers[peripheral] = Buffer.concat([buffers[peripheral], Buffer.from(value)])
-
 	// Check for newline character in the received data
-	console.log(buffers[peripheral])
-	const newlineIndex = buffers[peripheral].indexOf("\n")
+	const newlineIndex = Buffer.from(value).indexOf("\n")
 
 	if (newlineIndex !== -1) {
-		// Extract the data up to the newline character including the newline
-		const newData = buffers[peripheral].subarray(0, newlineIndex + 1)
-
-		// Update the buffer to remove the processed data
-		buffers[peripheral] = buffers[peripheral].subarray(newlineIndex + 1)
-
-		// Emit the event with the extracted newline-terminated data
 		readlineParserEmitter.emit(
 			"BleManagerDidUpdateValueForCharacteristicReadlineParser",
-			{ ...data, value: newData },
+			{
+				...data,
+				value,
+			},
+		)
+	} else {
+		// Push a LF-CR (LF = 10, CR = 13 in decimal)
+		value.push(10)
+		value.push(13)
+
+		readlineParserEmitter.emit(
+			"BleManagerDidUpdateValueForCharacteristicReadlineParser",
+			{ peripheral: peripheral, value },
 		)
 	}
+
+	/**
+	 * IMPORTANT
+	 *
+	 * Ble does not return any new lines at the moment.
+	 *
+	 * We just emit each event as it is.
+	 *
+	 * In the future, uncomment the code.
+	 */
+
+	// if (!buffers[peripheral]) {
+	// 	buffers[peripheral] = Buffer.from([])
+	// }
+
+	// buffers[peripheral] = Buffer.concat([buffers[peripheral], Buffer.from(value)])
+
+	// // Check for newline character in the received data
+	// const newlineIndex = buffers[peripheral].indexOf("\n")
+
+	// if (newlineIndex !== -1) {
+	// 	// Extract the data up to the newline character including the newline
+	// 	const newData = buffers[peripheral].subarray(0, newlineIndex + 1)
+
+	// 	// Update the buffer to remove the processed data
+	// 	buffers[peripheral] = buffers[peripheral].subarray(newlineIndex + 1)
+
+	// 	// Emit the event with the extracted newline-terminated data
+	// 	readlineParserEmitter.emit(
+	// 		"BleManagerDidUpdateValueForCharacteristicReadlineParser",
+	// 		{ ...data, value: newData },
+	// 	)
+	// }
 }
 
 /*
@@ -184,10 +220,12 @@ export const useBleListeners = () => {
 
 	const discoveredPeripheralEvent = useCallback(
 		(peripheral: ExtendedPeripheral) => {
-			// if (peripheral.name !== DEVICE_NAME) return
+			if (!peripheral.name?.includes(DEVICE_NAME)) return
+
 			peripheral = {
 				...DEFAULT_PERIPHERAL(peripheral.id),
 				device: peripheral,
+				name: peripheral.name,
 			}
 
 			/**
@@ -212,10 +250,9 @@ export const useBleListeners = () => {
 		const peripherals: Peripheral[] = await guard(() =>
 			BleManager.getDiscoveredPeripherals(),
 		)
-		// const filteredPeripherals = peripherals.filter(
-		// 	(p) => p.name === DEVICE_NAME,
-		// )
-		const filteredPeripherals = peripherals
+		const filteredPeripherals = peripherals.filter(
+			(p) => p.name === DEVICE_NAME,
+		)
 
 		if (Array.isArray(filteredPeripherals) && filteredPeripherals.length > 0) {
 			const notFoundAnymore: Peripheral[] = []

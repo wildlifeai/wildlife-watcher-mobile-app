@@ -10,10 +10,12 @@ import { LocationProblems } from "./screens/LocationProblems"
 import { BleProblems } from "./screens/BleProblems"
 import { DeviceReconnectProvider } from "../providers/DeviceReconnectProvider"
 import { Home } from "./screens/Home"
+import { Terminal } from "./screens/TerminalScreen"
 
 export interface RootStackParamList extends ParamListBase {
 	Home: {}
 	DeviceNavigator: { deviceId: string }
+	Terminal: { deviceId: string }
 }
 
 export type AppParams<T extends keyof RootStackParamList> = RouteProp<
@@ -99,7 +101,13 @@ export const DeviceNavigation = () => {
 
 	return (
 		<DeviceReconnectProvider deviceId={deviceId}>
-			<Text>Device loaded up.</Text>
+			<Stack.Navigator screenOptions={{ headerShown: false }}>
+				<Stack.Screen
+					name="Terminal"
+					component={Terminal}
+					initialParams={{ deviceId }}
+				/>
+			</Stack.Navigator>
 		</DeviceReconnectProvider>
 	)
 }

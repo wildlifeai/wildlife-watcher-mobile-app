@@ -112,13 +112,7 @@ export const useBle = (): ReturnType => {
 			while (bleWriteFunctionsToCall.current.length > 0) {
 				const next = bleWriteFunctionsToCall.current.shift()
 				if (next) {
-					const {
-						fun,
-						lane,
-						canBeIgnored,
-						pausesTheEngine,
-						waitsBeforeExecution,
-					} = next
+					const { fun, lane, canBeIgnored, waitsBeforeExecution } = next
 
 					if (pingsPauseRef.current && canBeIgnored) {
 						log(`Pinging paused`)
@@ -132,15 +126,6 @@ export const useBle = (): ReturnType => {
 							await sleep(PAUSE_SLOW_COMMANDS)
 						} else {
 							await sleep(PAUSE_NORMAL_COMMANDS)
-						}
-
-						/**
-						 * Some commands can pause the engine to avoid bugs.
-						 * Always make sure to resume the engine.
-						 */
-						if (pausesTheEngine) {
-							enginePause(pausesTheEngine)
-							break
 						}
 					}
 				}
@@ -313,12 +298,14 @@ export const useBle = (): ReturnType => {
 					log(`Device ${deviceIdentification} notifications started`)
 
 					/** Acts as the PING request */
-					const ping = () => guard(() => write(newPeripheral, ["ver"]))
+					const ping = () => guard(() => write(newPeripheral, ["id"]))
+
+					await ping()
 
 					newPeripheral.connected = true
 
 					newPeripheral.intervals = {
-						ping: setInterval(async () => await ping(), 2000),
+						ping: setInterval(async () => await ping(), 20000),
 					}
 
 					dispatch(deviceUpdate({ ...newPeripheral }))

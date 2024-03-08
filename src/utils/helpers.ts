@@ -4,6 +4,7 @@ import { log } from "./logger"
 import { BLE_CHARACTERISTIC_WRITE_UUID, BLE_SERVICE_UUID } from "./constants"
 import BleManager from "react-native-ble-manager"
 import { Buffer } from "buffer"
+import { readlineParserEmitter } from "../hooks/useBleListeners"
 
 export const clearAllDeviceIntervals = (
 	device: ExtendedPeripheral | undefined | null,
@@ -62,12 +63,16 @@ export const writeToDevice: WriteFunction = async (peripheral, data) => {
 		try {
 			const byteArray = [...Buffer.from(data)]
 
-			// TODO - Could need some work
 			// Push a LF-CR (LF = 10, CR = 13 in decimal)
 			byteArray.push(10)
 			byteArray.push(13)
 
-			await BleManager.writeWithoutResponse(
+			readlineParserEmitter.emit(
+				"BleManagerDidUpdateValueForCharacteristicReadlineParser",
+				{ peripheral: peripheral.id, value: byteArray },
+			)
+
+			await BleManager.write(
 				peripheral.id,
 				BLE_SERVICE_UUID,
 				BLE_CHARACTERISTIC_WRITE_UUID,

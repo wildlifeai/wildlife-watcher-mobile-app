@@ -5,4 +5,4 @@ export const BLE_CHARACTERISTIC_WRITE_UUID =
 export const BLE_CHARACTERISTIC_READ_UUID =
 	"6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 
-export const DEVICE_NAME = "WildlifeWatcher"
+export const DEVICE_NAME = "REWILD"
