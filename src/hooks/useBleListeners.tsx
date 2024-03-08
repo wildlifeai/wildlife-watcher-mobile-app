@@ -204,7 +204,7 @@ export const useBleListeners = () => {
 
 			// TODO - Implement proper parsing here
 
-			// const newConfig = searchForNewStrings(finishedLog, text)
+			// const newConfig = parseLogs(finishedLog, text)
 
 			// if (!isEmpty(newConfig)) {
 			// 	dispatch(
