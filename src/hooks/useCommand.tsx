@@ -6,19 +6,22 @@ import {
 	CommandControlTypes,
 	CommandNames,
 } from "../ble/types"
-import { useAppSelector } from "../redux"
+import { useAppDispatch, useAppSelector } from "../redux"
 import { ExtendedPeripheral } from "../redux/slices/devicesSlice"
 import { logError, log } from "../utils/logger"
 import { useBleActions } from "../providers/BleEngineProvider"
-import { ConfigKey } from "../redux/slices/configurationSlice"
+import {
+	ConfigKey,
+	deviceConfigChanged,
+} from "../redux/slices/configurationSlice"
 
 type Props = {
 	deviceId: string
 	command: Command
 }
 
-const INTERVAL = 1000 * 8
-const TIMEOUT = 1000 * 45
+const INTERVAL = 1000 * 7
+const TIMEOUT = 1000 * 10
 
 export const useCommand = ({ deviceId, command }: Props) => {
 	const requestRef = useRef<NodeJS.Timeout>()
@@ -29,8 +32,9 @@ export const useCommand = ({ deviceId, command }: Props) => {
 	const devices = useAppSelector((state) => state.devices)
 	const configuration = useAppSelector((state) => state.configuration)
 
-	const [error, setError] = useState<Error | undefined>()
 	const [initialHookLoad, setInitialHookLoad] = useState(false)
+
+	const dispatch = useAppDispatch()
 
 	const device = devices[deviceId] as ExtendedPeripheral
 
@@ -65,10 +69,13 @@ export const useCommand = ({ deviceId, command }: Props) => {
 	)
 
 	const set = useCallback(
-		(data: string) => {
+		(data?: string) => {
 			clearTimers()
 
 			sendCommand(CommandControlTypes.WRITE, data)
+
+			// Means its just an action command in reality, can not set or get
+			if (!command.readRegex && !command.readCommand) return
 
 			requestRef.current = setInterval(
 				() => sendCommand(CommandControlTypes.WRITE, data),
@@ -78,17 +85,42 @@ export const useCommand = ({ deviceId, command }: Props) => {
 				if (requestRef.current) {
 					clearInterval(requestRef.current)
 				}
-				setError(Error(`Trying to set ${command.name} timed out.`))
+
+				dispatch(
+					deviceConfigChanged({
+						id: deviceId,
+						configuration: {
+							[command.name]: {
+								...configuration[command.name],
+								loaded: true,
+								loading: false,
+								error: "Writing the value timed out.",
+							},
+						},
+					}),
+				)
+
 				logError(`Trying to set ${command.name} timed out.`)
 			}, TIMEOUT)
 
 			setGoal(data)
 		},
-		[sendCommand, command.name],
+		[
+			sendCommand,
+			command.readRegex,
+			command.readCommand,
+			command.name,
+			dispatch,
+			deviceId,
+			configuration,
+		],
 	)
 
 	const get = useCallback(() => {
 		clearTimers()
+
+		// Means its a set only command in reality
+		if (!command.readCommand) return
 
 		sendCommand(CommandControlTypes.READ)
 
@@ -100,12 +132,33 @@ export const useCommand = ({ deviceId, command }: Props) => {
 			if (requestRef.current) {
 				clearInterval(requestRef.current)
 			}
-			setError(Error(`Trying to get ${command.name} timed out.`))
+
+			dispatch(
+				deviceConfigChanged({
+					id: deviceId,
+					configuration: {
+						[command.name]: {
+							...configuration[command.name],
+							loaded: true,
+							loading: false,
+							error: "Getting the value timed out.",
+						},
+					},
+				}),
+			)
+
 			logError(`Trying to get ${command.name} timed out.`)
 		}, TIMEOUT)
 
 		setGoal(undefined)
-	}, [sendCommand, command.name])
+	}, [
+		command.readCommand,
+		command.name,
+		sendCommand,
+		dispatch,
+		deviceId,
+		configuration,
+	])
 
 	useEffect(() => {
 		const config = configuration[device.id]
@@ -151,7 +204,6 @@ export const useCommand = ({ deviceId, command }: Props) => {
 	return {
 		set,
 		get,
-		error,
 	}
 }
 

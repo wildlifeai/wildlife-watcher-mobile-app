@@ -18,16 +18,29 @@ export const constructCommandString = (
 		return undefined
 	}
 
-	if (options.control === CommandControlTypes.WRITE) {
-		// IMPLEMENT COMMAND CONSTRUCTION HERE
-		return command.writeCommand
+	if (options.control === CommandControlTypes.WRITE && command.writeCommand) {
+		return command.writeCommand(options.value)
 	}
 
-	if (options.control === CommandControlTypes.READ) {
+	if (options.control === CommandControlTypes.READ && command.readCommand) {
 		return command.readCommand
 	}
 
 	return undefined
+}
+
+const valueChecker = (value: string, command: Command) => {
+	if (command.readRegex) {
+		const match = command.readRegex.exec(value)
+
+		if (match) {
+			return match[1]
+		}
+
+		return undefined
+	}
+
+	return value
 }
 
 export const parseLogs = (finishedLog: string, lastLog: string) => {
@@ -48,9 +61,10 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 	const lastBatteryLine = checkForLastLine(COMMANDS.BATTERY.readCommand!, lines)
 
 	if (lastBatteryLine) {
-		if (valueChecker(lastBatteryLine, "Battery = ")) {
+		const value = valueChecker(lastBatteryLine, COMMANDS.BATTERY)
+		if (value) {
 			results.push({
-				value: lastBatteryLine,
+				value,
 				command: COMMANDS.BATTERY,
 			})
 		}
@@ -60,9 +74,10 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 	const lastIdLine = checkForLastLine(COMMANDS.ID.readCommand!, lines)
 
 	if (lastIdLine) {
-		if (valueChecker(lastIdLine, "DevEui: ")) {
+		const value = valueChecker(lastIdLine, COMMANDS.ID)
+		if (value) {
 			results.push({
-				value: lastIdLine,
+				value,
 				command: COMMANDS.ID,
 			})
 		}
@@ -72,9 +87,10 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 	const lastStatusLine = checkForLastLine(COMMANDS.STATUS.readCommand!, lines)
 
 	if (lastStatusLine) {
-		if (valueChecker(lastStatusLine)) {
+		const value = valueChecker(lastStatusLine, COMMANDS.STATUS)
+		if (value) {
 			results.push({
-				value: lastStatusLine,
+				value,
 				command: COMMANDS.STATUS,
 			})
 		}
@@ -84,9 +100,10 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 	const lastVersionLine = checkForLastLine(COMMANDS.VERSION.readCommand!, lines)
 
 	if (lastVersionLine) {
-		if (valueChecker(lastVersionLine)) {
+		const value = valueChecker(lastVersionLine, COMMANDS.VERSION)
+		if (value) {
 			results.push({
-				value: lastVersionLine,
+				value,
 				command: COMMANDS.VERSION,
 			})
 		}
@@ -99,9 +116,10 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 	)
 
 	if (lastHeartbeatLine) {
-		if (valueChecker(lastHeartbeatLine)) {
+		const value = valueChecker(lastHeartbeatLine, COMMANDS.HEARTBEAT)
+		if (value) {
 			results.push({
-				value: lastHeartbeatLine,
+				value,
 				command: COMMANDS.HEARTBEAT,
 			})
 		}
@@ -111,9 +129,10 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 	const lastAppEuiLine = checkForLastLine(COMMANDS.APPEUI.readCommand!, lines)
 
 	if (lastAppEuiLine) {
-		if (valueChecker(lastAppEuiLine)) {
+		const value = valueChecker(lastAppEuiLine, COMMANDS.APPEUI)
+		if (value) {
 			results.push({
-				value: lastAppEuiLine,
+				value,
 				command: COMMANDS.APPEUI,
 			})
 		}
@@ -123,27 +142,42 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 	const lastAppKeyLine = checkForLastLine(COMMANDS.APPKEY.readCommand!, lines)
 
 	if (lastAppKeyLine) {
-		if (valueChecker(lastAppKeyLine)) {
+		const value = valueChecker(lastAppKeyLine, COMMANDS.APPKEY)
+		if (value) {
 			results.push({
-				value: lastAppKeyLine,
+				value,
 				command: COMMANDS.APPKEY,
 			})
 		}
 	}
 
-	return results
-}
+	// RESET
+	const lastResetLine = checkForLastLine(COMMANDS.RESET.writeCommand!(), lines)
 
-const valueChecker = (
-	value: string,
-	shouldContain?: string,
-	_command?: Command,
-) => {
-	if (shouldContain) {
-		return value && value.startsWith(shouldContain)
+	if (lastResetLine) {
+		const value = valueChecker(lastResetLine, COMMANDS.RESET)
+		if (value) {
+			results.push({
+				value,
+				command: COMMANDS.RESET,
+			})
+		}
 	}
 
-	return !!value
+	// ERASE
+	const lastEraseLine = checkForLastLine(COMMANDS.ERASE.writeCommand!(), lines)
+
+	if (lastEraseLine) {
+		const value = valueChecker(lastEraseLine, COMMANDS.ERASE)
+		if (value) {
+			results.push({
+				value,
+				command: COMMANDS.ERASE,
+			})
+		}
+	}
+
+	return results
 }
 
 const checkForLastLine = (name: string, lines: string[]) => {

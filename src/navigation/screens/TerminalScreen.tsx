@@ -6,6 +6,7 @@ import { useMemo } from "react"
 import { useEffect } from "react"
 
 import {
+	Button,
 	NativeScrollEvent,
 	NativeSyntheticEvent,
 	ScrollView,
@@ -42,14 +43,22 @@ export const Terminal = ({ embed }: Props) => {
 	const logs = deviceLogs[deviceId]
 	const configuration = useAppSelector((state) => state.configuration)
 
-	console.log(configuration)
+	const config = configuration[deviceId]
+
+	console.log(config)
 
 	useCommand({ deviceId, command: COMMANDS.BATTERY })
 	useCommand({ deviceId, command: COMMANDS.VERSION })
-	useCommand({ deviceId, command: COMMANDS.HEARTBEAT })
-	useCommand({ deviceId, command: COMMANDS.APPEUI })
+	const { set: setHb } = useCommand({ deviceId, command: COMMANDS.HEARTBEAT })
+	const { set: setAppEui } = useCommand({ deviceId, command: COMMANDS.APPEUI })
 	useCommand({ deviceId, command: COMMANDS.APPKEY })
 	useCommand({ deviceId, command: COMMANDS.STATUS })
+	const { set: reset } = useCommand({ deviceId, command: COMMANDS.RESET })
+	const { set: erase } = useCommand({ deviceId, command: COMMANDS.ERASE })
+	const { set: disconnect } = useCommand({
+		deviceId,
+		command: COMMANDS.DISCONNECT,
+	})
 
 	const [autoscroll, setAutoscroll] = useState(true)
 
@@ -150,6 +159,50 @@ export const Terminal = ({ embed }: Props) => {
 					<Text>Send</Text>
 				</TouchableOpacity>
 			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Button title="Reset" onPress={() => reset()} />
+				</View>
+				<View style={styles.button}>
+					<Button title="Erase" onPress={() => erase()} />
+				</View>
+				<View style={styles.button}>
+					<Button title="Disconnect" onPress={() => disconnect()} />
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Button title="Set Heartbeat" onPress={() => setHb("400")} />
+				</View>
+				<View style={styles.button}>
+					{config.HEARTBEAT && config.HEARTBEAT.loaded && (
+						<Text>Current heartbeat: {config.HEARTBEAT.value}</Text>
+					)}
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Text>Should set heartbeat to 400.</Text>
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Button
+						title="Set EUI"
+						onPress={() => setAppEui("AAA4567890123456")}
+					/>
+				</View>
+				<View style={styles.button}>
+					{config.APPEUI && config.APPEUI.loaded && (
+						<Text>Current EUI: {config.APPEUI.value}</Text>
+					)}
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Text>Should set EUI to AAA4567890123456.</Text>
+				</View>
+			</View>
 		</CustomKeyboardAvoidingView>
 	)
 }
@@ -174,4 +227,12 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 	},
 	inputText: { flex: 2 },
+	buttons: {
+		flexDirection: "row",
+		alignItems: "center",
+		margin: 5,
+	},
+	button: {
+		marginHorizontal: 5,
+	},
 })
