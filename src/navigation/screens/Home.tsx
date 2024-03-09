@@ -16,13 +16,13 @@ import {
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useAppNavigation } from "../../hooks/useAppNavigation"
-import { useDeviceActions } from "../../providers/BleEngineProvider"
+import { useBleActions } from "../../providers/BleEngineProvider"
 import { useAppSelector } from "../../redux"
 import { ExtendedPeripheral } from "../../redux/slices/devicesSlice"
 import { DeviceItem } from "../../components/DeviceItem"
 
 export const Home = memo(() => {
-	const { startScan, connectDevice, disconnectDevice } = useDeviceActions()
+	const { startScan, connectDevice, disconnectDevice } = useBleActions()
 	const devices = useAppSelector((state) => state.devices)
 	const scanning = useAppSelector((state) => state.scanning)
 	const navigation = useAppNavigation()

@@ -59,7 +59,9 @@ const DEVICE_NOT_CONNECTED_ANYMORE = [
 export const writeToDevice: WriteFunction = async (peripheral, data) => {
 	if (!peripheral.connected) return
 
-	if (data || data === "") {
+	if (data) {
+		if (data === "") return
+
 		try {
 			const byteArray = [...Buffer.from(data)]
 

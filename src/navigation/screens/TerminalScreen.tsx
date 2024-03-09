@@ -17,8 +17,10 @@ import {
 } from "react-native"
 import { AppParams } from ".."
 import { CustomKeyboardAvoidingView } from "../../components/CustomKeyboardAvoidingView"
-import { useDeviceActions } from "../../providers/BleEngineProvider"
+import { useBleActions } from "../../providers/BleEngineProvider"
 import { useAppSelector } from "../../redux"
+import { useCommand } from "../../hooks/useCommand"
+import { COMMANDS } from "../../ble/types"
 
 type Props = {
 	embed?: boolean
@@ -33,11 +35,21 @@ export const Terminal = ({ embed }: Props) => {
 	const deviceLogs = useAppSelector((state) => state.logs)
 	const [text, setText] = useState("")
 	const isFocused = useIsFocused()
-	const { write, pingsPause } = useDeviceActions()
+	const { write, pingsPause } = useBleActions()
 	const devices = useAppSelector((state) => state.devices)
 	const device = useMemo(() => devices[deviceId], [deviceId, devices])
 	const [offset, setOffset] = useState(0)
 	const logs = deviceLogs[deviceId]
+	const configuration = useAppSelector((state) => state.configuration)
+
+	console.log(configuration)
+
+	useCommand({ deviceId, command: COMMANDS.BATTERY })
+	useCommand({ deviceId, command: COMMANDS.VERSION })
+	useCommand({ deviceId, command: COMMANDS.HEARTBEAT })
+	useCommand({ deviceId, command: COMMANDS.APPEUI })
+	useCommand({ deviceId, command: COMMANDS.APPKEY })
+	useCommand({ deviceId, command: COMMANDS.STATUS })
 
 	const [autoscroll, setAutoscroll] = useState(true)
 
