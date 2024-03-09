@@ -21,7 +21,7 @@ import { CustomKeyboardAvoidingView } from "../../components/CustomKeyboardAvoid
 import { useBleActions } from "../../providers/BleEngineProvider"
 import { useAppSelector } from "../../redux"
 import { useCommand } from "../../hooks/useCommand"
-import { COMMANDS } from "../../ble/types"
+import { COMMANDS, StatusCommandValue } from "../../ble/types"
 
 type Props = {
 	embed?: boolean
@@ -45,14 +45,16 @@ export const Terminal = ({ embed }: Props) => {
 
 	const config = configuration[deviceId]
 
-	console.log(config)
+	const hb = config.HEARTBEAT?.value as string
+	const eui = config.APPEUI?.value as string
+	const status = config.STATUS?.value as StatusCommandValue
 
 	useCommand({ deviceId, command: COMMANDS.BATTERY })
 	useCommand({ deviceId, command: COMMANDS.VERSION })
 	const { set: setHb } = useCommand({ deviceId, command: COMMANDS.HEARTBEAT })
 	const { set: setAppEui } = useCommand({ deviceId, command: COMMANDS.APPEUI })
 	useCommand({ deviceId, command: COMMANDS.APPKEY })
-	useCommand({ deviceId, command: COMMANDS.STATUS })
+	const { set: setLorawan } = useCommand({ deviceId, command: COMMANDS.STATUS })
 	const { set: reset } = useCommand({ deviceId, command: COMMANDS.RESET })
 	const { set: erase } = useCommand({ deviceId, command: COMMANDS.ERASE })
 	const { set: disconnect } = useCommand({
@@ -176,13 +178,13 @@ export const Terminal = ({ embed }: Props) => {
 				</View>
 				<View style={styles.button}>
 					{config.HEARTBEAT && config.HEARTBEAT.loaded && (
-						<Text>Current heartbeat: {config.HEARTBEAT.value}</Text>
+						<Text>Current heartbeat: {hb}</Text>
 					)}
 				</View>
 			</View>
 			<View style={styles.buttons}>
 				<View style={styles.button}>
-					<Text>Should set heartbeat to 400.</Text>
+					<Text>Should set heartbeat to 400. (doesn't work)</Text>
 				</View>
 			</View>
 			<View style={styles.buttons}>
@@ -194,13 +196,35 @@ export const Terminal = ({ embed }: Props) => {
 				</View>
 				<View style={styles.button}>
 					{config.APPEUI && config.APPEUI.loaded && (
-						<Text>Current EUI: {config.APPEUI.value}</Text>
+						<Text>Current EUI: {eui}</Text>
 					)}
 				</View>
 			</View>
 			<View style={styles.buttons}>
 				<View style={styles.button}>
-					<Text>Should set EUI to AAA4567890123456.</Text>
+					<Text>Should set EUI to AAA4567890123456. (doesn't work)</Text>
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Button
+						title="Set Lorawan"
+						onPress={() =>
+							setLorawan(status?.lorawan === "enabled" ? "disable" : "enable")
+						}
+					/>
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Text>
+						Lorawan messages are{" "}
+						{status?.lorawan === "enabled" ? (
+							<Text style={styles.bold}>enabled</Text>
+						) : (
+							<Text style={styles.bold}>disabled</Text>
+						)}
+					</Text>
 				</View>
 			</View>
 		</CustomKeyboardAvoidingView>
@@ -234,5 +258,8 @@ const styles = StyleSheet.create({
 	},
 	button: {
 		marginHorizontal: 5,
+	},
+	bold: {
+		fontWeight: "900",
 	},
 })

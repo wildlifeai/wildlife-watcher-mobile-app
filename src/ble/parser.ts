@@ -84,13 +84,22 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 	}
 
 	// STATUS
+
+	/**
+	 * Special handling here since we parse 2 things out of the
+	 * string.
+	 */
 	const lastStatusLine = checkForLastLine(COMMANDS.STATUS.readCommand!, lines)
 
 	if (lastStatusLine) {
-		const value = valueChecker(lastStatusLine, COMMANDS.STATUS)
-		if (value) {
+		const matches = COMMANDS.STATUS.readRegex!.exec(lastStatusLine)
+		if (matches) {
+			const [, trap, lorawan] = matches
 			results.push({
-				value,
+				value: {
+					trap,
+					lorawan,
+				},
 				command: COMMANDS.STATUS,
 			})
 		}

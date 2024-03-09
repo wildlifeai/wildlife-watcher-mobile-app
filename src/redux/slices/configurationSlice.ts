@@ -1,13 +1,17 @@
 import deepmerge from "deepmerge"
 
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
-import { CommandNames, getCommandByName } from "../../ble/types"
+import {
+	CommandNames,
+	StatusCommandValue,
+	getCommandByName,
+} from "../../ble/types"
 
 export type DeviceConfiguration = {
 	[key in CommandNames]: undefined | ConfigKey
 }
 export type ConfigKey = {
-	value?: string
+	value?: string | StatusCommandValue
 	loaded?: boolean
 	loading: boolean
 	error?: string

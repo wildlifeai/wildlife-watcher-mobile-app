@@ -1,5 +1,10 @@
+export type StatusCommandValue = {
+	trap: string
+	lorawan: string
+}
+
 export type ParseCommands = {
-	value?: string
+	value?: string | StatusCommandValue
 	command?: Command | null
 	error?: string
 }
@@ -8,8 +13,6 @@ export enum CommandNames {
 	ID = "ID",
 	VERSION = "VERSION",
 	BATTERY = "BATTERY",
-	ENABLE_LORAWAN = "ENABLE",
-	DISABLE_LORAWAN = "DISABLE",
 	STATUS = "STATUS",
 	HEARTBEAT = "HEARTBEAT",
 	APPEUI = "APPEUI",
@@ -77,17 +80,11 @@ export const COMMANDS: {
 		readCommand: "battery",
 		readRegex: /\bBattery\s=\s([0-9.]+V)\b/,
 	},
-	[CommandNames.ENABLE_LORAWAN]: {
-		name: CommandNames.ENABLE_LORAWAN,
-		writeCommand: () => "enable",
-	},
-	[CommandNames.DISABLE_LORAWAN]: {
-		name: CommandNames.DISABLE_LORAWAN,
-		writeCommand: () => "disable",
-	},
 	[CommandNames.STATUS]: {
 		name: CommandNames.STATUS,
 		readCommand: "status",
+		readRegex: /Trap is (\w+). Sensor is (enabled|disabled)/,
+		writeCommand: (value?: string) => `${value}`,
 	},
 	[CommandNames.HEARTBEAT]: {
 		name: CommandNames.HEARTBEAT,
