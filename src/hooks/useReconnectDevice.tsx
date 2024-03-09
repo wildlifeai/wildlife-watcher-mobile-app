@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useEffect, useRef } from "react"
 
 import Toast from "react-native-toast-message"
-import { useDeviceActions } from "../providers/BleEngineProvider"
+import { useBleActions } from "../providers/BleEngineProvider"
 import { useAppSelector } from "../redux"
 import { useAppNavigation } from "./useAppNavigation"
 import { ExtendedPeripheral } from "../redux/slices/devicesSlice"
@@ -29,7 +29,7 @@ export const useReconnectDevice = ({ deviceId }: Props) => {
 	const timeoutRef = useRef<NodeJS.Timeout>()
 	const retriesRef = useRef(0)
 
-	const { write, connectDevice } = useDeviceActions()
+	const { write, connectDevice } = useBleActions()
 	const devices = useAppSelector((state) => state.devices)
 
 	const navigation = useAppNavigation()

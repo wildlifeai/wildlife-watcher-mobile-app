@@ -26,6 +26,14 @@ import { deviceLogChange } from "../redux/slices/logsSlice"
 import { scanError, scanStart } from "../redux/slices/scanningSlice"
 import { useInterval } from "../hooks/useInterval"
 import { clearAllDeviceIntervals, writeToDevice } from "../utils/helpers"
+import {
+	CommandConstructOptions,
+	CommandControlTypes,
+	CommandNames,
+} from "../ble/types"
+import { constructCommandString } from "../ble/parser"
+
+export type WriteData = [CommandNames, CommandConstructOptions]
 
 export type ReturnType = {
 	startScan: () => void
@@ -34,7 +42,10 @@ export type ReturnType = {
 		timeout?: number,
 	) => Promise<ExtendedPeripheral>
 	disconnectDevice: (peripheral: ExtendedPeripheral) => void
-	write: (peripheral: ExtendedPeripheral, data: string[]) => Promise<void>
+	write: (
+		peripheral: ExtendedPeripheral,
+		data: (string | WriteData)[],
+	) => Promise<void>
 	enginePause: (toggle: boolean) => void
 	pingsPause: (toggle: boolean) => void
 	enginePaused: React.MutableRefObject<boolean>
@@ -43,28 +54,14 @@ export type ReturnType = {
 
 type FunctionEngine = {
 	fun: Function
-	lane: "slow" | "normal"
 	canBeIgnored?: boolean
 	pausesTheEngine?: boolean
-	waitsBeforeExecution?: number
 }
-
-export type BleRequestKeys = any
-export type BleRequestConstructOptions = any
-
-export type WriteData = [
-	BleRequestKeys,
-	BleRequestConstructOptions,
-	{ engineStop?: boolean; waitsBeforeExecution?: number }?,
-]
-
-const PAUSE_NORMAL_COMMANDS = 20
 
 /**
  * These commands can have a bigger pause implemented after they're executed.
  */
-const SLOW_COMMANDS: string[] = []
-const PAUSE_SLOW_COMMANDS = 500
+const PAUSE = 500
 
 /**
  * This special command will be ignored by the engine if
@@ -94,8 +91,7 @@ export const useBle = (): ReturnType => {
 	/**
 	 * Heart of the BLE - device bridge. It makes sure functions are
 	 * called with a delay, it's actually possible to be faster then
-	 * the device buffer. The lane concept makes sure that the device CPU has enough time
-	 * to react to certain events.
+	 * the device buffer.
 	 */
 	useInterval(async () => {
 		if (enginePauseRef.current) {
@@ -112,27 +108,20 @@ export const useBle = (): ReturnType => {
 			while (bleWriteFunctionsToCall.current.length > 0) {
 				const next = bleWriteFunctionsToCall.current.shift()
 				if (next) {
-					const { fun, lane, canBeIgnored, waitsBeforeExecution } = next
+					const { fun, canBeIgnored } = next
 
 					if (pingsPauseRef.current && canBeIgnored) {
 						log(`Pinging paused`)
 					} else {
-						if (waitsBeforeExecution) {
-							log(`Waiting to execute for ${waitsBeforeExecution} ms.`)
-							await sleep(waitsBeforeExecution)
-						}
 						await fun()
-						if (lane === "slow") {
-							await sleep(PAUSE_SLOW_COMMANDS)
-						} else {
-							await sleep(PAUSE_NORMAL_COMMANDS)
-						}
+
+						await sleep(PAUSE)
 					}
 				}
 			}
 		}
 		isBleWriting.current = false
-	}, 1000)
+	}, 500)
 
 	const enginePause = useCallback((toggle: boolean) => {
 		log(`Engine turning: ${toggle ? "off" : "on"}`)
@@ -171,7 +160,7 @@ export const useBle = (): ReturnType => {
 	)
 
 	const write = useCallback(
-		async (peripheral: ExtendedPeripheral, data: string[]) => {
+		async (peripheral: ExtendedPeripheral, data: (WriteData | string)[]) => {
 			if (!initialized) return
 
 			const currentPeripheral = devices[peripheral.id]
@@ -180,7 +169,11 @@ export const useBle = (): ReturnType => {
 				dispatch(
 					deviceConfigInitiated({
 						id: peripheral.id,
-						data,
+						data: data
+							.filter((strOrCommand) => typeof strOrCommand !== "string")
+							.map(([name]) => {
+								return name as CommandNames
+							}),
 					}),
 				)
 			}
@@ -193,13 +186,17 @@ export const useBle = (): ReturnType => {
 				str: string | undefined
 			}
 
-			const mappedData: MappedData[] = data.map((command) => {
+			const mappedData: MappedData[] = data.map((strOrCommand) => {
+				if (typeof strOrCommand === "string")
+					return {
+						str: strOrCommand,
+						canBeIgnored: PING_REQUEST.includes(strOrCommand),
+					}
+				const [commandName, options] = strOrCommand
+
 				return {
-					str: command,
-					lane: SLOW_COMMANDS.find((str) => command.includes(str))
-						? "slow"
-						: "normal",
-					canBeIgnored: PING_REQUEST.includes(command),
+					str: constructCommandString(commandName, options),
+					canBeIgnored: PING_REQUEST.includes(commandName),
 				}
 			})
 
@@ -298,7 +295,12 @@ export const useBle = (): ReturnType => {
 					log(`Device ${deviceIdentification} notifications started`)
 
 					/** Acts as the PING request */
-					const ping = () => guard(() => write(newPeripheral, ["id"]))
+					const ping = () =>
+						guard(() =>
+							write(newPeripheral, [
+								[CommandNames.ID, { control: CommandControlTypes.READ }],
+							]),
+						)
 
 					await ping()
 

@@ -20,8 +20,14 @@ import {
 import { deviceLogChange } from "./../redux/slices/logsSlice"
 import { useInterval } from "../hooks/useInterval"
 import { scanStop } from "../redux/slices/scanningSlice"
-import { useDeviceActions } from "../providers/BleEngineProvider"
 import { DEVICE_NAME } from "../utils/constants"
+import { parseLogs } from "../ble/parser"
+import {
+	DeviceConfiguration,
+	deviceConfigChanged,
+} from "../redux/slices/configurationSlice"
+import isEmpty from "lodash.isempty"
+import { useBleActions } from "../providers/BleEngineProvider"
 
 export const bleManagerEmitter = new NativeEventEmitter(
 	NativeModules.BleManager,
@@ -123,9 +129,8 @@ const readlineParser = (data: UpdateValueEventType) => {
 export const useBleListeners = () => {
 	const devices = useAppSelector((state) => state.devices)
 	const configuration = useAppSelector((state) => state.configuration)
-	const { disconnectDevice, pingsPause } = useDeviceActions()
+	const { disconnectDevice, pingsPause } = useBleActions()
 
-	// const { disconnectDevice, pingsPause } = useDeviceActions()
 	const dispatch = useAppDispatch()
 	/*
 		Ref is needed so that listeners are able to get access to the
@@ -184,7 +189,7 @@ export const useBleListeners = () => {
 
 			console.debug(JSON.stringify(text))
 
-			// const currentConfiguration = configRef.current[peripheral] || {}
+			const currentConfiguration = configRef.current[peripheral] || {}
 			// const currentPeripheral = devicesRef.current[peripheral]
 			const currentLog = allLogs.current[peripheral] || ""
 
@@ -202,18 +207,35 @@ export const useBleListeners = () => {
 				}),
 			)
 
-			// TODO - Implement proper parsing here
+			const commands = parseLogs(finishedLog, text)
+			const newConfig = {} as DeviceConfiguration
 
-			// const newConfig = searchForNewStrings(finishedLog, text)
+			if (commands.length > 0) {
+				commands.forEach((commandToProcess) => {
+					const { command, error, value: newValue } = commandToProcess
+					if (command && newValue) {
+						const existingValue =
+							currentConfiguration[command.name] &&
+							currentConfiguration[command.name]?.value
 
-			// if (!isEmpty(newConfig)) {
-			// 	dispatch(
-			// 		deviceConfigChanged({
-			// 			id: peripheral,
-			// 			configuration: newConfig,
-			// 		}),
-			// 	)
-			// }
+						newConfig[command.name] = {
+							value: newValue === undefined ? existingValue : newValue,
+							loading: false,
+							loaded: true,
+							error,
+						}
+					}
+				})
+			}
+
+			if (!isEmpty(newConfig)) {
+				dispatch(
+					deviceConfigChanged({
+						id: peripheral,
+						configuration: newConfig,
+					}),
+				)
+			}
 		},
 		[dispatch],
 	)

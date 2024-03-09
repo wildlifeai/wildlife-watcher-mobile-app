@@ -6,6 +6,7 @@ import { useMemo } from "react"
 import { useEffect } from "react"
 
 import {
+	Button,
 	NativeScrollEvent,
 	NativeSyntheticEvent,
 	ScrollView,
@@ -17,8 +18,10 @@ import {
 } from "react-native"
 import { AppParams } from ".."
 import { CustomKeyboardAvoidingView } from "../../components/CustomKeyboardAvoidingView"
-import { useDeviceActions } from "../../providers/BleEngineProvider"
+import { useBleActions } from "../../providers/BleEngineProvider"
 import { useAppSelector } from "../../redux"
+import { useCommand } from "../../hooks/useCommand"
+import { COMMANDS, StatusCommandValue } from "../../ble/types"
 
 type Props = {
 	embed?: boolean
@@ -33,11 +36,31 @@ export const Terminal = ({ embed }: Props) => {
 	const deviceLogs = useAppSelector((state) => state.logs)
 	const [text, setText] = useState("")
 	const isFocused = useIsFocused()
-	const { write, pingsPause } = useDeviceActions()
+	const { write, pingsPause } = useBleActions()
 	const devices = useAppSelector((state) => state.devices)
 	const device = useMemo(() => devices[deviceId], [deviceId, devices])
 	const [offset, setOffset] = useState(0)
 	const logs = deviceLogs[deviceId]
+	const configuration = useAppSelector((state) => state.configuration)
+
+	const config = configuration[deviceId]
+
+	const hb = config.HEARTBEAT?.value as string
+	const eui = config.APPEUI?.value as string
+	const status = config.STATUS?.value as StatusCommandValue
+
+	useCommand({ deviceId, command: COMMANDS.BATTERY })
+	useCommand({ deviceId, command: COMMANDS.VERSION })
+	const { set: setHb } = useCommand({ deviceId, command: COMMANDS.HEARTBEAT })
+	const { set: setAppEui } = useCommand({ deviceId, command: COMMANDS.APPEUI })
+	useCommand({ deviceId, command: COMMANDS.APPKEY })
+	const { set: setLorawan } = useCommand({ deviceId, command: COMMANDS.STATUS })
+	const { set: reset } = useCommand({ deviceId, command: COMMANDS.RESET })
+	const { set: erase } = useCommand({ deviceId, command: COMMANDS.ERASE })
+	const { set: disconnect } = useCommand({
+		deviceId,
+		command: COMMANDS.DISCONNECT,
+	})
 
 	const [autoscroll, setAutoscroll] = useState(true)
 
@@ -138,6 +161,72 @@ export const Terminal = ({ embed }: Props) => {
 					<Text>Send</Text>
 				</TouchableOpacity>
 			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Button title="Reset" onPress={() => reset()} />
+				</View>
+				<View style={styles.button}>
+					<Button title="Erase" onPress={() => erase()} />
+				</View>
+				<View style={styles.button}>
+					<Button title="Disconnect" onPress={() => disconnect()} />
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Button title="Set Heartbeat" onPress={() => setHb("400")} />
+				</View>
+				<View style={styles.button}>
+					{config.HEARTBEAT && config.HEARTBEAT.loaded && (
+						<Text>Current heartbeat: {hb}</Text>
+					)}
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Text>Should set heartbeat to 400. (doesn't work)</Text>
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Button
+						title="Set EUI"
+						onPress={() => setAppEui("AAA4567890123456")}
+					/>
+				</View>
+				<View style={styles.button}>
+					{config.APPEUI && config.APPEUI.loaded && (
+						<Text>Current EUI: {eui}</Text>
+					)}
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Text>Should set EUI to AAA4567890123456. (doesn't work)</Text>
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Button
+						title="Set Lorawan"
+						onPress={() =>
+							setLorawan(status?.lorawan === "enabled" ? "disable" : "enable")
+						}
+					/>
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Text>
+						Lorawan messages are{" "}
+						{status?.lorawan === "enabled" ? (
+							<Text style={styles.bold}>enabled</Text>
+						) : (
+							<Text style={styles.bold}>disabled</Text>
+						)}
+					</Text>
+				</View>
+			</View>
 		</CustomKeyboardAvoidingView>
 	)
 }
@@ -162,4 +251,15 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 	},
 	inputText: { flex: 2 },
+	buttons: {
+		flexDirection: "row",
+		alignItems: "center",
+		margin: 5,
+	},
+	button: {
+		marginHorizontal: 5,
+	},
+	bold: {
+		fontWeight: "900",
+	},
 })

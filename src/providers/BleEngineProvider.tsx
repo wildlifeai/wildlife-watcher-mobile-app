@@ -6,7 +6,7 @@ import { ReturnType, useBle } from "../hooks/useBle"
 
 const BLEDevicesContext = createContext<ReturnType>({} as ReturnType)
 
-export const useDeviceActions = () => {
+export const useBleActions = () => {
 	return useContext(BLEDevicesContext)
 }
 
