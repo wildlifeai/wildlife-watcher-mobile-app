@@ -83,24 +83,54 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 		}
 	}
 
-	// STATUS
+	// SENSOR
 
-	/**
-	 * Special handling here since we parse 2 things out of the
-	 * string.
-	 */
-	const lastStatusLine = checkForLastLine(COMMANDS.STATUS.readCommand!, lines)
+	const lastSensorLine = checkForLastLine(COMMANDS.SENSOR.readCommand!, lines)
 
-	if (lastStatusLine) {
-		const matches = COMMANDS.STATUS.readRegex!.exec(lastStatusLine)
+	if (lastSensorLine) {
+		const matches = COMMANDS.SENSOR.readRegex!.exec(lastSensorLine)
 		if (matches) {
-			const [, trap, lorawan] = matches
+			let [, , value] = matches
+
 			results.push({
-				value: {
-					trap,
-					lorawan,
-				},
-				command: COMMANDS.STATUS,
+				/**
+				 * This is needed so that useCommand hook can realize that
+				 * setting the value was succesful.
+				 */
+				value: value === "enabled" ? "enable" : "disable",
+				command: COMMANDS.SENSOR,
+			})
+		}
+	}
+
+	// TRAP
+
+	const lastTrapLine = checkForLastLine(COMMANDS.TRAP.readCommand!, lines)
+
+	if (lastTrapLine) {
+		const matches = COMMANDS.TRAP.readRegex!.exec(lastTrapLine)
+		if (matches) {
+			const [, value] = matches
+
+			results.push({
+				value,
+				command: COMMANDS.TRAP,
+			})
+		}
+	}
+
+	// LORAWAN
+
+	const lastLorawanLine = checkForLastLine(COMMANDS.LORAWAN.readCommand!, lines)
+
+	if (lastLorawanLine) {
+		const matches = COMMANDS.LORAWAN.readRegex!.exec(lastLorawanLine)
+		if (matches) {
+			const [, , , value] = matches
+
+			results.push({
+				value,
+				command: COMMANDS.LORAWAN,
 			})
 		}
 	}
@@ -130,6 +160,19 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 			results.push({
 				value,
 				command: COMMANDS.HEARTBEAT,
+			})
+		}
+	}
+
+	// DEV EUI
+	const lastDevEuiLine = checkForLastLine(COMMANDS.DEVEUI.readCommand!, lines)
+
+	if (lastDevEuiLine) {
+		const value = valueChecker(lastDevEuiLine, COMMANDS.DEVEUI)
+		if (value) {
+			results.push({
+				value,
+				command: COMMANDS.DEVEUI,
 			})
 		}
 	}
@@ -169,6 +212,19 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 			results.push({
 				value,
 				command: COMMANDS.RESET,
+			})
+		}
+	}
+
+	// DFU
+	const lastDfuLine = checkForLastLine(COMMANDS.DFU.writeCommand!(), lines)
+
+	if (lastDfuLine) {
+		const value = valueChecker(lastDfuLine, COMMANDS.DFU)
+		if (value) {
+			results.push({
+				value,
+				command: COMMANDS.DFU,
 			})
 		}
 	}

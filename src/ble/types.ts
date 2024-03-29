@@ -1,10 +1,5 @@
-export type StatusCommandValue = {
-	trap: string
-	lorawan: string
-}
-
 export type ParseCommands = {
-	value?: string | StatusCommandValue
+	value?: string
 	command?: Command | null
 	error?: string
 }
@@ -13,14 +8,18 @@ export enum CommandNames {
 	ID = "ID",
 	VERSION = "VERSION",
 	BATTERY = "BATTERY",
-	STATUS = "STATUS",
 	HEARTBEAT = "HEARTBEAT",
+	DEVEUI = "DEVEUI",
 	APPEUI = "APPEUI",
 	APPKEY = "APPKEY",
 	PING = "PING",
 	RESET = "RESET",
 	ERASE = "ERASE",
 	DISCONNECT = "DISCONNECT",
+	DFU = "DFU",
+	SENSOR = "SENSOR",
+	TRAP = "TRAP",
+	LORAWAN = "LORAWAN",
 }
 
 /**
@@ -80,11 +79,24 @@ export const COMMANDS: {
 		readCommand: "battery",
 		readRegex: /\bBattery\s=\s([0-9.]+V)\b/,
 	},
-	[CommandNames.STATUS]: {
-		name: CommandNames.STATUS,
+	[CommandNames.SENSOR]: {
+		name: CommandNames.SENSOR,
 		readCommand: "status",
-		readRegex: /Trap is (\w+). Sensor is (enabled|disabled)/,
+		readRegex:
+			/Trap: (\w+). Sensor: (enabled|disabled). LoRaWan: ((?:\w+\s*)+)./,
 		writeCommand: (value?: string) => `${value}`,
+	},
+	[CommandNames.TRAP]: {
+		name: CommandNames.TRAP,
+		readCommand: "status",
+		readRegex:
+			/Trap: (\w+). Sensor: (enabled|disabled). LoRaWan: ((?:\w+\s*)+)./,
+	},
+	[CommandNames.LORAWAN]: {
+		name: CommandNames.LORAWAN,
+		readCommand: "status",
+		readRegex:
+			/Trap: (\w+). Sensor: (enabled|disabled). LoRaWan: ((?:\w+\s*)+)./,
 	},
 	[CommandNames.HEARTBEAT]: {
 		name: CommandNames.HEARTBEAT,
@@ -92,16 +104,22 @@ export const COMMANDS: {
 		readRegex: /\bheartbeat\s+is\s+(\d+s)\b/,
 		writeCommand: (value?: string) => `heartbeat ${value}`,
 	},
+	[CommandNames.DEVEUI]: {
+		name: CommandNames.DEVEUI,
+		readCommand: "get deveui",
+		readRegex: /\DevEui:\s([a-zA-Z0-9:]+)\b/,
+		writeCommand: (value?: string) => `deveui ${value}`,
+	},
 	[CommandNames.APPEUI]: {
 		name: CommandNames.APPEUI,
 		readCommand: "get appeui",
-		readRegex: /\bAppEui\s([a-zA-Z0-9]+)\b/,
+		readRegex: /\bAppEui:\s([a-zA-Z0-9:]+)\b/,
 		writeCommand: (value?: string) => `appeui ${value}`,
 	},
 	[CommandNames.APPKEY]: {
 		name: CommandNames.APPKEY,
 		readCommand: "get appkey",
-		readRegex: /\bAppKey\s([a-zA-Z0-9]+)\b/,
+		readRegex: /\bAppKey:\s([a-zA-Z0-9:]+)\b/,
 		writeCommand: (value?: string) => `appkey ${value}`,
 	},
 	[CommandNames.PING]: {
@@ -120,6 +138,11 @@ export const COMMANDS: {
 	},
 	[CommandNames.DISCONNECT]: {
 		name: CommandNames.DISCONNECT,
-		writeCommand: () => "ble dis",
+		writeCommand: () => "dis",
+	},
+	[CommandNames.DFU]: {
+		name: CommandNames.DFU,
+		writeCommand: () => "dfu",
+		readRegex: /(Device will enter DFU mode after disconnecting.)\s*/,
 	},
 }
