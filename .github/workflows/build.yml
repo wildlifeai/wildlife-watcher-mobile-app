@@ -93,12 +93,20 @@ jobs:
       #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
       #     restore-keys: |
       #       ${{ runner.os }}-gradle-
+      - name: Extract version
+        id: extract-version
+        run: |
+          VERSION="${{ github.ref_name }}"
+          echo "Original version: $VERSION"
+          VERSION="${VERSION#"v"}"
+          echo "Processed version: $VERSION"
+          echo "::set-output name=version::$VERSION"
       - name: Run fastlane
         run: |
           echo ${{ github.run_number }}
           bundle exec fastlane android build_release
         env:
-          APP_VERSION: ${{ github.ref_name }}#"v"
+          APP_VERSION: ${{ steps.extract-version.outputs.version }}
           APP_CODE_VERSION: ${{ github.run_number }}
           APP_ID: ${{ secrets.APP_ID }}
           ANDROID_ARTEFACT_PATH: ${{ secrets.ANDROID_ARTEFACT_PATH }}
