@@ -49,7 +49,7 @@ export const Terminal = ({ embed }: Props) => {
 	useCommand({ deviceId, command: COMMANDS.VERSION })
 	const { set: setHb } = useCommand({ deviceId, command: COMMANDS.HEARTBEAT })
 	const { set: setAppEui } = useCommand({ deviceId, command: COMMANDS.APPEUI })
-	useCommand({ deviceId, command: COMMANDS.DEVEUI })
+	const { set: setDevEui } = useCommand({ deviceId, command: COMMANDS.DEVEUI })
 	const { set: setSensor } = useCommand({ deviceId, command: COMMANDS.SENSOR })
 	const { set: reset } = useCommand({ deviceId, command: COMMANDS.RESET })
 	const { set: erase } = useCommand({ deviceId, command: COMMANDS.ERASE })
@@ -199,17 +199,38 @@ export const Terminal = ({ embed }: Props) => {
 			</View>
 			<View style={styles.buttons}>
 				<View style={styles.button}>
-					<Button title="Set EUI" onPress={() => setAppEui("AAA4567890123")} />
+					<Button
+						title="Set APPEUI"
+						onPress={() => setAppEui("AAA4567890123")}
+					/>
 				</View>
 				<View style={styles.button}>
 					{config.APPEUI && config.APPEUI.loaded && (
-						<Text>Current EUI: {eui}</Text>
+						<Text>Current APPEUI: {eui}</Text>
 					)}
 				</View>
 			</View>
 			<View style={styles.buttons}>
 				<View style={styles.button}>
-					<Text>Should set EUI to AAA4567890123456. (doesn't work)</Text>
+					<Text>Should set APPEUI to AAA4567890123. (doesn't work)</Text>
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Button
+						title="Set DEVEUI"
+						onPress={() => setDevEui("AAA4567890123")}
+					/>
+				</View>
+				<View style={styles.button}>
+					{config.DEVEUI && config.DEVEUI.loaded && (
+						<Text>Current DEVEUI: {eui}</Text>
+					)}
+				</View>
+			</View>
+			<View style={styles.buttons}>
+				<View style={styles.button}>
+					<Text>Should set DEVEUI to BBB4567890123. (doesn't work)</Text>
 				</View>
 			</View>
 			<View style={styles.buttons}>
