@@ -76,13 +76,9 @@ const readlineParser = (data: UpdateValueEventType) => {
 			},
 		)
 	} else {
-		// Push a LF-CR (LF = 10, CR = 13 in decimal)
-		value.push(10)
-		value.push(13)
-
 		readlineParserEmitter.emit(
 			"BleManagerDidUpdateValueForCharacteristicReadlineParser",
-			{ peripheral: peripheral, value },
+			{ peripheral: peripheral, value: [...value, 10, 13] },
 		)
 	}
 

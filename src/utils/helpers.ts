@@ -66,15 +66,12 @@ export const writeToDevice: WriteFunction = async (peripheral, data) => {
 			const byteArray = [...Buffer.from(data)]
 
 			// Push a LF-CR (LF = 10, CR = 13 in decimal)
-			byteArray.push(10)
-			byteArray.push(13)
-
 			readlineParserEmitter.emit(
 				"BleManagerDidUpdateValueForCharacteristicReadlineParser",
-				{ peripheral: peripheral.id, value: byteArray },
+				{ peripheral: peripheral.id, value: [...byteArray, 10, 13] },
 			)
 
-			await BleManager.write(
+			await BleManager.writeWithoutResponse(
 				peripheral.id,
 				BLE_SERVICE_UUID,
 				BLE_CHARACTERISTIC_WRITE_UUID,

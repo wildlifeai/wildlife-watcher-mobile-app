@@ -2,10 +2,10 @@ import { useTheme, useRoute, useIsFocused } from "@react-navigation/native"
 import * as React from "react"
 import { useState } from "react"
 import { useCallback } from "react"
-import { useMemo } from "react"
 import { useEffect } from "react"
 
 import {
+	ActivityIndicator,
 	Button,
 	NativeScrollEvent,
 	NativeSyntheticEvent,
@@ -21,7 +21,8 @@ import { CustomKeyboardAvoidingView } from "../../components/CustomKeyboardAvoid
 import { useBleActions } from "../../providers/BleEngineProvider"
 import { useAppSelector } from "../../redux"
 import { useCommand } from "../../hooks/useCommand"
-import { COMMANDS, StatusCommandValue } from "../../ble/types"
+import { COMMANDS } from "../../ble/types"
+import { useSelectDevice } from "../../hooks/useSelectDevice"
 
 type Props = {
 	embed?: boolean
@@ -36,30 +37,25 @@ export const Terminal = ({ embed }: Props) => {
 	const deviceLogs = useAppSelector((state) => state.logs)
 	const [text, setText] = useState("")
 	const isFocused = useIsFocused()
-	const { write, pingsPause } = useBleActions()
-	const devices = useAppSelector((state) => state.devices)
-	const device = useMemo(() => devices[deviceId], [deviceId, devices])
+	const { write, pingsPause, disconnectDevice } = useBleActions()
+	const device = useSelectDevice({ deviceId })
 	const [offset, setOffset] = useState(0)
 	const logs = deviceLogs[deviceId]
 	const configuration = useAppSelector((state) => state.configuration)
 
 	const config = configuration[deviceId]
 
-	const hb = config.HEARTBEAT?.value as string
-	const eui = config.APPEUI?.value as string
-	const status = config.STATUS?.value as StatusCommandValue
-
 	useCommand({ deviceId, command: COMMANDS.BATTERY })
 	useCommand({ deviceId, command: COMMANDS.VERSION })
 	const { set: setHb } = useCommand({ deviceId, command: COMMANDS.HEARTBEAT })
 	const { set: setAppEui } = useCommand({ deviceId, command: COMMANDS.APPEUI })
-	useCommand({ deviceId, command: COMMANDS.APPKEY })
-	const { set: setLorawan } = useCommand({ deviceId, command: COMMANDS.STATUS })
+	useCommand({ deviceId, command: COMMANDS.DEVEUI })
+	const { set: setSensor } = useCommand({ deviceId, command: COMMANDS.SENSOR })
 	const { set: reset } = useCommand({ deviceId, command: COMMANDS.RESET })
 	const { set: erase } = useCommand({ deviceId, command: COMMANDS.ERASE })
-	const { set: disconnect } = useCommand({
+	const { set: triggerDfu } = useCommand({
 		deviceId,
-		command: COMMANDS.DISCONNECT,
+		command: COMMANDS.DFU,
 	})
 
 	const [autoscroll, setAutoscroll] = useState(true)
@@ -126,6 +122,22 @@ export const Terminal = ({ embed }: Props) => {
 		}
 	}
 
+	const { HEARTBEAT, APPEUI, SENSOR, LORAWAN } = config
+
+	if (
+		!HEARTBEAT?.loaded ||
+		!APPEUI?.loaded ||
+		!SENSOR?.loaded ||
+		!LORAWAN?.loaded
+	) {
+		return <ActivityIndicator />
+	}
+
+	const hb = HEARTBEAT.value
+	const eui = APPEUI.value
+	const sensor = SENSOR.value
+	const lorawan = LORAWAN.value
+
 	return (
 		<CustomKeyboardAvoidingView style={styles.view}>
 			<View style={styles.view}>
@@ -169,12 +181,15 @@ export const Terminal = ({ embed }: Props) => {
 					<Button title="Erase" onPress={() => erase()} />
 				</View>
 				<View style={styles.button}>
-					<Button title="Disconnect" onPress={() => disconnect()} />
+					<Button title="Disconnect" onPress={() => disconnectDevice(device)} />
+				</View>
+				<View style={styles.button}>
+					<Button title="DFU mode" onPress={() => triggerDfu()} />
 				</View>
 			</View>
 			<View style={styles.buttons}>
 				<View style={styles.button}>
-					<Button title="Set Heartbeat" onPress={() => setHb("400")} />
+					<Button title="Set Heartbeat" onPress={() => setHb("40s")} />
 				</View>
 				<View style={styles.button}>
 					{config.HEARTBEAT && config.HEARTBEAT.loaded && (
@@ -184,15 +199,7 @@ export const Terminal = ({ embed }: Props) => {
 			</View>
 			<View style={styles.buttons}>
 				<View style={styles.button}>
-					<Text>Should set heartbeat to 400. (doesn't work)</Text>
-				</View>
-			</View>
-			<View style={styles.buttons}>
-				<View style={styles.button}>
-					<Button
-						title="Set EUI"
-						onPress={() => setAppEui("AAA4567890123456")}
-					/>
+					<Button title="Set EUI" onPress={() => setAppEui("AAA4567890123")} />
 				</View>
 				<View style={styles.button}>
 					{config.APPEUI && config.APPEUI.loaded && (
@@ -208,9 +215,9 @@ export const Terminal = ({ embed }: Props) => {
 			<View style={styles.buttons}>
 				<View style={styles.button}>
 					<Button
-						title="Set Lorawan"
+						title="Set sensor"
 						onPress={() =>
-							setLorawan(status?.lorawan === "enabled" ? "disable" : "enable")
+							setSensor(sensor === "enable" ? "disable" : "enable")
 						}
 					/>
 				</View>
@@ -218,12 +225,15 @@ export const Terminal = ({ embed }: Props) => {
 			<View style={styles.buttons}>
 				<View style={styles.button}>
 					<Text>
-						Lorawan messages are{" "}
-						{status?.lorawan === "enabled" ? (
+						Sensor is{" "}
+						{sensor === "enable" ? (
 							<Text style={styles.bold}>enabled</Text>
 						) : (
 							<Text style={styles.bold}>disabled</Text>
 						)}
+					</Text>
+					<Text>
+						Lorawan status: <Text style={styles.bold}>{lorawan}</Text>
 					</Text>
 				</View>
 			</View>
@@ -232,7 +242,7 @@ export const Terminal = ({ embed }: Props) => {
 }
 
 const styles = StyleSheet.create({
-	view: { flex: 1 },
+	view: { height: 200 },
 	fab: {
 		position: "absolute",
 		bottom: 20,

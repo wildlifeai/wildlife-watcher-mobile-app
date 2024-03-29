@@ -13,7 +13,7 @@ import { Home } from "./screens/Home"
 import { Terminal } from "./screens/TerminalScreen"
 
 export interface RootStackParamList extends ParamListBase {
-	Home: {}
+	Home: undefined
 	DeviceNavigator: { deviceId: string }
 	Terminal: { deviceId: string }
 }

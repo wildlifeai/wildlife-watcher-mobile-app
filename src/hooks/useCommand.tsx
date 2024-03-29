@@ -163,7 +163,12 @@ export const useCommand = ({ deviceId, command }: Props) => {
 	useEffect(() => {
 		const config = configuration[device.id]
 
-		if (isCommandCompleted({ goal, config: config[command.name] })) {
+		if (
+			isCommandCompleted<typeof command.name>({
+				goal,
+				config: config[command.name],
+			})
+		) {
 			clearTimers()
 
 			/**
@@ -207,11 +212,11 @@ export const useCommand = ({ deviceId, command }: Props) => {
 	}
 }
 
-const isCommandCompleted = ({
+const isCommandCompleted = <T extends CommandNames>({
 	config,
 	goal,
 }: {
-	config?: ConfigKey
+	config?: ConfigKey<T>
 	goal?: number | string
 }) => {
 	if (!config) return false
