@@ -1,54 +1,67 @@
-name: Build and Deploy to App Distribution
+name: Build and Deploy to App Distribution and Testflight
 
 on:
   workflow_dispatch:
   push:
-    tags:
-      - "*"
+    branches:
+      - "add-ios-workflow"
 
 jobs:
-  # ios-build:
-  #   environment: development
-  #   name: iOS development build
-  #   runs-on: [self-hosted, 'macOS']
-  #   steps:
-  #     - name: Cancel previous runs
-  #       uses: styfle/cancel-workflow-action@0.12.0
-  #     - name: Checkout repo from dev branch
-  #       uses: actions/checkout@v3
-  #     - name: create-json
-  #       id: add-firebase-credentials
-  #       uses: jsdaniell/create-json@v1.2.2
-  #       with:
-  #         name: 'wildlife-watcher-service-account.json'
-  #         json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-  #         dir: './fastlane'
-  #     - name: Copy Provisioning certificate
-  #       run: echo -n "${{ secrets.IOS_CERT_PROVISION }}" | base64 --decode > ./fastlane/profile.mobileprovision
-  #     - name: Copy private key
-  #       run: echo -n "${{ secrets.IOS_CERT_PRIVATE_KEY }}" | base64 --decode > ./fastlane/cert.p12
-  #     - name: Copy Google Services plist file
-  #       run: echo -n "${{ secrets.IOS_GOOGLE_SERVICES_PLIST }}" | base64 --decode > ./ios/GoogleService-Info.plist
-  #     - name: Install npm dependency
-  #       run: npm install
-  #     - name: Install bundler
-  #       run: gem install bundler -v 2.4.10
-  #     - name: Install gem plugins
-  #       run: bundle install
-  #     - name: Cache cocoapods
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ./ios/Pods
-  #         key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-pods-
-  #     - name: Install dependencies with CocoaPods
-  #       run: cd ios && bundle exec pod install && cd ..
-  #     - name: Run fastlane
-  #       run: bundle exec fastlane ios build_debug
-  #       env:
-  #         IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+  extract-version:
+    name: Extract Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: 0.0.5
+    steps:
+      - name: Extract version
+        id: extract-version
+        run: |
+          VERSION="${{ github.ref_name }}"
+          echo "Original version: $VERSION"
+          VERSION="${VERSION#"v"}"
+          echo "Processed version: $VERSION"
+          echo "::set-output name=version::$VERSION"
+  ios-build:
+    needs: extract-version
+    environment: development
+    name: iOS development build
+    runs-on: macos-latest
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.12.0
+      - name: Checkout repo from dev branch
+        uses: actions/checkout@v3
+      - name: create-json
+        id: add-firebase-credentials
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          name: "wildlife-watcher-service-account.json"
+          json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          dir: "./fastlane"
+      - name: Copy Provisioning certificate
+        run: echo -n "${{ secrets.IOS_CERT_PROVISION }}" | base64 --decode > ./fastlane/profile.mobileprovision
+      - name: Copy private key
+        run: echo -n "${{ secrets.IOS_CERT_PRIVATE_KEY }}" | base64 --decode > ./fastlane/cert.p12
+      - name: Copy Google Services plist file
+        run: echo -n "${{ secrets.IOS_GOOGLE_SERVICES_PLIST }}" | base64 --decode > ./ios/GoogleService-Info.plist
+      - name: Install npm dependency
+        run: npm install
+      - name: Install bundler
+        run: gem install bundler -v 2.4.10
+      - name: Install gem plugins
+        run: bundle install
+      - name: Install dependencies with CocoaPods
+        run: cd ios && bundle exec pod install && cd ..
+      - name: Run fastlane
+        run: bundle exec fastlane ios build_release
+        env:
+          IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+          IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+          APP_VERSION: ${{ needs.extract-version.outputs.version }}
+          APP_ID: ${{ secrets.APP_ID_IOS }}
+          TESTERS: ${{ vars.TESTERS }}
   android-build:
+    needs: extract-version
     environment: development
     name: Android development build
     runs-on: ubuntu-latest
@@ -85,29 +98,12 @@ jobs:
       - name: Install gem plugins
         run: |
           bundle install
-      # - uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       ./android/.gradle/caches
-      #       ./android/.gradle/wrapper
-      #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-gradle-
-      - name: Extract version
-        id: extract-version
-        run: |
-          VERSION="${{ github.ref_name }}"
-          echo "Original version: $VERSION"
-          VERSION="${VERSION#"v"}"
-          echo "Processed version: $VERSION"
-          echo "::set-output name=version::$VERSION"
       - name: Run fastlane
         run: |
           echo ${{ github.run_number }}
           bundle exec fastlane android build_release
         env:
-          APP_VERSION: ${{ steps.extract-version.outputs.version }}
+          APP_VERSION: ${{ needs.extract-version.outputs.version }}
           APP_CODE_VERSION: ${{ github.run_number }}
-          APP_ID: ${{ secrets.APP_ID }}
-          ANDROID_ARTEFACT_PATH: ${{ secrets.ANDROID_ARTEFACT_PATH }}
+          APP_ID: ${{ secrets.APP_ID_ANDROID }}
           TESTERS: ${{ vars.TESTERS }}
