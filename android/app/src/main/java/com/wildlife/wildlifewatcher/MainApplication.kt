@@ -1,4 +1,4 @@
-package com.wildlifewatcher
+package com.wildlife.wildlifewatcher
 
 import android.app.Application
 import com.facebook.react.PackageList

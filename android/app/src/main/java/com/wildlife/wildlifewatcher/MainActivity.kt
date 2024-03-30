@@ -1,4 +1,4 @@
-package com.wildlifewatcher
+package com.wildlife.wildlifewatcher
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

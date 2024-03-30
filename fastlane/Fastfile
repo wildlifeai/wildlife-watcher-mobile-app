@@ -41,6 +41,11 @@ platform :ios do
       xcodeproj: "./ios/WildlifeWatcher.xcodeproj"
     )
 
+    ios_set_build_number(
+      build_number: ENV['APP_CODE_VERSION'],
+      xcodeproj: "./ios/WildlifeWatcher.xcodeproj"
+    )
+
     build_ios_app(
       silent: true,
       scheme: 'WildlifeWatcher', 
@@ -55,7 +60,7 @@ platform :ios do
     )
 
     firebase_app_distribution(
-      app: ENV["APP_ID_IOS"],
+      app: ENV["APP_ID"],
       service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
       testers: ENV['TESTERS']
     )
@@ -76,8 +81,7 @@ platform :android do
     
     gradle(
       project_dir: "./android",
-      task: "assemble",
-      build_type: "Release"
+      tasks: ["assembleRelease", "bundleRelease"]
     )
 
     firebase_app_distribution(
@@ -86,12 +90,13 @@ platform :android do
       service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
       testers: ENV['TESTERS']
     )
-
-    upload_to_play_store(
-      json_key: "./fastlane/wildlife-watcher-service-account.json",
-      release_status: 'draft',
-      track: 'internal',
-      apk_paths: './android/app/build/outputs/apk/release/app-release.apk'
-  )
+    
+    # Will add once the app is uploaded
+    # upload_to_play_store(
+    #   json_key: "./fastlane/wildlife-watcher-service-account.json",
+    #   release_status: 'draft',
+    #   track: 'internal',
+    #   aab: './android/app/build/outputs/bundle/release/app-release.aab'
+    # )
   end
 end

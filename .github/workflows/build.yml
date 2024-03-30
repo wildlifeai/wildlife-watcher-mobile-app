@@ -3,8 +3,8 @@ name: Build and Deploy to App Distribution and Testflight
 on:
   workflow_dispatch:
   push:
-    branches:
-      - "add-ios-workflow"
+    tags:
+      - "*"
 
 jobs:
   extract-version:
@@ -58,7 +58,7 @@ jobs:
           IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
           IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
           APP_VERSION: ${{ needs.extract-version.outputs.version }}
-          APP_ID: ${{ secrets.APP_ID_IOS }}
+          APP_ID: ${{ vars.APP_ID_IOS }}
           TESTERS: ${{ vars.TESTERS }}
   android-build:
     needs: extract-version
@@ -105,5 +105,5 @@ jobs:
         env:
           APP_VERSION: ${{ needs.extract-version.outputs.version }}
           APP_CODE_VERSION: ${{ github.run_number }}
-          APP_ID: ${{ secrets.APP_ID_ANDROID }}
+          APP_ID: ${{ vars.APP_ID_ANDROID }}
           TESTERS: ${{ vars.TESTERS }}
