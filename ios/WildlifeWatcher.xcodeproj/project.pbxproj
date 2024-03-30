@@ -13,8 +13,8 @@
 		6C6CBE182B46D817008BC87C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6C6CBE172B46D817008BC87C /* GoogleService-Info.plist */; };
 		6CB1640C2B30D57400FD6057 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6CB1640B2B30D57400FD6057 /* GoogleService-Info.plist */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		CAE4B141529459E5544E00BB /* Pods_WildlifeWatcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5711C2354CC7138C874EE17D /* Pods_WildlifeWatcher.framework */; };
 		BE3A9D0D0C5B4AF697E5641D /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8F50F92FA7F44634B5FEE4B9 /* BootSplash.storyboard */; };
+		CAE4B141529459E5544E00BB /* Pods_WildlifeWatcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5711C2354CC7138C874EE17D /* Pods_WildlifeWatcher.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,9 +32,9 @@
 		6CB1640B2B30D57400FD6057 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = WildlifeWatcher/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-WildlifeWatcher-WildlifeWatcherTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WildlifeWatcher-WildlifeWatcherTests.release.xcconfig"; path = "Target Support Files/Pods-WildlifeWatcher-WildlifeWatcherTests/Pods-WildlifeWatcher-WildlifeWatcherTests.release.xcconfig"; sourceTree = "<group>"; };
+		8F50F92FA7F44634B5FEE4B9 /* BootSplash.storyboard */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = BootSplash.storyboard; path = WildlifeWatcher/BootSplash.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F2D649EE43CDB4734CE4D8FB /* Pods_WildlifeWatcher_WildlifeWatcherTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WildlifeWatcher_WildlifeWatcherTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		8F50F92FA7F44634B5FEE4B9 /* BootSplash.storyboard */ = {isa = PBXFileReference; name = "BootSplash.storyboard"; path = "WildlifeWatcher/BootSplash.storyboard"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -296,7 +296,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = L79D35TCZ8;
+				DEVELOPMENT_TEAM = D6C4Y4J2BS;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = WildlifeWatcher/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -309,7 +309,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.WildlifeWatcher;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wildlife.wildlifewatcher;
 				PRODUCT_NAME = WildlifeWatcher;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -325,9 +325,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = L79D35TCZ8;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = D6C4Y4J2BS;
 				INFOPLIST_FILE = WildlifeWatcher/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -339,9 +341,10 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.WildlifeWatcher;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wildlife.wildlifewatcher;
 				PRODUCT_NAME = WildlifeWatcher;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Wildlife Watcher App Store";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
