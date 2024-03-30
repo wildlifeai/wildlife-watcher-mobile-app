@@ -164,7 +164,7 @@ export const useCommand = ({ deviceId, command }: Props) => {
 		const config = configuration[device.id]
 
 		if (
-			isCommandCompleted<typeof command.name>({
+			isCommandCompleted({
 				goal,
 				config: config[command.name],
 			})
@@ -212,11 +212,11 @@ export const useCommand = ({ deviceId, command }: Props) => {
 	}
 }
 
-const isCommandCompleted = <T extends CommandNames>({
+const isCommandCompleted = ({
 	config,
 	goal,
 }: {
-	config?: ConfigKey<T>
+	config?: ConfigKey
 	goal?: number | string
 }) => {
 	if (!config) return false
