@@ -1,4 +1,4 @@
-import * as React from "react"
+import { useEffect } from "react"
 
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native"
 
@@ -11,6 +11,7 @@ import { BleProblems } from "./screens/BleProblems"
 import { DeviceReconnectProvider } from "../providers/DeviceReconnectProvider"
 import { Home } from "./screens/Home"
 import { Terminal } from "./screens/TerminalScreen"
+import BootSplash from "react-native-bootsplash"
 
 export interface RootStackParamList extends ParamListBase {
 	Home: undefined
@@ -36,8 +37,18 @@ export const MainNavigation = () => {
 		(state) => state.bleLibrary,
 	)
 
-	// Stops the app from running until every important component
-	// loads.
+	useEffect(() => {
+		if (!blLoading && !locLoading && !bleLoading) {
+			BootSplash.hide({ fade: true })
+		}
+	}, [blLoading, locLoading, bleLoading])
+
+	/*
+	 * Stops the app from running until every important component
+	 * loads. In theory this code never runs since the splahscreen
+	 * covers the loading, but I kept it here as a last resort since
+	 * the app could crash without this check.
+	 */
 	if (blLoading || locLoading || bleLoading) {
 		return (
 			<View style={[styles.loader]}>
