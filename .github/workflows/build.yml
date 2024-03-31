@@ -3,15 +3,15 @@ name: Build and Deploy to App Distribution and Testflight
 on:
   workflow_dispatch:
   push:
-    branches:
-      - "main"
+    tags:
+      - "*"
 
 jobs:
   extract-version:
     name: Extract Version
     runs-on: ubuntu-latest
     outputs:
-      version: 0.0.9
+      version: ${{ steps.extract-version.outputs.version }}
     steps:
       - name: Extract version
         id: extract-version
