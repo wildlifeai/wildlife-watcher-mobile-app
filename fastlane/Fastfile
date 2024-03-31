@@ -55,7 +55,6 @@ platform :ios do
       output_name: 'WildlifeWatcher.ipa',
       buildlog_path: './ios/logs',
       suppress_xcode_output: true,
-      xcargs: "-allowProvisioningUpdates",
       export_options: "./ios/WildlifeWatcher/exportOptionsTesters.plist"  
     )
 
@@ -76,7 +75,6 @@ platform :ios do
       output_name: 'WildlifeWatcher.ipa',
       buildlog_path: './ios/logs',
       suppress_xcode_output: true,
-      xcargs: "-allowProvisioningUpdates",
       export_options: "./ios/WildlifeWatcher/exportOptions.plist"  
     )
 
