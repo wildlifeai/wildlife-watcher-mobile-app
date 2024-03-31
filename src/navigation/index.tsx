@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native"
+import { StyleSheet, View } from "react-native"
 
 import { ParamListBase, RouteProp, useRoute } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
@@ -12,6 +12,8 @@ import { DeviceReconnectProvider } from "../providers/DeviceReconnectProvider"
 import { Home } from "./screens/Home"
 import { Terminal } from "./screens/TerminalScreen"
 import BootSplash from "react-native-bootsplash"
+import { NavigationBar } from "../components/NavigationBar"
+import { ActivityIndicator, Text } from "react-native-paper"
 
 export interface RootStackParamList extends ParamListBase {
 	Home: undefined
@@ -59,7 +61,12 @@ export const MainNavigation = () => {
 	}
 
 	return (
-		<Stack.Navigator initialRouteName="Home">
+		<Stack.Navigator
+			initialRouteName="Home"
+			screenOptions={{
+				header: NavigationBar,
+			}}
+		>
 			{status !== "PoweredOn" ? (
 				<Stack.Screen
 					name="BluetoothProblems"
@@ -84,7 +91,7 @@ export const MainNavigation = () => {
 						<Stack.Screen
 							name="Home"
 							component={Home}
-							options={{ title: "Nearby devices" }}
+							options={{ title: "Wildlife Watcher" }}
 						/>
 						<Stack.Screen
 							name="DeviceNavigator"

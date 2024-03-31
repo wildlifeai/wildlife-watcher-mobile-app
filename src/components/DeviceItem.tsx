@@ -1,13 +1,8 @@
 import React from "react"
 
-import {
-	ActivityIndicator,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
-} from "react-native"
+import { StyleSheet, View } from "react-native"
 import { ExtendedPeripheral } from "../redux/slices/devicesSlice"
+import { ActivityIndicator, Text, TouchableRipple } from "react-native-paper"
 
 type DeviceItemProps = {
 	item: ExtendedPeripheral
@@ -19,7 +14,7 @@ type DeviceItemProps = {
 export const DeviceItem = React.memo(
 	({ item, disconnect, go }: DeviceItemProps) => {
 		return (
-			<TouchableOpacity
+			<TouchableRipple
 				style={styles.card}
 				onPress={() => go(item)}
 				onLongPress={() => disconnect(item)}
@@ -31,7 +26,7 @@ export const DeviceItem = React.memo(
 					]}
 				>
 					<View style={styles.leftView}>
-						<Text numberOfLines={1} style={[styles.uuid]}>
+						<Text variant="bodyLarge" numberOfLines={1} style={[styles.uuid]}>
 							{item.device.name}
 						</Text>
 					</View>
@@ -39,7 +34,7 @@ export const DeviceItem = React.memo(
 						{item.loading ? <ActivityIndicator size={22} /> : null}
 					</View>
 				</View>
-			</TouchableOpacity>
+			</TouchableRipple>
 		)
 	},
 )
