@@ -27,8 +27,6 @@ platform :ios do
       lock_when_sleeps: true
     )
     
-    install_provisioning_profile(path: "./fastlane/profile.mobileprovision")
-
     import_certificate(
       keychain_name: "com.wildlife.wildlifewatcher",
       keychain_password: ENV["IOS_KEYCHAIN_PASSWORD"],
@@ -46,6 +44,8 @@ platform :ios do
       xcodeproj: "./ios/WildlifeWatcher.xcodeproj"
     )
 
+    install_provisioning_profile(path: "./fastlane/testers.mobileprovision")
+
     build_ios_app(
       silent: true,
       scheme: 'WildlifeWatcher', 
@@ -54,7 +54,6 @@ platform :ios do
       output_directory: './ios/ipa', 
       output_name: 'WildlifeWatcher.ipa',
       buildlog_path: './ios/logs',
-      xcargs: "-allowProvisioningUpdates",
       suppress_xcode_output: true,
       export_options: "./ios/WildlifeWatcher/exportOptions.plist"  
     )
@@ -64,6 +63,22 @@ platform :ios do
       service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
       testers: ENV['TESTERS']
     )
+
+    install_provisioning_profile(path: "./fastlane/profile.mobileprovision")
+
+    build_ios_app(
+      silent: true,
+      scheme: 'WildlifeWatcher', 
+      configuration: "Release",
+      workspace: './ios/WildlifeWatcher.xcworkspace', 
+      output_directory: './ios/ipa', 
+      output_name: 'WildlifeWatcher.ipa',
+      buildlog_path: './ios/logs',
+      suppress_xcode_output: true,
+      export_options: "./ios/WildlifeWatcher/exportOptions.plist"  
+    )
+
+    # Should upload to testflight at this point
   end
 end
 platform :android do

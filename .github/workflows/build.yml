@@ -3,8 +3,8 @@ name: Build and Deploy to App Distribution and Testflight
 on:
   workflow_dispatch:
   push:
-    tags:
-      - "*"
+    branches:
+      - "main"
 
 jobs:
   extract-version:
@@ -38,8 +38,10 @@ jobs:
           name: "wildlife-watcher-service-account.json"
           json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
           dir: "./fastlane"
-      - name: Copy Provisioning certificate
+      - name: Copy App Store Provisioning certificate
         run: echo -n "${{ secrets.IOS_CERT_PROVISION }}" | base64 --decode > ./fastlane/profile.mobileprovision
+      - name: Copy Testers Provisioning certificate
+        run: echo -n "${{ secrets.IOS_TESTERS_PROVISION }}" | base64 --decode > ./fastlane/testers.mobileprovision
       - name: Copy private key
         run: echo -n "${{ secrets.IOS_CERT_PRIVATE_KEY }}" | base64 --decode > ./fastlane/cert.p12
       - name: Copy Google Services plist file
