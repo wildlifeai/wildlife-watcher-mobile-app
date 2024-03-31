@@ -5,12 +5,9 @@ import { useMemo } from "react"
 import { useCallback } from "react"
 
 import {
-	ActivityIndicator,
-	Button,
 	FlatList,
 	Keyboard,
 	StyleSheet,
-	Text,
 	TouchableWithoutFeedback,
 	View,
 } from "react-native"
@@ -20,6 +17,7 @@ import { useBleActions } from "../../providers/BleEngineProvider"
 import { useAppSelector } from "../../redux"
 import { ExtendedPeripheral } from "../../redux/slices/devicesSlice"
 import { DeviceItem } from "../../components/DeviceItem"
+import { ActivityIndicator, Button, Text } from "react-native-paper"
 
 export const Home = memo(() => {
 	const { startScan, connectDevice, disconnectDevice } = useBleActions()
@@ -73,10 +71,12 @@ export const Home = memo(() => {
 				<View style={styles.headerView}>
 					<View style={styles.buttonRow}>
 						<Button
+							mode="contained"
 							onPress={() => startScan()}
 							disabled={scanning.isScanning}
-							title="Scan"
-						/>
+						>
+							Scan
+						</Button>
 					</View>
 				</View>
 				{scanning.isScanning ? (
