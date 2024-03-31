@@ -11,7 +11,7 @@ jobs:
     name: Extract Version
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.extract-version.outputs.version }}
+      version: 0.0.9
     steps:
       - name: Extract version
         id: extract-version
