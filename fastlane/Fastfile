@@ -45,6 +45,7 @@ platform :ios do
     )
 
     install_provisioning_profile(path: "./fastlane/testers.mobileprovision")
+    install_provisioning_profile(path: "./fastlane/profile.mobileprovision")
 
     build_ios_app(
       silent: true,
@@ -63,8 +64,6 @@ platform :ios do
       service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
       testers: ENV['TESTERS']
     )
-
-    install_provisioning_profile(path: "./fastlane/profile.mobileprovision")
 
     build_ios_app(
       silent: true,
