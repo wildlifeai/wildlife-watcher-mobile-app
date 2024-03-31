@@ -55,7 +55,7 @@ platform :ios do
       output_name: 'WildlifeWatcher.ipa',
       buildlog_path: './ios/logs',
       suppress_xcode_output: true,
-      export_options: "./ios/WildlifeWatcher/exportOptions.plist"  
+      export_options: "./ios/WildlifeWatcher/exportOptionsTesters.plist"  
     )
 
     firebase_app_distribution(
