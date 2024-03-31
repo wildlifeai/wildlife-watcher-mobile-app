@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useContext, useEffect } from "react"
 
 import { StyleSheet, View } from "react-native"
 
@@ -14,6 +14,8 @@ import { Terminal } from "./screens/TerminalScreen"
 import BootSplash from "react-native-bootsplash"
 import { NavigationBar } from "../components/NavigationBar"
 import { ActivityIndicator, Text } from "react-native-paper"
+import { Login } from "./screens/Login"
+import { AuthContext } from "../providers/AuthProvider"
 
 export interface RootStackParamList extends ParamListBase {
 	Home: undefined
@@ -38,12 +40,13 @@ export const MainNavigation = () => {
 	const { initialized, initialLoad: bleLoading } = useAppSelector(
 		(state) => state.bleLibrary,
 	)
+	const { isLoggedIn } = useContext(AuthContext)
 
 	useEffect(() => {
-		if (!blLoading && !locLoading && !bleLoading) {
+		if (isLoggedIn !== undefined) {
 			BootSplash.hide({ fade: true })
 		}
-	}, [blLoading, locLoading, bleLoading])
+	}, [blLoading, locLoading, bleLoading, isLoggedIn])
 
 	/*
 	 * Stops the app from running until every important component
@@ -87,18 +90,26 @@ export const MainNavigation = () => {
 				/>
 			) : (
 				<>
-					<Stack.Group>
+					{isLoggedIn ? (
+						<Stack.Group>
+							<Stack.Screen
+								name="Home"
+								component={Home}
+								options={{ title: "Wildlife Watcher" }}
+							/>
+							<Stack.Screen
+								name="DeviceNavigator"
+								options={{ title: "Configure device" }}
+								component={DeviceNavigation}
+							/>
+						</Stack.Group>
+					) : (
 						<Stack.Screen
-							name="Home"
-							component={Home}
-							options={{ title: "Wildlife Watcher" }}
+							options={{ headerShown: false }}
+							name="Login"
+							component={Login}
 						/>
-						<Stack.Screen
-							name="DeviceNavigator"
-							options={{ title: "Configure device" }}
-							component={DeviceNavigation}
-						/>
-					</Stack.Group>
+					)}
 				</>
 			)}
 		</Stack.Navigator>

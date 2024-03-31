@@ -1,10 +1,10 @@
-import * as React from "react"
 import { PropsWithChildren, useEffect, useState } from "react"
 
 import {
 	KeyboardAvoidingView,
 	Platform,
 	StyleProp,
+	StyleSheet,
 	ViewStyle,
 } from "react-native"
 
@@ -29,7 +29,7 @@ export const CustomKeyboardAvoidingView = ({
 
 	return (
 		<KeyboardAvoidingView
-			style={style}
+			style={[styles.view, style]}
 			behavior={Platform.OS === "ios" ? "padding" : undefined}
 			keyboardVerticalOffset={bottomPadding + extra}
 		>
@@ -37,3 +37,9 @@ export const CustomKeyboardAvoidingView = ({
 		</KeyboardAvoidingView>
 	)
 }
+
+const styles = StyleSheet.create({
+	view: {
+		flex: 1,
+	},
+})

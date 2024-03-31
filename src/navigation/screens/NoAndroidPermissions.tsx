@@ -1,5 +1,3 @@
-import * as React from "react"
-
 import { Button, Linking, StyleSheet, Text, View } from "react-native"
 
 import { useAppDispatch, useAppSelector } from "../../redux"
