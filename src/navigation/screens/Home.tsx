@@ -1,16 +1,6 @@
-import * as React from "react"
-import { memo } from "react"
-import { useEffect } from "react"
-import { useMemo } from "react"
-import { useCallback } from "react"
+import { memo, useEffect, useMemo, useCallback } from "react"
 
-import {
-	FlatList,
-	Keyboard,
-	StyleSheet,
-	TouchableWithoutFeedback,
-	View,
-} from "react-native"
+import { FlatList, StyleSheet, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useAppNavigation } from "../../hooks/useAppNavigation"
 import { useBleActions } from "../../providers/BleEngineProvider"
@@ -19,13 +9,15 @@ import { ExtendedPeripheral } from "../../redux/slices/devicesSlice"
 import { DeviceItem } from "../../components/DeviceItem"
 import { ActivityIndicator, Button } from "react-native-paper"
 import { WWText } from "../../components/ui/WWText"
-
+import { WWScreenView } from "../../components/ui/WWScreenView"
+import { useAppDrawer } from "../../components/AppDrawer"
 export const Home = memo(() => {
 	const { startScan, connectDevice, disconnectDevice } = useBleActions()
 	const devices = useAppSelector((state) => state.devices)
 	const scanning = useAppSelector((state) => state.scanning)
 	const navigation = useAppNavigation()
 	const { bottom } = useSafeAreaInsets()
+	const { isOpen, setIsOpen } = useAppDrawer()
 
 	const devicesToDisplay = useMemo(() => {
 		return Object.values(devices).sort((a, b) => {
@@ -37,7 +29,7 @@ export const Home = memo(() => {
 		})
 	}, [devices])
 
-	const connect = React.useCallback(
+	const connect = useCallback(
 		async (item: ExtendedPeripheral) => {
 			await connectDevice(item)
 		},
@@ -62,11 +54,15 @@ export const Home = memo(() => {
 
 	useEffect(() => {
 		startScan()
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	return (
-		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+		<WWScreenView>
+			<Button onPress={() => setIsOpen((prevOpen) => !prevOpen)}>{`${
+				isOpen ? "Close" : "Open"
+			} drawer`}</Button>
 			<View style={[styles.wrapper, { paddingBottom: bottom }]}>
 				{/* <StatusBar barStyle="light-content" backgroundColor="#ffffff" /> */}
 				<View style={styles.headerView}>
@@ -105,7 +101,7 @@ export const Home = memo(() => {
 					/>
 				)}
 			</View>
-		</TouchableWithoutFeedback>
+		</WWScreenView>
 	)
 })
 

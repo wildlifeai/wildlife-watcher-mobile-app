@@ -13,6 +13,7 @@ import { NavigationBar } from "../components/NavigationBar"
 import { Login } from "./screens/Login"
 import { AuthContext } from "../providers/AuthProvider"
 import { AppLoading } from "./screens/AppLoading"
+import { AppDrawer } from "../components/AppDrawer"
 
 export interface RootStackParamList extends ParamListBase {
 	Home: undefined
@@ -70,51 +71,54 @@ export const MainNavigation = () => {
 		)
 	}
 
-	if (somethingWrong) {
-		return (
-			<Stack.Navigator screenOptions={{ headerShown: false }}>
+	return (
+		<AppDrawer>
+			<Stack.Navigator
+				initialRouteName="Home"
+				screenOptions={{
+					header: NavigationBar,
+				}}
+			>
 				{status !== "PoweredOn" ? (
 					<Stack.Screen
 						name="BluetoothProblems"
 						component={BluetoothProblems}
+						options={{ headerShown: false }}
 					/>
 				) : !locationEnabled ? (
-					<Stack.Screen name="LocationProblems" component={LocationProblems} />
+					<Stack.Screen
+						options={{ headerShown: false }}
+						name="LocationProblems"
+						component={LocationProblems}
+					/>
 				) : !initialized ? (
-					<Stack.Screen name="BLEProblems" component={BleProblems} />
-				) : null}
+					<Stack.Screen
+						options={{ headerShown: false }}
+						name="BLEProblems"
+						component={BleProblems}
+					/>
+				) : !isLoggedIn ? (
+					<Stack.Screen
+						options={{ headerShown: false }}
+						name="Login"
+						component={Login}
+					/>
+				) : (
+					<Stack.Group>
+						<Stack.Screen
+							name="Home"
+							component={Home}
+							options={{ title: "Wildlife Watcher" }}
+						/>
+						<Stack.Screen
+							name="DeviceNavigator"
+							options={{ title: "Configure device" }}
+							component={DeviceNavigation} // Nested navigator here
+						/>
+					</Stack.Group>
+				)}
 			</Stack.Navigator>
-		)
-	}
-
-	if (!isLoggedIn) {
-		return (
-			<Stack.Navigator screenOptions={{ headerShown: false }}>
-				<Stack.Screen name="Login" component={Login} />
-			</Stack.Navigator>
-		)
-	}
-
-	return (
-		<Stack.Navigator
-			initialRouteName="Home"
-			screenOptions={{
-				header: NavigationBar,
-			}}
-		>
-			<Stack.Group>
-				<Stack.Screen
-					name="Home"
-					component={Home}
-					options={{ title: "Wildlife Watcher" }}
-				/>
-				<Stack.Screen
-					name="DeviceNavigator"
-					options={{ title: "Configure device" }}
-					component={DeviceNavigation} // Nested navigator here
-				/>
-			</Stack.Group>
-		</Stack.Navigator>
+		</AppDrawer>
 	)
 }
 
