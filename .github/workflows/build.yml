@@ -36,7 +36,7 @@ jobs:
           ls
           cd ..
           ls
-          cat release_notes.txt
+          cat wildlife-watcher-mobile-app/release_notes.txt
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.12.0
       - name: Checkout repo from dev branch
