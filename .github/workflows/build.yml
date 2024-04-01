@@ -23,7 +23,7 @@ jobs:
           echo "Processed version: $VERSION"
           echo "::set-output name=version::$VERSION"
 
-          RELEASE_NOTES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/v0.0.15" | jq -r '.body')
+          RELEASE_NOTES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}" | jq -r '.body')
           echo "Release notes: $RELEASE_NOTES"
           echo "::set-output name=release_notes::$RELEASE_NOTES"
   ios-build:
@@ -32,10 +32,6 @@ jobs:
     name: iOS development build
     runs-on: macos-latest
     steps:
-      - name: Log release notes
-        run: |
-          echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./release_notes.txt
-          cat release_notes.txt
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.12.0
       - name: Checkout repo from dev branch
@@ -71,6 +67,7 @@ jobs:
           APP_VERSION: ${{ needs.extract-version.outputs.version }}
           APP_ID: ${{ vars.APP_ID_IOS }}
           TESTERS: ${{ vars.TESTERS }}
+          RELEASE_NOTES: ${{ needs.extract-version.outputs.release_notes }}
   android-build:
     needs: extract-version
     environment: development
@@ -117,3 +114,4 @@ jobs:
           APP_CODE_VERSION: ${{ github.run_number }}
           APP_ID: ${{ vars.APP_ID_ANDROID }}
           TESTERS: ${{ vars.TESTERS }}
+          RELEASE_NOTES: ${{ needs.extract-version.outputs.release_notes }}
