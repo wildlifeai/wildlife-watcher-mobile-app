@@ -18,21 +18,6 @@ platform :ios do
   desc "Build a release version of the app"
 
   lane :build_release do
-
-    # Check if the release_notes.txt file exists
-    if File.exist?("./release_notes.txt")
-      # Read the contents of the file
-      release_notes_content = File.read("./release_notes.txt")
-      
-      # Print the contents of the file
-      puts "Release Notes:"
-      puts release_notes_content
-    else
-      puts "Release notes file not found"
-      puts "Current directory: #{Dir.pwd}"
-      puts "Files in current directory: #{Dir.entries(".")}"
-    end
-
     create_keychain(
       name: "com.wildlife.wildlifewatcher",
       password: ENV["IOS_KEYCHAIN_PASSWORD"],
@@ -81,17 +66,17 @@ platform :ios do
       release_notes_file: './release_notes.txt'
     )
 
-    build_ios_app(
-      silent: true,
-      scheme: 'WildlifeWatcher', 
-      configuration: "Release",
-      workspace: './ios/WildlifeWatcher.xcworkspace', 
-      output_directory: './ios/ipa', 
-      output_name: 'WildlifeWatcher.ipa',
-      buildlog_path: './ios/logs',
-      suppress_xcode_output: true,
-      export_options: "./ios/WildlifeWatcher/exportOptions.plist"  
-    )
+    # build_ios_app(
+    #   silent: true,
+    #   scheme: 'WildlifeWatcher', 
+    #   configuration: "Release",
+    #   workspace: './ios/WildlifeWatcher.xcworkspace', 
+    #   output_directory: './ios/ipa', 
+    #   output_name: 'WildlifeWatcher.ipa',
+    #   buildlog_path: './ios/logs',
+    #   suppress_xcode_output: true,
+    #   export_options: "./ios/WildlifeWatcher/exportOptions.plist"  
+    # )
 
     # Should upload to testflight at this point
   end
