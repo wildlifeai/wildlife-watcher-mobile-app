@@ -6,7 +6,6 @@ import { ActivityIndicator, Text, TouchableRipple } from "react-native-paper"
 
 type DeviceItemProps = {
 	item: ExtendedPeripheral
-	connect: (item: ExtendedPeripheral) => Promise<void>
 	disconnect: (item: ExtendedPeripheral) => Promise<void>
 	go: (item: ExtendedPeripheral) => Promise<void>
 }

@@ -11,6 +11,7 @@ export const useBleActions = () => {
 
 export const BleEngineProvider = ({ children }: PropsWithChildren<{}>) => {
 	const {
+		isBleConnecting,
 		startScan,
 		connectDevice,
 		disconnectDevice,
@@ -24,6 +25,7 @@ export const BleEngineProvider = ({ children }: PropsWithChildren<{}>) => {
 	return (
 		<BLEDevicesContext.Provider
 			value={{
+				isBleConnecting,
 				startScan,
 				connectDevice,
 				disconnectDevice,

@@ -36,7 +36,8 @@ import { constructCommandString } from "../ble/parser"
 export type WriteData = [CommandNames, CommandConstructOptions]
 
 export type ReturnType = {
-	startScan: () => void
+	isBleConnecting: boolean | undefined
+	startScan: (length?: number) => void
 	connectDevice: (
 		peripheral: ExtendedPeripheral,
 		timeout?: number,
@@ -133,21 +134,24 @@ export const useBle = (): ReturnType => {
 		pingsPauseRef.current = toggle
 	}, [])
 
-	const startScan = useCallback(async () => {
-		if (!initialized) return
+	const startScan = useCallback(
+		async (length: number = 6) => {
+			if (!initialized) return
 
-		if (!scanning.isScanning) {
-			try {
-				pingsPause(true)
-				await BleManager.scan([], __DEV__ ? 6 : 8)
-				log("Scan started")
-				dispatch(scanStart())
-			} catch (e: any) {
-				logError(e)
-				dispatch(scanError(e))
+			if (!scanning.isScanning) {
+				try {
+					pingsPause(true)
+					await BleManager.scan([], length)
+					log("Scan started")
+					dispatch(scanStart())
+				} catch (e: any) {
+					logError(e)
+					dispatch(scanError(e))
+				}
 			}
-		}
-	}, [initialized, scanning.isScanning, pingsPause, dispatch])
+		},
+		[initialized, scanning.isScanning, pingsPause, dispatch],
+	)
 
 	const disconnectDevice = useCallback(
 		async (peripheral: Peripheral | ExtendedPeripheral) => {
@@ -228,12 +232,16 @@ export const useBle = (): ReturnType => {
 	)
 
 	const isDeviceReconnecting = useRef<{ [x: string]: boolean }>({})
-
+	const isBleConnecting = Object.values(isDeviceReconnecting.current).find(
+		(isConnected) => isConnected,
+	)
 	const connectDevice = useCallback(
 		async (peripheral: ExtendedPeripheral, timeout?: number) => {
-			if (!initialized || peripheral.loading || scanning.isScanning)
-				return peripheral
+			if (!initialized || peripheral.loading) return peripheral
 
+			if (scanning.isScanning) {
+				await BleManager.stopScan()
+			}
 			/**
 			 * If multiple connectDevice functions are called for a certain device,
 			 * this makes sure to avoid any idiotic disconnects when some calls
@@ -365,6 +373,7 @@ export const useBle = (): ReturnType => {
 	}, [initialized])
 
 	return {
+		isBleConnecting,
 		startScan,
 		connectDevice,
 		disconnectDevice,

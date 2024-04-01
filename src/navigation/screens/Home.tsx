@@ -7,16 +7,20 @@ import { useBleActions } from "../../providers/BleEngineProvider"
 import { useAppSelector } from "../../redux"
 import { ExtendedPeripheral } from "../../redux/slices/devicesSlice"
 import { DeviceItem } from "../../components/DeviceItem"
-import { ActivityIndicator, Button } from "react-native-paper"
+import { Button } from "react-native-paper"
 import { WWText } from "../../components/ui/WWText"
 import { WWScreenView } from "../../components/ui/WWScreenView"
+import { log } from "../../utils/logger"
 
 export const Home = memo(() => {
-	const { startScan, connectDevice, disconnectDevice } = useBleActions()
+	const { isBleConnecting, startScan, connectDevice, disconnectDevice } =
+		useBleActions()
 	const devices = useAppSelector((state) => state.devices)
-	const scanning = useAppSelector((state) => state.scanning)
+	const { isScanning } = useAppSelector((state) => state.scanning)
 	const navigation = useAppNavigation()
 	const { bottom } = useSafeAreaInsets()
+
+	const isBleBusy = isBleConnecting || isScanning
 
 	const devicesToDisplay = useMemo(() => {
 		return Object.values(devices).sort((a, b) => {
@@ -27,13 +31,6 @@ export const Home = memo(() => {
 			return -1
 		})
 	}, [devices])
-
-	const connect = useCallback(
-		async (item: ExtendedPeripheral) => {
-			await connectDevice(item)
-		},
-		[connectDevice],
-	)
 
 	const disconnect = useCallback(
 		async (item: ExtendedPeripheral) => {
@@ -51,11 +48,32 @@ export const Home = memo(() => {
 		[connectDevice, navigation],
 	)
 
-	useEffect(() => {
-		startScan()
+	const scan = () => {
+		if (!isBleBusy) {
+			startScan()
+		} else {
+			log("Scanning already taking place, skipping.")
+		}
+	}
 
+	useEffect(() => {
+		startScan(2)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (!isBleBusy) {
+				startScan(2)
+			} else {
+				log("Scanning already taking place, skipping.")
+			}
+		}, 4 * 1000)
+
+		return () => {
+			clearInterval(interval)
+		}
+	}, [isScanning, isBleConnecting, isBleBusy, startScan])
 
 	return (
 		<WWScreenView>
@@ -63,21 +81,12 @@ export const Home = memo(() => {
 				{/* <StatusBar barStyle="light-content" backgroundColor="#ffffff" /> */}
 				<View style={styles.headerView}>
 					<View style={styles.buttonRow}>
-						<Button
-							mode="contained"
-							onPress={() => startScan()}
-							disabled={scanning.isScanning}
-						>
+						<Button mode="contained" onPress={scan} loading={isScanning}>
 							Scan
 						</Button>
 					</View>
 				</View>
-				{scanning.isScanning ? (
-					<View style={styles.loader}>
-						<ActivityIndicator size={30} />
-						<WWText style={styles.text}>Scanning...</WWText>
-					</View>
-				) : devicesToDisplay.length < 1 ? (
+				{devicesToDisplay.length < 1 ? (
 					<View style={styles.emptyView}>
 						<WWText>No devices found.</WWText>
 					</View>
@@ -86,12 +95,7 @@ export const Home = memo(() => {
 						contentContainerStyle={styles.list}
 						data={devicesToDisplay}
 						renderItem={({ item }: { item: ExtendedPeripheral }) => (
-							<DeviceItem
-								item={item}
-								connect={connect}
-								disconnect={disconnect}
-								go={go}
-							/>
+							<DeviceItem item={item} disconnect={disconnect} go={go} />
 						)}
 						keyExtractor={(item: ExtendedPeripheral) => item.id}
 					/>
