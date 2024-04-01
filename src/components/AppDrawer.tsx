@@ -5,11 +5,14 @@ import {
 	useContext,
 	useState,
 } from "react"
-import { StyleSheet } from "react-native"
+import { StyleSheet, View } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
-import { Button, Surface } from "react-native-paper"
+import { Avatar, Button, Surface } from "react-native-paper"
 import { WWText } from "./ui/WWText"
 import { useExtendedTheme } from "../theme"
+import { useAuth } from "../providers/AuthProvider"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { getReadableVersion } from "react-native-device-info"
 
 type DrawerContextProps = {
 	isOpen: boolean
@@ -21,21 +24,38 @@ export const useAppDrawer = () => useContext(DrawerContext)
 
 export const AppDrawer = ({ children }: PropsWithChildren<unknown>) => {
 	const [isOpen, setIsOpen] = useState(false)
-	const { padding } = useExtendedTheme()
+	const { padding, spacing } = useExtendedTheme()
+	const { setIsLoggedIn, isLoggedIn } = useAuth()
+	const { top } = useSafeAreaInsets()
+
+	const onLogout = () => {
+		setIsLoggedIn(false)
+		setIsOpen(false)
+	}
 
 	return (
 		<Drawer
-			style={styles.view}
+			swipeEnabled={isLoggedIn}
 			open={isOpen}
 			onOpen={() => setIsOpen(true)}
 			onClose={() => setIsOpen(false)}
+			drawerStyle={styles.view}
 			renderDrawerContent={() => {
 				return (
-					<Surface style={[{ padding }, styles.view]}>
+					<Surface
+						style={[{ padding, paddingTop: padding + top }, styles.view]}
+					>
+						<Avatar.Image source={require("../assets/avatar.png")} />
 						<WWText variant="bodyLarge">I'm empty at the moment.</WWText>
-						<Button onPress={() => setIsOpen((prevOpen) => !prevOpen)}>{`${
-							isOpen ? "Close" : "Open"
-						} drawer`}</Button>
+						<Button icon="logout" onPress={onLogout}>
+							Logout
+						</Button>
+						<View style={styles.version}>
+							<WWText>Current version:</WWText>
+							<WWText style={[styles.versionText, { marginStart: spacing }]}>
+								v{getReadableVersion()}
+							</WWText>
+						</View>
 					</Surface>
 				)
 			}}
@@ -50,5 +70,17 @@ export const AppDrawer = ({ children }: PropsWithChildren<unknown>) => {
 const styles = StyleSheet.create({
 	view: {
 		flex: 1,
+		height: "auto",
+	},
+	test: {
+		height: 500,
+	},
+	version: {
+		flex: 1,
+		flexDirection: "row",
+		alignItems: "flex-end",
+	},
+	versionText: {
+		fontWeight: "bold",
 	},
 })
