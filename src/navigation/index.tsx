@@ -60,6 +60,8 @@ export const MainNavigation = () => {
 	 * loads. In theory this code never runs since the splahscreen
 	 * covers the loading, but I kept it here as a last resort since
 	 * the app could crash without this check.
+	 *
+	 * TODO style this properly as well. Should probably be a screen.
 	 */
 	if (appLoading) {
 		return (
