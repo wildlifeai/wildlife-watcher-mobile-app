@@ -3,8 +3,8 @@ name: Build and Deploy to App Distribution and Testflight
 on:
   workflow_dispatch:
   push:
-    branches:
-      - "workflow-2"
+    tags:
+      - "*"
 
 jobs:
   extract-version:
