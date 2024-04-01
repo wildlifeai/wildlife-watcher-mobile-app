@@ -21,12 +21,18 @@ jobs:
           VERSION="${VERSION#"v"}"
           echo "Processed version: $VERSION"
           echo "::set-output name=version::$VERSION"
+          RELEASE_NOTES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/$VERSION" | jq -r '.body')
+          echo "$RELEASE_NOTES" > release_notes.txt
+          echo "::set-output name=release_notes::release_notes.txt"
   ios-build:
     needs: extract-version
     environment: development
     name: iOS development build
     runs-on: macos-latest
     steps:
+      - name: Log release notes
+        run: |
+          cat ${{ needs.extract-version.outputs.release_notes }}
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.12.0
       - name: Checkout repo from dev branch
@@ -55,6 +61,7 @@ jobs:
       - name: Install dependencies with CocoaPods
         run: cd ios && bundle exec pod install && cd ..
       - name: Run fastlane
+
         run: bundle exec fastlane ios build_release
         env:
           IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
