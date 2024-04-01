@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.extract-version.outputs.version }}
+      release_notes: ${{ steps.extract-version.outputs.release_notes }}
     steps:
       - name: Extract version
         id: extract-version
