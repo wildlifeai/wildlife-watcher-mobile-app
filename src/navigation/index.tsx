@@ -28,7 +28,7 @@ export type AppParams<T extends keyof RootStackParamList> = RouteProp<
 	T
 >
 
-const Stack = createNativeStackNavigator<RootStackParamList>()
+export const Stack = createNativeStackNavigator<RootStackParamList>()
 
 export const MainNavigation = () => {
 	const { status, initialLoad: blLoading } = useAppSelector(
@@ -42,11 +42,18 @@ export const MainNavigation = () => {
 	)
 	const { isLoggedIn } = useContext(AuthContext)
 
+	const somethingWrong =
+		status !== "PoweredOn" || !locationEnabled || !initialized
+	const appLoading = blLoading || locLoading || bleLoading
+
 	useEffect(() => {
+		if (!appLoading && somethingWrong) {
+			BootSplash.hide({ fade: true })
+		}
 		if (isLoggedIn !== undefined) {
 			BootSplash.hide({ fade: true })
 		}
-	}, [blLoading, locLoading, bleLoading, isLoggedIn])
+	}, [appLoading, somethingWrong, isLoggedIn])
 
 	/*
 	 * Stops the app from running until every important component
@@ -54,7 +61,7 @@ export const MainNavigation = () => {
 	 * covers the loading, but I kept it here as a last resort since
 	 * the app could crash without this check.
 	 */
-	if (blLoading || locLoading || bleLoading) {
+	if (appLoading) {
 		return (
 			<View style={[styles.loader]}>
 				<Text style={styles.title}>App getting ready...</Text>
@@ -74,19 +81,19 @@ export const MainNavigation = () => {
 				<Stack.Screen
 					name="BluetoothProblems"
 					component={BluetoothProblems}
-					options={{ title: "Bluetooth problems" }}
+					options={{ headerShown: false }}
 				/>
 			) : !locationEnabled ? (
 				<Stack.Screen
 					name="LocationProblems"
 					component={LocationProblems}
-					options={{ title: "Location problems" }}
+					options={{ headerShown: false }}
 				/>
 			) : !initialized ? (
 				<Stack.Screen
 					name="BLEProblems"
 					component={BleProblems}
-					options={{ title: "Ble problems" }}
+					options={{ headerShown: false }}
 				/>
 			) : (
 				<>

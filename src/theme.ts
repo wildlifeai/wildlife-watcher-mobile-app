@@ -21,6 +21,7 @@ const extendThemes = (theme: MD3Theme) => {
 		...theme,
 		padding: 20,
 		roundness: 10,
+		spacing: 10,
 	}
 }
 

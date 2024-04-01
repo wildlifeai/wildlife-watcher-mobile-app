@@ -1,12 +1,13 @@
-import * as React from "react"
-import { PropsWithChildren } from "react"
+import { PropsWithChildren, useEffect } from "react"
 
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native"
+import { StyleSheet, View } from "react-native"
 
 import { useAndroidPermissions } from "../hooks/useAndroidPermissions"
 import { useAppSelector } from "../redux"
 import { NoAndroidPermissions } from "../navigation/screens/NoAndroidPermissions"
-
+import BootSplash from "react-native-bootsplash"
+import { ActivityIndicator } from "react-native-paper"
+import { Stack } from "../navigation"
 /**
  * We need to make sure permissions are checked and requested
  * before any part of the app starts to load.
@@ -20,17 +21,34 @@ export const AndroidPermissionsProvider = ({
 		(state) => state.androidPermissions,
 	)
 
+	useEffect(() => {
+		const hideBootSplash = async () => {
+			if (!initialLoad && !permissionsGranted && (await BootSplash.isVisible)) {
+				BootSplash.hide({ fade: true })
+			}
+		}
+
+		hideBootSplash()
+	}, [permissionsGranted, initialLoad])
+
 	if (initialLoad) {
 		return (
 			<View style={styles.loader}>
-				<Text style={styles.title}>Device is getting ready...</Text>
 				<ActivityIndicator size={30} />
 			</View>
 		)
 	}
 
 	if (!permissionsGranted) {
-		return <NoAndroidPermissions />
+		return (
+			<Stack.Navigator initialRouteName="AndroidPermissions">
+				<Stack.Screen
+					name="AndroidPermissions"
+					component={NoAndroidPermissions}
+					options={{ headerShown: false }}
+				/>
+			</Stack.Navigator>
+		)
 	}
 
 	return <>{children}</>
@@ -42,8 +60,5 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		alignItems: "center",
 		padding: 30,
-	},
-	title: {
-		marginBottom: 15,
 	},
 })

@@ -22,10 +22,10 @@ import {
 	ActivityIndicator,
 	Button,
 	IconButton,
-	Text,
 	TextInput,
 	useTheme,
 } from "react-native-paper"
+import { WWText } from "../../components/ui/WWText"
 
 type Props = {
 	embed?: boolean
@@ -148,9 +148,9 @@ export const Terminal = ({ embed }: Props) => {
 					onScroll={onScroll}
 					scrollEventThrottle={1000}
 				>
-					<Text variant="bodySmall" style={styles.logs}>
+					<WWText variant="bodySmall" style={styles.logs}>
 						{logs}
-					</Text>
+					</WWText>
 				</ScrollView>
 				{!autoscroll && (
 					<IconButton
@@ -214,7 +214,7 @@ export const Terminal = ({ embed }: Props) => {
 						</View>
 						<View style={styles.button}>
 							{config.HEARTBEAT && config.HEARTBEAT.loaded && (
-								<Text>Current heartbeat: {hb}</Text>
+								<WWText>Current heartbeat: {hb}</WWText>
 							)}
 						</View>
 					</View>
@@ -229,13 +229,15 @@ export const Terminal = ({ embed }: Props) => {
 						</View>
 						<View style={styles.button}>
 							{config.APPEUI && config.APPEUI.loaded && (
-								<Text>Current APPEUI: {eui}</Text>
+								<WWText>Current APPEUI: {eui}</WWText>
 							)}
 						</View>
 					</View>
 					<View style={styles.buttons}>
 						<View style={styles.button}>
-							<Text>Should set APPEUI to AAA4567890123. (doesn't work)</Text>
+							<WWText>
+								Should set APPEUI to AAA4567890123. (doesn't work)
+							</WWText>
 						</View>
 					</View>
 					<View style={styles.buttons}>
@@ -249,13 +251,15 @@ export const Terminal = ({ embed }: Props) => {
 						</View>
 						<View style={styles.button}>
 							{config.DEVEUI && config.DEVEUI.loaded && (
-								<Text>Current DEVEUI: {eui}</Text>
+								<WWText>Current DEVEUI: {eui}</WWText>
 							)}
 						</View>
 					</View>
 					<View style={styles.buttons}>
 						<View style={styles.button}>
-							<Text>Should set DEVEUI to BBB4567890123. (doesn't work)</Text>
+							<WWText>
+								Should set DEVEUI to BBB4567890123. (doesn't work)
+							</WWText>
 						</View>
 					</View>
 					<View style={styles.buttons}>
@@ -272,17 +276,17 @@ export const Terminal = ({ embed }: Props) => {
 					</View>
 					<View style={styles.buttons}>
 						<View style={styles.button}>
-							<Text>
+							<WWText>
 								Sensor is{" "}
 								{sensor === "enable" ? (
-									<Text style={styles.bold}>enabled</Text>
+									<WWText style={styles.bold}>enabled</WWText>
 								) : (
-									<Text style={styles.bold}>disabled</Text>
+									<WWText style={styles.bold}>disabled</WWText>
 								)}
-							</Text>
-							<Text>
-								Lorawan status: <Text style={styles.bold}>{lorawan}</Text>
-							</Text>
+							</WWText>
+							<WWText>
+								Lorawan status: <WWText style={styles.bold}>{lorawan}</WWText>
+							</WWText>
 						</View>
 					</View>
 				</ScrollView>

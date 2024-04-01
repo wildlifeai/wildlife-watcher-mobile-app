@@ -17,7 +17,8 @@ import { useBleActions } from "../../providers/BleEngineProvider"
 import { useAppSelector } from "../../redux"
 import { ExtendedPeripheral } from "../../redux/slices/devicesSlice"
 import { DeviceItem } from "../../components/DeviceItem"
-import { ActivityIndicator, Button, Text } from "react-native-paper"
+import { ActivityIndicator, Button } from "react-native-paper"
+import { WWText } from "../../components/ui/WWText"
 
 export const Home = memo(() => {
 	const { startScan, connectDevice, disconnectDevice } = useBleActions()
@@ -82,11 +83,11 @@ export const Home = memo(() => {
 				{scanning.isScanning ? (
 					<View style={styles.loader}>
 						<ActivityIndicator size={30} />
-						<Text style={styles.text}>Scanning...</Text>
+						<WWText style={styles.text}>Scanning...</WWText>
 					</View>
 				) : devicesToDisplay.length < 1 ? (
 					<View style={styles.emptyView}>
-						<Text>No devices found.</Text>
+						<WWText>No devices found.</WWText>
 					</View>
 				) : (
 					<FlatList
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 	},
-	filterText: {
+	filterWWText: {
 		fontSize: 15,
 		fontWeight: "700",
 	},
