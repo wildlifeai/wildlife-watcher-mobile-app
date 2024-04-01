@@ -66,17 +66,17 @@ platform :ios do
       release_notes_file: './release_notes.txt'
     )
 
-    build_ios_app(
-      silent: true,
-      scheme: 'WildlifeWatcher', 
-      configuration: "Release",
-      workspace: './ios/WildlifeWatcher.xcworkspace', 
-      output_directory: './ios/ipa', 
-      output_name: 'WildlifeWatcher.ipa',
-      buildlog_path: './ios/logs',
-      suppress_xcode_output: true,
-      export_options: "./ios/WildlifeWatcher/exportOptions.plist"  
-    )
+    # build_ios_app(
+    #   silent: true,
+    #   scheme: 'WildlifeWatcher', 
+    #   configuration: "Release",
+    #   workspace: './ios/WildlifeWatcher.xcworkspace', 
+    #   output_directory: './ios/ipa', 
+    #   output_name: 'WildlifeWatcher.ipa',
+    #   buildlog_path: './ios/logs',
+    #   suppress_xcode_output: true,
+    #   export_options: "./ios/WildlifeWatcher/exportOptions.plist"  
+    # )
 
     # Should upload to testflight at this point
   end

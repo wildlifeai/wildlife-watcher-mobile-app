@@ -11,7 +11,7 @@ jobs:
     name: Extract Version
     runs-on: ubuntu-latest
     outputs:
-      version: 0.0.21
+      version: ${{ steps.extract-version.outputs.version }}
       release_notes: ${{ steps.extract-version.outputs.release_notes }}
     steps:
       - name: Extract version
@@ -23,7 +23,7 @@ jobs:
           echo "Processed version: $VERSION"
           echo "::set-output name=version::$VERSION"
 
-          RELEASE_NOTES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/v0.0.20" | jq -r '.body')
+          RELEASE_NOTES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}" | jq -r '.body')
           echo "Release notes: $RELEASE_NOTES"
 
           RELEASE_NOTES="${RELEASE_NOTES//'%'/'%25'}"
