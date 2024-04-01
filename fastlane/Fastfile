@@ -62,7 +62,7 @@ platform :ios do
     firebase_app_distribution(
       app: ENV["APP_ID"],
       service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
-      testers: ENV['TESTERS']
+      testers: ENV['TESTERS'],
       release_notes: ENV['RELEASE_NOTES'] || "No release notes provided."
     )
 
@@ -103,7 +103,7 @@ platform :android do
       app: ENV["APP_ID"],
       android_artifact_path: "./android/app/build/outputs/apk/release/app-release.apk",
       service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
-      testers: ENV['TESTERS']
+      testers: ENV['TESTERS'],
       release_notes: ENV['RELEASE_NOTES'] || "No release notes provided."
     )
     
