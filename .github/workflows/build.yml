@@ -23,7 +23,7 @@ jobs:
           echo "Processed version: $VERSION"
           echo "::set-output name=version::$VERSION"
 
-          RELEASE_NOTES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/v0.0.20" | jq -r '.body')
+          RELEASE_NOTES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/v0.0.20" | jq -r '.body_text')
           echo "Release notes: $RELEASE_NOTES"
           echo "::set-output name=release_notes::$RELEASE_NOTES"
   ios-build:
@@ -32,9 +32,6 @@ jobs:
     name: iOS development build
     runs-on: macos-latest
     steps:
-      - name: Add release notes
-        run: |
-          echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./fastlane/release_notes.txt
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.12.0
       - name: Checkout repo from dev branch
@@ -46,6 +43,8 @@ jobs:
           name: "wildlife-watcher-service-account.json"
           json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
           dir: "./fastlane"
+      - name: Add release notes
+        run: echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./release_notes.txt
       - name: Copy App Store Provisioning certificate
         run: echo -n "${{ secrets.IOS_CERT_PROVISION }}" | base64 --decode > ./fastlane/profile.mobileprovision
       - name: Copy Testers Provisioning certificate
@@ -78,9 +77,6 @@ jobs:
     container:
       image: reactnativecommunity/react-native-android
     steps:
-      - name: Add release notes
-        run: |
-          echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./fastlane/release_notes.txt
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.12.0
       - name: Checkout repo from dev branch
@@ -92,6 +88,8 @@ jobs:
           name: "wildlife-watcher-service-account.json"
           json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
           dir: "./fastlane"
+      - name: Add release notes
+        run: echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./release_notes.txt
       - name: create-json
         id: add-android-credentials
         uses: jsdaniell/create-json@v1.2.2

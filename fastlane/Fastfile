@@ -20,9 +20,9 @@ platform :ios do
   lane :build_release do
 
     # Check if the release_notes.txt file exists
-    if File.exist?("./fastlane/release_notes.txt")
+    if File.exist?("./release_notes.txt")
       # Read the contents of the file
-      release_notes_content = File.read("./fastlane/release_notes.txt")
+      release_notes_content = File.read("./release_notes.txt")
       
       # Print the contents of the file
       puts "Release Notes:"
@@ -78,7 +78,7 @@ platform :ios do
       app: ENV["APP_ID"],
       service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
       testers: ENV['TESTERS'],
-      release_notes_file: './fastlane/release_notes.txt'
+      release_notes_file: './release_notes.txt'
     )
 
     build_ios_app(
@@ -119,7 +119,7 @@ platform :android do
       android_artifact_path: "./android/app/build/outputs/apk/release/app-release.apk",
       service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
       testers: ENV['TESTERS'],
-      release_notes_file: './fastlane/release_notes.txt'
+      release_notes_file: './release_notes.txt'
     )
     
     # Will add once the app is uploaded
