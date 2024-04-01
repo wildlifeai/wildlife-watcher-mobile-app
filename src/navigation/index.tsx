@@ -1,7 +1,4 @@
-import { useContext, useEffect } from "react"
-
-import { StyleSheet, View } from "react-native"
-
+import { useEffect } from "react"
 import { ParamListBase, RouteProp, useRoute } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { useAppSelector } from "../redux"
@@ -13,9 +10,10 @@ import { Home } from "./screens/Home"
 import { Terminal } from "./screens/TerminalScreen"
 import BootSplash from "react-native-bootsplash"
 import { NavigationBar } from "../components/NavigationBar"
-import { ActivityIndicator, Text } from "react-native-paper"
 import { Login } from "./screens/Login"
-import { AuthContext } from "../providers/AuthProvider"
+import { useAuth } from "../providers/AuthProvider"
+import { AppLoading } from "./screens/AppLoading"
+import { AppDrawer } from "../components/AppDrawer"
 
 export interface RootStackParamList extends ParamListBase {
 	Home: undefined
@@ -28,7 +26,7 @@ export type AppParams<T extends keyof RootStackParamList> = RouteProp<
 	T
 >
 
-const Stack = createNativeStackNavigator<RootStackParamList>()
+export const Stack = createNativeStackNavigator<RootStackParamList>()
 
 export const MainNavigation = () => {
 	const { status, initialLoad: blLoading } = useAppSelector(
@@ -40,13 +38,20 @@ export const MainNavigation = () => {
 	const { initialized, initialLoad: bleLoading } = useAppSelector(
 		(state) => state.bleLibrary,
 	)
-	const { isLoggedIn } = useContext(AuthContext)
+	const { isLoggedIn } = useAuth()
+
+	const somethingWrong =
+		status !== "PoweredOn" || !locationEnabled || !initialized
+	const appLoading = blLoading || locLoading || bleLoading
 
 	useEffect(() => {
+		if (!appLoading && somethingWrong) {
+			BootSplash.hide({ fade: true })
+		}
 		if (isLoggedIn !== undefined) {
 			BootSplash.hide({ fade: true })
 		}
-	}, [blLoading, locLoading, bleLoading, isLoggedIn])
+	}, [appLoading, somethingWrong, isLoggedIn])
 
 	/*
 	 * Stops the app from running until every important component
@@ -54,65 +59,66 @@ export const MainNavigation = () => {
 	 * covers the loading, but I kept it here as a last resort since
 	 * the app could crash without this check.
 	 */
-	if (blLoading || locLoading || bleLoading) {
+	if (appLoading) {
 		return (
-			<View style={[styles.loader]}>
-				<Text style={styles.title}>App getting ready...</Text>
-				<ActivityIndicator size={30} />
-			</View>
+			<Stack.Navigator initialRouteName="AppLoading">
+				<Stack.Screen
+					name="AppLoading"
+					component={AppLoading}
+					options={{ headerShown: false }}
+				/>
+			</Stack.Navigator>
 		)
 	}
 
 	return (
-		<Stack.Navigator
-			initialRouteName="Home"
-			screenOptions={{
-				header: NavigationBar,
-			}}
-		>
-			{status !== "PoweredOn" ? (
-				<Stack.Screen
-					name="BluetoothProblems"
-					component={BluetoothProblems}
-					options={{ title: "Bluetooth problems" }}
-				/>
-			) : !locationEnabled ? (
-				<Stack.Screen
-					name="LocationProblems"
-					component={LocationProblems}
-					options={{ title: "Location problems" }}
-				/>
-			) : !initialized ? (
-				<Stack.Screen
-					name="BLEProblems"
-					component={BleProblems}
-					options={{ title: "Ble problems" }}
-				/>
-			) : (
-				<>
-					{isLoggedIn ? (
-						<Stack.Group>
-							<Stack.Screen
-								name="Home"
-								component={Home}
-								options={{ title: "Wildlife Watcher" }}
-							/>
-							<Stack.Screen
-								name="DeviceNavigator"
-								options={{ title: "Configure device" }}
-								component={DeviceNavigation}
-							/>
-						</Stack.Group>
-					) : (
+		<AppDrawer>
+			<Stack.Navigator
+				initialRouteName="Home"
+				screenOptions={{
+					header: NavigationBar,
+				}}
+			>
+				{status !== "PoweredOn" ? (
+					<Stack.Screen
+						name="BluetoothProblems"
+						component={BluetoothProblems}
+						options={{ headerShown: false }}
+					/>
+				) : !locationEnabled ? (
+					<Stack.Screen
+						options={{ headerShown: false }}
+						name="LocationProblems"
+						component={LocationProblems}
+					/>
+				) : !initialized ? (
+					<Stack.Screen
+						options={{ headerShown: false }}
+						name="BLEProblems"
+						component={BleProblems}
+					/>
+				) : !isLoggedIn ? (
+					<Stack.Screen
+						options={{ headerShown: false }}
+						name="Login"
+						component={Login}
+					/>
+				) : (
+					<Stack.Group>
 						<Stack.Screen
-							options={{ headerShown: false }}
-							name="Login"
-							component={Login}
+							name="Home"
+							component={Home}
+							options={{ title: "Wildlife Watcher" }}
 						/>
-					)}
-				</>
-			)}
-		</Stack.Navigator>
+						<Stack.Screen
+							name="DeviceNavigator"
+							options={{ title: "Configure device" }}
+							component={DeviceNavigation} // Nested navigator here
+						/>
+					</Stack.Group>
+				)}
+			</Stack.Navigator>
+		</AppDrawer>
 	)
 }
 
@@ -140,15 +146,3 @@ export const DeviceNavigation = () => {
 		</DeviceReconnectProvider>
 	)
 }
-
-const styles = StyleSheet.create({
-	loader: {
-		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
-		padding: 30,
-	},
-	title: {
-		marginBottom: 15,
-	},
-})

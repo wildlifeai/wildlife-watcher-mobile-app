@@ -1,4 +1,10 @@
-import { PropsWithChildren, createContext, useEffect, useState } from "react"
+import {
+	PropsWithChildren,
+	createContext,
+	useContext,
+	useEffect,
+	useState,
+} from "react"
 
 type AuthContextType = {
 	isLoggedIn: boolean | undefined
@@ -6,6 +12,8 @@ type AuthContextType = {
 }
 
 export const AuthContext = createContext<AuthContextType>({} as AuthContextType)
+
+export const useAuth = () => useContext(AuthContext)
 
 export const AuthProvider = ({ children }: PropsWithChildren<unknown>) => {
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>()

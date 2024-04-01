@@ -1109,6 +1109,15 @@ PODS:
     - Firebase/AppDistribution (= 10.19.0)
     - React-Core
     - RNFBApp
+  - RNGestureHandler (2.16.0):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+  - RNReanimated (3.8.1):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+    - ReactCommon/turbomodule/core
   - RNScreens (3.29.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
@@ -1178,6 +1187,8 @@ DEPENDENCIES:
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAppDistribution (from `../node_modules/@react-native-firebase/app-distribution`)"
+  - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -1305,6 +1316,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBAppDistribution:
     :path: "../node_modules/@react-native-firebase/app-distribution"
+  RNGestureHandler:
+    :path: "../node_modules/react-native-gesture-handler"
+  RNReanimated:
+    :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNVectorIcons:
@@ -1376,6 +1391,8 @@ SPEC CHECKSUMS:
   RNDeviceInfo: 4f9c7cfd6b9db1b05eb919620a001cf35b536423
   RNFBApp: 5ee688b07ed0fa692a3a8fd07df6d6ae41e4c3a0
   RNFBAppDistribution: 76685cce5553d80fdab83b6137a12e6101e5f23e
+  RNGestureHandler: fdcd620c0e90c3d80612dd994e8518a8866ed34b
+  RNReanimated: 8c009e95ed82289b412801b9fc220dca24455f8d
   RNScreens: 2b73f5eb2ac5d94fbd61fa4be0bfebd345716825
   RNVectorIcons: ee070291bc6c7b4c880181b214534d4657ea1905
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17

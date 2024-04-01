@@ -1,10 +1,25 @@
-import { StyleSheet, Text, View } from "react-native"
+import { StyleSheet } from "react-native"
+import { WWIcon } from "../../components/ui/WWIcon"
+import { WWScreenView } from "../../components/ui/WWScreenView"
+import { useExtendedTheme } from "../../theme"
+import { WWText } from "../../components/ui/WWText"
 
 export const BleProblems = () => {
+	const { spacing } = useExtendedTheme()
+
 	return (
-		<View style={styles.view}>
-			<Text>BLE library could not start.</Text>
-		</View>
+		<WWScreenView style={styles.view}>
+			<WWIcon
+				containerStyle={[{ marginBottom: spacing }]}
+				source="bluetooth"
+				size={40}
+			/>
+			<WWText variant="headlineSmall">Bluetooth problems</WWText>
+			<WWText variant="bodyMedium">
+				For some reason, bluetooth could not start. Please make sure this device
+				supports BLE (Bluetooth Low Energy) and that it is enabled.
+			</WWText>
+		</WWScreenView>
 	)
 }
 

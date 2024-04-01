@@ -1,23 +1,15 @@
-import * as React from "react"
-import { memo } from "react"
-import { useEffect } from "react"
-import { useMemo } from "react"
-import { useCallback } from "react"
+import { memo, useEffect, useMemo, useCallback } from "react"
 
-import {
-	FlatList,
-	Keyboard,
-	StyleSheet,
-	TouchableWithoutFeedback,
-	View,
-} from "react-native"
+import { FlatList, StyleSheet, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useAppNavigation } from "../../hooks/useAppNavigation"
 import { useBleActions } from "../../providers/BleEngineProvider"
 import { useAppSelector } from "../../redux"
 import { ExtendedPeripheral } from "../../redux/slices/devicesSlice"
 import { DeviceItem } from "../../components/DeviceItem"
-import { ActivityIndicator, Button, Text } from "react-native-paper"
+import { ActivityIndicator, Button } from "react-native-paper"
+import { WWText } from "../../components/ui/WWText"
+import { WWScreenView } from "../../components/ui/WWScreenView"
 
 export const Home = memo(() => {
 	const { startScan, connectDevice, disconnectDevice } = useBleActions()
@@ -36,7 +28,7 @@ export const Home = memo(() => {
 		})
 	}, [devices])
 
-	const connect = React.useCallback(
+	const connect = useCallback(
 		async (item: ExtendedPeripheral) => {
 			await connectDevice(item)
 		},
@@ -61,11 +53,12 @@ export const Home = memo(() => {
 
 	useEffect(() => {
 		startScan()
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	return (
-		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+		<WWScreenView>
 			<View style={[styles.wrapper, { paddingBottom: bottom }]}>
 				{/* <StatusBar barStyle="light-content" backgroundColor="#ffffff" /> */}
 				<View style={styles.headerView}>
@@ -82,11 +75,11 @@ export const Home = memo(() => {
 				{scanning.isScanning ? (
 					<View style={styles.loader}>
 						<ActivityIndicator size={30} />
-						<Text style={styles.text}>Scanning...</Text>
+						<WWText style={styles.text}>Scanning...</WWText>
 					</View>
 				) : devicesToDisplay.length < 1 ? (
 					<View style={styles.emptyView}>
-						<Text>No devices found.</Text>
+						<WWText>No devices found.</WWText>
 					</View>
 				) : (
 					<FlatList
@@ -104,7 +97,7 @@ export const Home = memo(() => {
 					/>
 				)}
 			</View>
-		</TouchableWithoutFeedback>
+		</WWScreenView>
 	)
 })
 
@@ -141,7 +134,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 	},
-	filterText: {
+	filterWWText: {
 		fontSize: 15,
 		fontWeight: "700",
 	},
