@@ -14,7 +14,7 @@ export const BleProblems = () => {
 				source="bluetooth"
 				size={40}
 			/>
-			<WWText variant="headlineSmall">Bluetooth problems.</WWText>
+			<WWText variant="headlineSmall">Bluetooth problems</WWText>
 			<WWText variant="bodyMedium">
 				For some reason, bluetooth could not start. Please make sure this device
 				supports BLE (Bluetooth Low Energy) and that it is enabled.

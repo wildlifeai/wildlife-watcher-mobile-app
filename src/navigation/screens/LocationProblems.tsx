@@ -14,7 +14,7 @@ export const LocationProblems = () => {
 				source="bluetooth"
 				size={40}
 			/>
-			<WWText variant="headlineSmall">Please enable location.</WWText>
+			<WWText variant="headlineSmall">Please enable Location</WWText>
 			<WWText variant="bodyMedium">
 				This app requires Location to run. It uses it to connect and setup your
 				Wildlife Watcher devices.

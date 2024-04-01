@@ -14,7 +14,7 @@ export const BluetoothProblems = () => {
 				source="bluetooth"
 				size={40}
 			/>
-			<WWText variant="headlineSmall">Please enable bluetooth.</WWText>
+			<WWText variant="headlineSmall">Please enable Bluetooth</WWText>
 			<WWText variant="bodyMedium">
 				This app requires Bluetooth to run. It uses it to connect and setup your
 				Wildlife Watcher devices.

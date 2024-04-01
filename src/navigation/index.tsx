@@ -1,7 +1,4 @@
 import { useContext, useEffect } from "react"
-
-import { StyleSheet, View } from "react-native"
-
 import { ParamListBase, RouteProp, useRoute } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { useAppSelector } from "../redux"
@@ -13,9 +10,9 @@ import { Home } from "./screens/Home"
 import { Terminal } from "./screens/TerminalScreen"
 import BootSplash from "react-native-bootsplash"
 import { NavigationBar } from "../components/NavigationBar"
-import { ActivityIndicator, Text } from "react-native-paper"
 import { Login } from "./screens/Login"
 import { AuthContext } from "../providers/AuthProvider"
+import { AppLoading } from "./screens/AppLoading"
 
 export interface RootStackParamList extends ParamListBase {
 	Home: undefined
@@ -60,15 +57,16 @@ export const MainNavigation = () => {
 	 * loads. In theory this code never runs since the splahscreen
 	 * covers the loading, but I kept it here as a last resort since
 	 * the app could crash without this check.
-	 *
-	 * TODO style this properly as well. Should probably be a screen.
 	 */
 	if (appLoading) {
 		return (
-			<View style={[styles.loader]}>
-				<Text style={styles.title}>App getting ready...</Text>
-				<ActivityIndicator size={30} />
-			</View>
+			<Stack.Navigator initialRouteName="AppLoading">
+				<Stack.Screen
+					name="AppLoading"
+					component={AppLoading}
+					options={{ headerShown: false }}
+				/>
+			</Stack.Navigator>
 		)
 	}
 
@@ -149,15 +147,3 @@ export const DeviceNavigation = () => {
 		</DeviceReconnectProvider>
 	)
 }
-
-const styles = StyleSheet.create({
-	loader: {
-		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
-		padding: 30,
-	},
-	title: {
-		marginBottom: 15,
-	},
-})
