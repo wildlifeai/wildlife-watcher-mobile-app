@@ -19,19 +19,19 @@ platform :ios do
 
   lane :build_release do
 
-    # Check if the release_notes.txt file exists
-    if File.exist?("./release_notes.txt")
-      # Read the contents of the file
-      release_notes_content = File.read("./release_notes.txt")
+    # # Check if the release_notes.txt file exists
+    # if File.exist?("./release_notes.txt")
+    #   # Read the contents of the file
+    #   release_notes_content = File.read("./release_notes.txt")
       
-      # Print the contents of the file
-      puts "Release Notes:"
-      puts release_notes_content
-    else
-      puts "Release notes file not found"
-      puts "Current directory: #{Dir.pwd}"
-      puts "Files in current directory: #{Dir.entries(".")}"
-    end
+    #   # Print the contents of the file
+    #   puts "Release Notes:"
+    #   puts release_notes_content
+    # else
+    #   puts "Release notes file not found"
+    #   puts "Current directory: #{Dir.pwd}"
+    #   puts "Files in current directory: #{Dir.entries(".")}"
+    # end
 
     create_keychain(
       name: "com.wildlife.wildlifewatcher",
