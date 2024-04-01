@@ -51,78 +51,75 @@ jobs:
       - name: Add release notes
         run: |
           echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./release_notes.txt
-          echo "${{ needs.extract-version.outputs.release_notes }}"
-          echo ${{ needs.extract-version.outputs.release_notes }}
-          echo -n "${{ needs.extract-version.outputs.release_notes }}"
-  #     - name: Copy App Store Provisioning certificate
-  #       run: echo -n "${{ secrets.IOS_CERT_PROVISION }}" | base64 --decode > ./fastlane/profile.mobileprovision
-  #     - name: Copy Testers Provisioning certificate
-  #       run: echo -n "${{ secrets.IOS_TESTERS_PROVISION }}" | base64 --decode > ./fastlane/testers.mobileprovision
-  #     - name: Copy private key
-  #       run: echo -n "${{ secrets.IOS_CERT_PRIVATE_KEY }}" | base64 --decode > ./fastlane/cert.p12
-  #     - name: Copy Google Services plist file
-  #       run: echo -n "${{ secrets.IOS_GOOGLE_SERVICES_PLIST }}" | base64 --decode > ./ios/GoogleService-Info.plist
-  #     - name: Install npm dependency
-  #       run: npm install
-  #     - name: Install bundler
-  #       run: gem install bundler -v 2.4.10
-  #     - name: Install gem plugins
-  #       run: bundle install
-  #     - name: Install dependencies with CocoaPods
-  #       run: cd ios && bundle exec pod install && cd ..
-  #     - name: Run fastlane
-  #       run: bundle exec fastlane ios build_release
-  #       env:
-  #         IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
-  #         IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
-  #         APP_VERSION: ${{ needs.extract-version.outputs.version }}
-  #         APP_ID: ${{ vars.APP_ID_IOS }}
-  #         TESTERS: ${{ vars.TESTERS }}
-  # android-build:
-  #   needs: extract-version
-  #   environment: development
-  #   name: Android development build
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: reactnativecommunity/react-native-android
-  #   steps:
-  #     - name: Cancel previous runs
-  #       uses: styfle/cancel-workflow-action@0.12.0
-  #     - name: Checkout repo from branch
-  #       uses: actions/checkout@v3
-  #     - name: create-json
-  #       id: add-firebase-credentials
-  #       uses: jsdaniell/create-json@v1.2.2
-  #       with:
-  #         name: "wildlife-watcher-service-account.json"
-  #         json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-  #         dir: "./fastlane"
-  #     - name: Add release notes
-  #       run: echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./release_notes.txt
-  #     - name: create-json
-  #       id: add-android-credentials
-  #       uses: jsdaniell/create-json@v1.2.2
-  #       with:
-  #         name: "google-services.json"
-  #         json: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
-  #         dir: "./android/app"
-  #     - name: Copy keystore file
-  #       run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" | base64 --decode > ./android/keystores/release.keystore
-  #     - name: Copy keystore properties file
-  #       run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE_PROPS }}" | base64 --decode > ./android/keystores/release.keystore.properties
-  #     - name: Install npm dependency
-  #       run: npm install
-  #     - name: Install bundler
-  #       run: |
-  #         gem install bundler -v 2.4.10
-  #     - name: Install gem plugins
-  #       run: |
-  #         bundle install
-  #     - name: Run fastlane
-  #       run: |
-  #         bundle exec fastlane android build_release
-  #       env:
-  #         APP_VERSION: ${{ needs.extract-version.outputs.version }}
-  #         APP_CODE_VERSION: ${{ github.run_number }}
-  #         APP_ID: ${{ vars.APP_ID_ANDROID }}
-  #         TESTERS: ${{ vars.TESTERS }}
+      - name: Copy App Store Provisioning certificate
+        run: echo -n "${{ secrets.IOS_CERT_PROVISION }}" | base64 --decode > ./fastlane/profile.mobileprovision
+      - name: Copy Testers Provisioning certificate
+        run: echo -n "${{ secrets.IOS_TESTERS_PROVISION }}" | base64 --decode > ./fastlane/testers.mobileprovision
+      - name: Copy private key
+        run: echo -n "${{ secrets.IOS_CERT_PRIVATE_KEY }}" | base64 --decode > ./fastlane/cert.p12
+      - name: Copy Google Services plist file
+        run: echo -n "${{ secrets.IOS_GOOGLE_SERVICES_PLIST }}" | base64 --decode > ./ios/GoogleService-Info.plist
+      - name: Install npm dependency
+        run: npm install
+      - name: Install bundler
+        run: gem install bundler -v 2.4.10
+      - name: Install gem plugins
+        run: bundle install
+      - name: Install dependencies with CocoaPods
+        run: cd ios && bundle exec pod install && cd ..
+      - name: Run fastlane
+        run: bundle exec fastlane ios build_release
+        env:
+          IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+          IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+          APP_VERSION: ${{ needs.extract-version.outputs.version }}
+          APP_ID: ${{ vars.APP_ID_IOS }}
+          TESTERS: ${{ vars.TESTERS }}
+  android-build:
+    needs: extract-version
+    environment: development
+    name: Android development build
+    runs-on: ubuntu-latest
+    container:
+      image: reactnativecommunity/react-native-android
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.12.0
+      - name: Checkout repo from branch
+        uses: actions/checkout@v3
+      - name: create-json
+        id: add-firebase-credentials
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          name: "wildlife-watcher-service-account.json"
+          json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          dir: "./fastlane"
+      - name: Add release notes
+        run: echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./release_notes.txt
+      - name: create-json
+        id: add-android-credentials
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          name: "google-services.json"
+          json: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
+          dir: "./android/app"
+      - name: Copy keystore file
+        run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" | base64 --decode > ./android/keystores/release.keystore
+      - name: Copy keystore properties file
+        run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE_PROPS }}" | base64 --decode > ./android/keystores/release.keystore.properties
+      - name: Install npm dependency
+        run: npm install
+      - name: Install bundler
+        run: |
+          gem install bundler -v 2.4.10
+      - name: Install gem plugins
+        run: |
+          bundle install
+      - name: Run fastlane
+        run: |
+          bundle exec fastlane android build_release
+        env:
+          APP_VERSION: ${{ needs.extract-version.outputs.version }}
+          APP_CODE_VERSION: ${{ github.run_number }}
+          APP_ID: ${{ vars.APP_ID_ANDROID }}
+          TESTERS: ${{ vars.TESTERS }}
