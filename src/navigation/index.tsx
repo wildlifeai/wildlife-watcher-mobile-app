@@ -70,6 +70,31 @@ export const MainNavigation = () => {
 		)
 	}
 
+	if (somethingWrong) {
+		return (
+			<Stack.Navigator screenOptions={{ headerShown: false }}>
+				{status !== "PoweredOn" ? (
+					<Stack.Screen
+						name="BluetoothProblems"
+						component={BluetoothProblems}
+					/>
+				) : !locationEnabled ? (
+					<Stack.Screen name="LocationProblems" component={LocationProblems} />
+				) : !initialized ? (
+					<Stack.Screen name="BLEProblems" component={BleProblems} />
+				) : null}
+			</Stack.Navigator>
+		)
+	}
+
+	if (!isLoggedIn) {
+		return (
+			<Stack.Navigator screenOptions={{ headerShown: false }}>
+				<Stack.Screen name="Login" component={Login} />
+			</Stack.Navigator>
+		)
+	}
+
 	return (
 		<Stack.Navigator
 			initialRouteName="Home"
@@ -77,48 +102,18 @@ export const MainNavigation = () => {
 				header: NavigationBar,
 			}}
 		>
-			{status !== "PoweredOn" ? (
+			<Stack.Group>
 				<Stack.Screen
-					name="BluetoothProblems"
-					component={BluetoothProblems}
-					options={{ headerShown: false }}
+					name="Home"
+					component={Home}
+					options={{ title: "Wildlife Watcher" }}
 				/>
-			) : !locationEnabled ? (
 				<Stack.Screen
-					name="LocationProblems"
-					component={LocationProblems}
-					options={{ headerShown: false }}
+					name="DeviceNavigator"
+					options={{ title: "Configure device" }}
+					component={DeviceNavigation} // Nested navigator here
 				/>
-			) : !initialized ? (
-				<Stack.Screen
-					name="BLEProblems"
-					component={BleProblems}
-					options={{ headerShown: false }}
-				/>
-			) : (
-				<>
-					{isLoggedIn ? (
-						<Stack.Group>
-							<Stack.Screen
-								name="Home"
-								component={Home}
-								options={{ title: "Wildlife Watcher" }}
-							/>
-							<Stack.Screen
-								name="DeviceNavigator"
-								options={{ title: "Configure device" }}
-								component={DeviceNavigation}
-							/>
-						</Stack.Group>
-					) : (
-						<Stack.Screen
-							options={{ headerShown: false }}
-							name="Login"
-							component={Login}
-						/>
-					)}
-				</>
-			)}
+			</Stack.Group>
 		</Stack.Navigator>
 	)
 }

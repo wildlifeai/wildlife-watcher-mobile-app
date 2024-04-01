@@ -12,6 +12,7 @@ export const WWText = ({
 	children,
 	align,
 	gutter,
+	variant = "bodyMedium",
 	...props
 }: PropsWithChildren<Props>) => {
 	const { spacing } = useExtendedTheme()
@@ -19,6 +20,7 @@ export const WWText = ({
 	return (
 		<Text
 			{...props}
+			variant={variant}
 			style={[
 				gutter && { marginBottom: spacing },
 				align && { textAlign: align },
