@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Log release notes
         run: |
-          echo -n "${{ needs.extract-version.outputs.version }}" > ./release_notes.txt
+          echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./release_notes.txt
           cat release_notes.txt
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.12.0
