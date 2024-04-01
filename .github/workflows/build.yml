@@ -32,6 +32,9 @@ jobs:
     name: iOS development build
     runs-on: macos-latest
     steps:
+      - name: Add release notes
+        run: |
+          echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./release_notes.txt
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.12.0
       - name: Checkout repo from dev branch
@@ -67,7 +70,6 @@ jobs:
           APP_VERSION: ${{ needs.extract-version.outputs.version }}
           APP_ID: ${{ vars.APP_ID_IOS }}
           TESTERS: ${{ vars.TESTERS }}
-          RELEASE_NOTES: ${{ needs.extract-version.outputs.release_notes }}
   android-build:
     needs: extract-version
     environment: development
@@ -76,6 +78,9 @@ jobs:
     container:
       image: reactnativecommunity/react-native-android
     steps:
+      - name: Add release notes
+        run: |
+          echo -n "${{ needs.extract-version.outputs.release_notes }}" > ./release_notes.txt
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.12.0
       - name: Checkout repo from dev branch
@@ -114,4 +119,3 @@ jobs:
           APP_CODE_VERSION: ${{ github.run_number }}
           APP_ID: ${{ vars.APP_ID_ANDROID }}
           TESTERS: ${{ vars.TESTERS }}
-          RELEASE_NOTES: ${{ needs.extract-version.outputs.release_notes }}
