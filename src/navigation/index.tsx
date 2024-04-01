@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react"
+import { useEffect } from "react"
 import { ParamListBase, RouteProp, useRoute } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { useAppSelector } from "../redux"
@@ -11,7 +11,7 @@ import { Terminal } from "./screens/TerminalScreen"
 import BootSplash from "react-native-bootsplash"
 import { NavigationBar } from "../components/NavigationBar"
 import { Login } from "./screens/Login"
-import { AuthContext } from "../providers/AuthProvider"
+import { useAuth } from "../providers/AuthProvider"
 import { AppLoading } from "./screens/AppLoading"
 import { AppDrawer } from "../components/AppDrawer"
 
@@ -38,7 +38,7 @@ export const MainNavigation = () => {
 	const { initialized, initialLoad: bleLoading } = useAppSelector(
 		(state) => state.bleLibrary,
 	)
-	const { isLoggedIn } = useContext(AuthContext)
+	const { isLoggedIn } = useAuth()
 
 	const somethingWrong =
 		status !== "PoweredOn" || !locationEnabled || !initialized

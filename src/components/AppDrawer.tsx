@@ -5,9 +5,11 @@ import {
 	useContext,
 	useState,
 } from "react"
-import { StyleSheet, View } from "react-native"
+import { StyleSheet } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
-import { Button } from "react-native-paper"
+import { Button, Surface } from "react-native-paper"
+import { WWText } from "./ui/WWText"
+import { useExtendedTheme } from "../theme"
 
 type DrawerContextProps = {
 	isOpen: boolean
@@ -19,6 +21,7 @@ export const useAppDrawer = () => useContext(DrawerContext)
 
 export const AppDrawer = ({ children }: PropsWithChildren<unknown>) => {
 	const [isOpen, setIsOpen] = useState(false)
+	const { padding } = useExtendedTheme()
 
 	return (
 		<Drawer
@@ -28,11 +31,12 @@ export const AppDrawer = ({ children }: PropsWithChildren<unknown>) => {
 			onClose={() => setIsOpen(false)}
 			renderDrawerContent={() => {
 				return (
-					<View>
+					<Surface style={[{ padding }, styles.view]}>
+						<WWText variant="bodyLarge">I'm empty at the moment.</WWText>
 						<Button onPress={() => setIsOpen((prevOpen) => !prevOpen)}>{`${
 							isOpen ? "Close" : "Open"
 						} drawer`}</Button>
-					</View>
+					</Surface>
 				)
 			}}
 		>
