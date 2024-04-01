@@ -29,6 +29,8 @@ platform :ios do
       puts release_notes_content
     else
       puts "Release notes file not found"
+      puts "Current directory: #{Dir.pwd}"
+      puts "Files in current directory: #{Dir.entries(".")}"
     end
 
     create_keychain(
@@ -76,7 +78,7 @@ platform :ios do
       app: ENV["APP_ID"],
       service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
       testers: ENV['TESTERS'],
-      release_notes_file: './release-notes.txt'
+      release_notes_file: './release_notes.txt'
     )
 
     build_ios_app(
@@ -117,7 +119,7 @@ platform :android do
       android_artifact_path: "./android/app/build/outputs/apk/release/app-release.apk",
       service_credentials_file: "./fastlane/wildlife-watcher-service-account.json",
       testers: ENV['TESTERS'],
-      release_notes_file: './release-notes.txt'
+      release_notes_file: './release_notes.txt'
     )
     
     # Will add once the app is uploaded
