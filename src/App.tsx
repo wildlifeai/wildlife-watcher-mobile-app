@@ -12,7 +12,7 @@ import { MainNavigation } from "./navigation"
 import { NavigationContainer } from "@react-navigation/native"
 import { ListenToBleEngineProvider } from "./providers/ListenToBleEngineProvider"
 import { PaperProvider } from "react-native-paper"
-import { CombinedDarkTheme } from "./theme"
+import { CombinedDefaultTheme } from "./theme"
 import { AuthProvider } from "./providers/AuthProvider"
 
 export const App = () => {
@@ -20,8 +20,8 @@ export const App = () => {
 		<SafeAreaProvider>
 			<Suspense fallback={"Loading..."}>
 				<ReduxProvider store={store}>
-					<PaperProvider theme={CombinedDarkTheme}>
-						<NavigationContainer theme={CombinedDarkTheme}>
+					<PaperProvider theme={CombinedDefaultTheme}>
+						<NavigationContainer theme={CombinedDefaultTheme}>
 							<AndroidPermissionsProvider>
 								<AppSetupProvider>
 									<BleEngineProvider>
