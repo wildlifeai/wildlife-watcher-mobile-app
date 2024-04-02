@@ -26,7 +26,9 @@ const TIMEOUT = 1000 * 10
 export const useCommand = ({ deviceId, command }: Props) => {
 	const requestRef = useRef<NodeJS.Timeout>()
 	const timeoutRef = useRef<NodeJS.Timeout>()
+
 	const [goal, setGoal] = useState<number | string>()
+	const [commandLoading, setCommandLoading] = useState(true)
 
 	const { write } = useBleActions()
 	const devices = useAppSelector((state) => state.devices)
@@ -71,6 +73,7 @@ export const useCommand = ({ deviceId, command }: Props) => {
 	const set = useCallback(
 		(data?: string) => {
 			clearTimers()
+			setCommandLoading(true)
 
 			sendCommand(CommandControlTypes.WRITE, data)
 
@@ -85,6 +88,8 @@ export const useCommand = ({ deviceId, command }: Props) => {
 				if (requestRef.current) {
 					clearInterval(requestRef.current)
 				}
+
+				setCommandLoading(false)
 
 				dispatch(
 					deviceConfigChanged({
@@ -122,6 +127,8 @@ export const useCommand = ({ deviceId, command }: Props) => {
 		// Means its a set only command in reality
 		if (!command.readCommand) return
 
+		setCommandLoading(true)
+
 		sendCommand(CommandControlTypes.READ)
 
 		requestRef.current = setInterval(
@@ -132,6 +139,8 @@ export const useCommand = ({ deviceId, command }: Props) => {
 			if (requestRef.current) {
 				clearInterval(requestRef.current)
 			}
+
+			setCommandLoading(false)
 
 			dispatch(
 				deviceConfigChanged({
@@ -170,7 +179,7 @@ export const useCommand = ({ deviceId, command }: Props) => {
 			})
 		) {
 			clearTimers()
-
+			setCommandLoading(false)
 			/**
 			 * If the hook already detects the correct configuration
 			 * when it first renders, the get() method isn't even
@@ -209,6 +218,7 @@ export const useCommand = ({ deviceId, command }: Props) => {
 	return {
 		set,
 		get,
+		commandLoading,
 	}
 }
 
@@ -220,6 +230,8 @@ const isCommandCompleted = ({
 	goal?: number | string
 }) => {
 	if (!config) return false
+
+	if (config.loading) return false
 
 	if (goal) {
 		return config.value === goal

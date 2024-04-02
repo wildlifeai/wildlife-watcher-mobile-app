@@ -1,15 +1,16 @@
-import React, { useCallback, useEffect, useRef } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 
 import { Platform } from "react-native"
 
 import BleManager from "react-native-ble-manager"
 import { Peripheral } from "react-native-ble-manager"
 
+import { BLE_SERVICE_UUID } from "../utils/constants"
 import {
-	BLE_CHARACTERISTIC_READ_UUID,
-	BLE_SERVICE_UUID,
-} from "../utils/constants"
-import { invokeWithTimeout, sleep } from "../utils/helpers"
+	extractServiceAndCharacteristic,
+	invokeWithTimeout,
+	sleep,
+} from "../utils/helpers"
 import { guard, log, logError } from "../utils/logger"
 import { useAppDispatch, useAppSelector } from "../redux"
 import {
@@ -30,6 +31,7 @@ import {
 	CommandConstructOptions,
 	CommandControlTypes,
 	CommandNames,
+	Services,
 } from "../ble/types"
 import { constructCommandString } from "../ble/parser"
 
@@ -72,6 +74,8 @@ const PING_REQUEST: string[] = []
 
 export const useBle = (): ReturnType => {
 	const { initialized } = useAppSelector((state) => state.bleLibrary)
+
+	const [isBleConnecting, setIsBleConnecting] = useState(false)
 
 	const devices = useAppSelector((state) => state.devices)
 	const scanning = useAppSelector((state) => state.scanning)
@@ -232,9 +236,7 @@ export const useBle = (): ReturnType => {
 	)
 
 	const isDeviceReconnecting = useRef<{ [x: string]: boolean }>({})
-	const isBleConnecting = Object.values(isDeviceReconnecting.current).find(
-		(isConnected) => isConnected,
-	)
+
 	const connectDevice = useCallback(
 		async (peripheral: ExtendedPeripheral, timeout?: number) => {
 			if (!initialized || peripheral.loading) return peripheral
@@ -261,6 +263,8 @@ export const useBle = (): ReturnType => {
 
 			isDeviceReconnecting.current[peripheral.id] = true
 
+			setIsBleConnecting(true)
+
 			const newPeripheral = { ...peripheral }
 
 			dispatch(deviceLoading({ id: newPeripheral.id, loading: true }))
@@ -286,18 +290,22 @@ export const useBle = (): ReturnType => {
 
 					log(`Device ${deviceIdentification} connected`)
 
-					await invokeWithTimeout(
+					const services = (await invokeWithTimeout(
 						() => BleManager.retrieveServices(newPeripheral.id),
 						"BleManager.retrieveServices",
 						timeout,
-					)
+					)) as Services
 
 					log(`Device ${deviceIdentification} services retireved`)
 
+					const extractedServices = extractServiceAndCharacteristic(services)
+
+					newPeripheral.services = extractedServices
+
 					await BleManager.startNotification(
 						newPeripheral.id,
-						BLE_SERVICE_UUID,
-						BLE_CHARACTERISTIC_READ_UUID,
+						extractedServices.serviceCharacteristic,
+						extractedServices.readCharacteristic,
 					)
 
 					log(`Device ${deviceIdentification} notifications started`)
@@ -313,7 +321,6 @@ export const useBle = (): ReturnType => {
 					await ping()
 
 					newPeripheral.connected = true
-
 					newPeripheral.intervals = {
 						ping: setInterval(async () => await ping(), 20000),
 					}
@@ -329,6 +336,7 @@ export const useBle = (): ReturnType => {
 			dispatch(deviceLoading({ id: newPeripheral.id, loading: false }))
 
 			if (isDeviceReconnecting.current[peripheral.id]) {
+				setIsBleConnecting(false)
 				isDeviceReconnecting.current[peripheral.id] = false
 			}
 

@@ -24,7 +24,7 @@ export const useAppDrawer = () => useContext(DrawerContext)
 
 export const AppDrawer = ({ children }: PropsWithChildren<unknown>) => {
 	const [isOpen, setIsOpen] = useState(false)
-	const { padding, spacing } = useExtendedTheme()
+	const { appPadding, spacing } = useExtendedTheme()
 	const { setIsLoggedIn, isLoggedIn } = useAuth()
 	const { top } = useSafeAreaInsets()
 
@@ -43,7 +43,10 @@ export const AppDrawer = ({ children }: PropsWithChildren<unknown>) => {
 			renderDrawerContent={() => {
 				return (
 					<Surface
-						style={[{ padding, paddingTop: padding + top }, styles.view]}
+						style={[
+							{ padding: appPadding, paddingTop: appPadding + top },
+							styles.view,
+						]}
 					>
 						<Avatar.Image source={require("../assets/avatar.png")} />
 						<WWText variant="bodyLarge">I'm empty at the moment.</WWText>

@@ -11,6 +11,11 @@ export interface ExtendedPeripheral extends Peripheral {
 	signalLost?: boolean
 	device: DeviceMetadata
 	loading: boolean
+	services?: {
+		serviceCharacteristic: string
+		readCharacteristic: string
+		writeCharacteristic: string
+	}
 	intervals: {
 		[x: string]: NodeJS.Timeout | undefined | null
 	}

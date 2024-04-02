@@ -186,7 +186,6 @@ export const useBleListeners = () => {
 			console.debug(JSON.stringify(text))
 
 			const currentConfiguration = configRef.current[peripheral] || {}
-			// const currentPeripheral = devicesRef.current[peripheral]
 			const currentLog = allLogs.current[peripheral] || ""
 
 			if (allLogs.current[peripheral]) {

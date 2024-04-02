@@ -68,7 +68,6 @@ export const COMMANDS: {
 	[CommandNames.ID]: {
 		name: CommandNames.ID,
 		readCommand: "id",
-		readRegex: /\bDevEui:\s*([0-9A-Fa-f:]+)\b/,
 	},
 	[CommandNames.VERSION]: {
 		name: CommandNames.VERSION,
@@ -77,7 +76,7 @@ export const COMMANDS: {
 	[CommandNames.BATTERY]: {
 		name: CommandNames.BATTERY,
 		readCommand: "battery",
-		readRegex: /\bBattery\s=\s([0-9.]+V)\b/,
+		readRegex: /\bBattery\s=\s(100|\d{1,3})%/,
 	},
 	[CommandNames.SENSOR]: {
 		name: CommandNames.SENSOR,
@@ -145,4 +144,62 @@ export const COMMANDS: {
 		writeCommand: () => "dfu",
 		readRegex: /(Device will enter DFU mode after disconnecting.)\s*/,
 	},
+}
+
+type CharacteristicProperty =
+	| "Read"
+	| "Write"
+	| "WriteWithoutResponse"
+	| "Notify"
+
+type CharacteristicProperties = {
+	[key in CharacteristicProperty]?: CharacteristicProperty
+}
+
+type Descriptor = {
+	value: any
+	uuid: string
+}
+
+type Characteristic = {
+	properties: CharacteristicProperties
+	characteristic: string
+	service: string
+	descriptors?: Descriptor[]
+}
+
+type Service = {
+	uuid: string
+}
+
+type ManufacturerRawData = {
+	bytes: number[]
+	data: string
+	CDVType: string
+}
+
+type RawData = {
+	bytes: number[]
+	data: string
+	CDVType: string
+}
+
+type Advertising = {
+	manufacturerData: any
+	txPowerLevel: number
+	isConnectable: boolean
+	serviceData: any
+	localName: string
+	serviceUUIDs: string[]
+	manufacturerRawData: ManufacturerRawData
+	rawData: RawData
+}
+
+export type Services = {
+	characteristics: Characteristic[]
+	services: Service[]
+	advertising: Advertising
+	name: string
+	rssi: number
+	id: string
 }
