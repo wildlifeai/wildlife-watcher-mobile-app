@@ -7,15 +7,11 @@ export const WWScreenView = ({
 	children,
 	...props
 }: PropsWithChildren<SafeAreaViewProps>) => {
-	const { padding } = useExtendedTheme()
+	const { appPadding } = useExtendedTheme()
 
 	return (
-		<TouchableWithoutFeedback
-			style={styles.view}
-			onPress={Keyboard.dismiss}
-			accessible={false}
-		>
-			<SafeAreaView style={[{ padding }, styles.view, props.style]}>
+		<TouchableWithoutFeedback style={styles.view} onPress={Keyboard.dismiss}>
+			<SafeAreaView style={[{ padding: appPadding }, styles.view, props.style]}>
 				{children}
 			</SafeAreaView>
 		</TouchableWithoutFeedback>

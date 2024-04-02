@@ -25,7 +25,7 @@ const extendThemes = (theme: MD3Theme) => {
 			secondary: "#fed54e",
 			tertiary: "#ffffff",
 		},
-		padding: 20,
+		appPadding: 20,
 		roundness: 10,
 		spacing: 10,
 	}

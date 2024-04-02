@@ -9,6 +9,7 @@ import {
 } from "react-native"
 
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useExtendedTheme } from "../theme"
 
 type Props = {
 	style?: StyleProp<ViewStyle>
@@ -22,10 +23,11 @@ export const CustomKeyboardAvoidingView = ({
 }: PropsWithChildren<Props>) => {
 	const insets = useSafeAreaInsets()
 	const [bottomPadding, setBottomPadding] = useState(insets.bottom)
+	const { spacing } = useExtendedTheme()
 
 	useEffect(() => {
-		setBottomPadding(insets.bottom)
-	}, [insets.bottom, insets.top])
+		setBottomPadding(insets.bottom + spacing)
+	}, [insets.bottom, insets.top, spacing])
 
 	return (
 		<KeyboardAvoidingView
