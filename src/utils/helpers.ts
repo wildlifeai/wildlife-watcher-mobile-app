@@ -1,10 +1,15 @@
 import dayjs from "dayjs"
 import { ExtendedPeripheral } from "../redux/slices/devicesSlice"
 import { log } from "./logger"
-import { BLE_CHARACTERISTIC_WRITE_UUID, BLE_SERVICE_UUID } from "./constants"
+import {
+	BLE_CHARACTERISTIC_READ_UUID,
+	BLE_CHARACTERISTIC_WRITE_UUID,
+	BLE_SERVICE_UUID,
+} from "./constants"
 import BleManager from "react-native-ble-manager"
 import { Buffer } from "buffer"
 import { readlineParserEmitter } from "../hooks/useBleListeners"
+import { Services } from "../ble/types"
 
 export const clearAllDeviceIntervals = (
 	device: ExtendedPeripheral | undefined | null,
@@ -73,8 +78,9 @@ export const writeToDevice: WriteFunction = async (peripheral, data) => {
 
 			await BleManager.writeWithoutResponse(
 				peripheral.id,
-				BLE_SERVICE_UUID,
-				BLE_CHARACTERISTIC_WRITE_UUID,
+				peripheral.services?.serviceCharacteristic || BLE_SERVICE_UUID,
+				peripheral.services?.writeCharacteristic ||
+					BLE_CHARACTERISTIC_WRITE_UUID,
 				byteArray,
 			)
 
@@ -99,6 +105,64 @@ export const writeToDevice: WriteFunction = async (peripheral, data) => {
 			if (problem) {
 				return Error(e)
 			}
+		}
+	}
+}
+
+const UUID_LENGTH = 36
+
+export const extractServiceAndCharacteristic = (services?: Services) => {
+	log("Extracting services and characteristics.")
+	if (!services) {
+		log("Service object not found, using default.")
+		return {
+			writeCharacteristic: BLE_CHARACTERISTIC_WRITE_UUID,
+			readCharacteristic: BLE_CHARACTERISTIC_READ_UUID,
+			serviceCharacteristic: BLE_SERVICE_UUID,
+		}
+	}
+
+	try {
+		const allServices = services.services.filter(
+			(s) => s.uuid.length === UUID_LENGTH,
+		)
+
+		if (allServices.length !== 1) {
+			throw new Error("Error: More then one service found.")
+		}
+
+		const service = allServices[0]
+
+		const write = services.characteristics.find((c) => {
+			if (c.service === service.uuid && c.properties.WriteWithoutResponse) {
+				return true
+			}
+		})
+
+		const read = services.characteristics.find((c) => {
+			if (c.service === service.uuid && c.properties.Notify) {
+				return true
+			}
+		})
+
+		if (!write || !read) {
+			throw new Error(
+				`Error: No combination found for this service: ${service.uuid}`,
+			)
+		}
+
+		return {
+			serviceCharacteristic: service.uuid,
+			readCharacteristic: read.characteristic,
+			writeCharacteristic: write.characteristic,
+		}
+	} catch (e: any) {
+		log(e.message)
+		log("Extracting services and characteristics failed, using default.")
+		return {
+			writeCharacteristic: BLE_CHARACTERISTIC_WRITE_UUID,
+			readCharacteristic: BLE_CHARACTERISTIC_READ_UUID,
+			serviceCharacteristic: BLE_SERVICE_UUID,
 		}
 	}
 }

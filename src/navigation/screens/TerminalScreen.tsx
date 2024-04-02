@@ -7,7 +7,6 @@ import { useEffect } from "react"
 import {
 	NativeScrollEvent,
 	NativeSyntheticEvent,
-	ScrollView,
 	StyleSheet,
 	View,
 } from "react-native"
@@ -19,13 +18,18 @@ import { useCommand } from "../../hooks/useCommand"
 import { COMMANDS } from "../../ble/types"
 import { useSelectDevice } from "../../hooks/useSelectDevice"
 import {
-	ActivityIndicator,
 	Button,
+	Divider,
 	IconButton,
+	Switch,
 	TextInput,
-	useTheme,
 } from "react-native-paper"
 import { WWText } from "../../components/ui/WWText"
+import { useExtendedTheme } from "../../theme"
+import { WWTextInput } from "../../components/ui/WWTextInput"
+import { WWScreenView } from "../../components/ui/WWScreenView"
+import { WWScrollView } from "../../components/ui/WWScrollView"
+import { AppLoading } from "./AppLoading"
 
 type Props = {
 	embed?: boolean
@@ -33,7 +37,6 @@ type Props = {
 
 export const Terminal = ({ embed }: Props) => {
 	const scrollViewRef = React.useRef<any>()
-	const { colors } = useTheme()
 	const {
 		params: { deviceId },
 	} = useRoute<AppParams<"Terminal">>()
@@ -46,13 +49,31 @@ export const Terminal = ({ embed }: Props) => {
 	const logs = deviceLogs[deviceId]
 	const configuration = useAppSelector((state) => state.configuration)
 	const config = configuration[deviceId]
-
-	useCommand({ deviceId, command: COMMANDS.BATTERY })
-	useCommand({ deviceId, command: COMMANDS.VERSION })
-	const { set: setHb } = useCommand({ deviceId, command: COMMANDS.HEARTBEAT })
-	const { set: setAppEui } = useCommand({ deviceId, command: COMMANDS.APPEUI })
-	const { set: setDevEui } = useCommand({ deviceId, command: COMMANDS.DEVEUI })
-	const { set: setSensor } = useCommand({ deviceId, command: COMMANDS.SENSOR })
+	const { spacing, colors, appPadding } = useExtendedTheme()
+	const { get: getBattery, commandLoading: batteryLoading } = useCommand({
+		deviceId,
+		command: COMMANDS.BATTERY,
+	})
+	const { get: getVersion, commandLoading: versionLoading } = useCommand({
+		deviceId,
+		command: COMMANDS.VERSION,
+	})
+	const { set: setHb, commandLoading: hbLoading } = useCommand({
+		deviceId,
+		command: COMMANDS.HEARTBEAT,
+	})
+	const { set: setAE, commandLoading: aeLoading } = useCommand({
+		deviceId,
+		command: COMMANDS.APPEUI,
+	})
+	const { set: setDE, commandLoading: deLoading } = useCommand({
+		deviceId,
+		command: COMMANDS.DEVEUI,
+	})
+	const { set: setSensor, commandLoading: sensorLoading } = useCommand({
+		deviceId,
+		command: COMMANDS.SENSOR,
+	})
 	const { set: reset } = useCommand({ deviceId, command: COMMANDS.RESET })
 	const { set: erase } = useCommand({ deviceId, command: COMMANDS.ERASE })
 	const { set: triggerDfu } = useCommand({
@@ -61,6 +82,40 @@ export const Terminal = ({ embed }: Props) => {
 	})
 
 	const [autoscroll, setAutoscroll] = useState(true)
+
+	const [heartbeat, setHeartbeat] = useState<string>()
+	const [appEui, setAppEui] = useState<string>("")
+	const [devEui, setDevEui] = useState<string>("")
+	const [localSensor, setLocalSensor] = useState<boolean>()
+
+	useEffect(() => {
+		setLocalSensor(config.SENSOR?.value === "enable")
+	}, [config.SENSOR?.value])
+
+	const triggerSensor = (value: boolean) => {
+		if (!sensorLoading) {
+			setSensor(value ? "enable" : "disable")
+			setLocalSensor(value)
+		}
+	}
+
+	const triggerHeartbeat = () => {
+		if (heartbeat && !hbLoading) {
+			setHb(`${heartbeat}s`)
+		}
+	}
+
+	const triggerAppEui = () => {
+		if (appEui && appEui.length > 0 && !aeLoading) {
+			setAE(appEui)
+		}
+	}
+
+	const triggerDevEui = () => {
+		if (devEui && devEui.length > 0 && !deLoading) {
+			setDE(devEui)
+		}
+	}
 
 	const writeText = useCallback(async () => {
 		await write(device, [text])
@@ -124,179 +179,285 @@ export const Terminal = ({ embed }: Props) => {
 		}
 	}
 
-	const { HEARTBEAT, APPEUI, SENSOR, LORAWAN } = config
+	const { HEARTBEAT, APPEUI, SENSOR, LORAWAN, DEVEUI, BATTERY, VERSION, ID } =
+		config
 
 	if (
 		!HEARTBEAT?.loaded ||
 		!APPEUI?.loaded ||
 		!SENSOR?.loaded ||
-		!LORAWAN?.loaded
+		!LORAWAN?.loaded ||
+		!DEVEUI?.loaded ||
+		!BATTERY?.loaded ||
+		!VERSION?.loaded ||
+		!ID?.loaded
 	) {
-		return <ActivityIndicator />
+		return <AppLoading />
 	}
-
-	const hb = HEARTBEAT.value
-	const eui = APPEUI.value
-	const sensor = SENSOR.value
-	const lorawan = LORAWAN.value
 
 	return (
 		<CustomKeyboardAvoidingView style={styles.scroll}>
-			<View style={styles.view}>
-				<ScrollView
-					ref={scrollViewRef}
-					onScroll={onScroll}
-					scrollEventThrottle={1000}
-				>
-					<WWText variant="bodySmall" style={styles.logs}>
-						{logs}
-					</WWText>
-				</ScrollView>
-				{!autoscroll && (
-					<IconButton
-						icon="chevron-down"
-						mode="contained"
-						iconColor={colors.primary}
-						style={styles.fab}
-						onPress={() => {
-							toggleAutoscroll(true)
-							scrollViewRef.current &&
-								scrollViewRef.current.scrollToEnd({ animated: true })
-						}}
-					/>
-				)}
-			</View>
-			<View style={styles.input}>
-				<TextInput
-					autoCorrect={false}
-					autoCapitalize="none"
-					style={styles.inputText}
-					value={text}
-					onChangeText={(value: string) => setText(value)}
-				/>
-
-				<IconButton
-					iconColor={colors.primary}
-					icon="send"
-					size={30}
-					onPress={writeText}
-				/>
-			</View>
-			<View style={styles.scrollContainer}>
-				<ScrollView style={styles.scroll}>
-					<View style={styles.buttons}>
-						<View style={styles.button}>
-							<Button mode="elevated" onPress={() => reset()}>
-								Reset
-							</Button>
-						</View>
-						<View style={styles.button}>
-							<Button mode="elevated" onPress={() => erase()}>
-								Erase
-							</Button>
-						</View>
-						<View style={styles.button}>
-							<Button mode="elevated" onPress={() => disconnectDevice(device)}>
-								Disconnect
-							</Button>
-						</View>
-						<View style={styles.button}>
-							<Button mode="elevated" onPress={() => triggerDfu()}>
-								DFU mode
-							</Button>
-						</View>
-					</View>
-					<View style={styles.buttons}>
-						<View style={styles.button}>
-							<Button mode="elevated" onPress={() => setHb("40s")}>
-								Set Heartbeat
-							</Button>
-						</View>
-						<View style={styles.button}>
-							{config.HEARTBEAT && config.HEARTBEAT.loaded && (
-								<WWText>Current heartbeat: {hb}</WWText>
-							)}
-						</View>
-					</View>
-					<View style={styles.buttons}>
-						<View style={styles.button}>
-							<Button
-								mode="elevated"
-								onPress={() => setAppEui("AAA4567890123")}
-							>
-								Set APPEUI
-							</Button>
-						</View>
-						<View style={styles.button}>
-							{config.APPEUI && config.APPEUI.loaded && (
-								<WWText>Current APPEUI: {eui}</WWText>
-							)}
-						</View>
-					</View>
-					<View style={styles.buttons}>
-						<View style={styles.button}>
-							<WWText>
-								Should set APPEUI to AAA4567890123. (doesn't work)
+			<WWScreenView>
+				<View style={{ margin: spacing }}>
+					<View style={styles.view}>
+						<WWScrollView
+							ref={scrollViewRef}
+							onScroll={onScroll}
+							scrollEventThrottle={50}
+						>
+							<WWText variant="bodyMedium" style={styles.logs}>
+								{logs.replaceAll("\r", "")}
 							</WWText>
-						</View>
+						</WWScrollView>
+						{!autoscroll && (
+							<IconButton
+								icon="chevron-down"
+								mode="contained"
+								iconColor={colors.primary}
+								style={styles.fab}
+								onPress={() => {
+									toggleAutoscroll(true)
+									scrollViewRef.current &&
+										scrollViewRef.current.scrollToEnd({ animated: true })
+								}}
+							/>
+						)}
 					</View>
-					<View style={styles.buttons}>
-						<View style={styles.button}>
-							<Button
-								mode="elevated"
-								onPress={() => setDevEui("AAA4567890123")}
-							>
-								Set DEVEUI
-							</Button>
-						</View>
-						<View style={styles.button}>
-							{config.DEVEUI && config.DEVEUI.loaded && (
-								<WWText>Current DEVEUI: {eui}</WWText>
-							)}
-						</View>
+					<View style={styles.input}>
+						<WWTextInput
+							autoCorrect={false}
+							autoCapitalize="none"
+							style={styles.inputText}
+							value={text}
+							onChangeText={(value: string) => setText(value)}
+							right={
+								<TextInput.Icon
+									size={30}
+									icon="send"
+									color={colors.primary}
+									onPress={writeText}
+								/>
+							}
+						/>
 					</View>
-					<View style={styles.buttons}>
-						<View style={styles.button}>
-							<WWText>
-								Should set DEVEUI to BBB4567890123. (doesn't work)
-							</WWText>
+				</View>
+				<Divider style={{ marginVertical: appPadding }} bold />
+				<View style={styles.scrollContainer}>
+					<WWScrollView style={styles.scroll}>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">ID and Version</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
+								<View style={[{ padding: spacing }, styles.idversion]}>
+									{ID.loaded && (
+										<WWText>
+											ID: <WWText style={styles.bold}>{ID.value}</WWText>
+										</WWText>
+									)}
+								</View>
+								<View style={{ padding: spacing }}>
+									{VERSION.loaded && (
+										<WWText>
+											Version:{" "}
+											{versionLoading ? (
+												"Loading..."
+											) : (
+												<WWText style={styles.bold}>{VERSION.value}</WWText>
+											)}
+										</WWText>
+									)}
+								</View>
+							</View>
+							<View style={styles.heartbeat}>
+								<Button mode="outlined" onPress={getVersion}>
+									Refresh version
+								</Button>
+							</View>
 						</View>
-					</View>
-					<View style={styles.buttons}>
-						<View style={styles.button}>
-							<Button
-								mode="elevated"
-								onPress={() =>
-									setSensor(sensor === "enable" ? "disable" : "enable")
-								}
-							>
-								Set sensor
-							</Button>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">Battery</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
+								<View style={{ padding: spacing }}>
+									{BATTERY.loaded && (
+										<WWText>
+											Current battery level:{" "}
+											{batteryLoading ? (
+												"Loading..."
+											) : (
+												<WWText style={styles.bold}>{BATTERY.value}%</WWText>
+											)}
+										</WWText>
+									)}
+								</View>
+							</View>
+							<View style={styles.heartbeat}>
+								<Button mode="outlined" onPress={getBattery}>
+									Refresh battery level
+								</Button>
+							</View>
 						</View>
-					</View>
-					<View style={styles.buttons}>
-						<View style={styles.button}>
-							<WWText>
-								Sensor is{" "}
-								{sensor === "enable" ? (
-									<WWText style={styles.bold}>enabled</WWText>
-								) : (
-									<WWText style={styles.bold}>disabled</WWText>
-								)}
-							</WWText>
-							<WWText>
-								Lorawan status: <WWText style={styles.bold}>{lorawan}</WWText>
-							</WWText>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">Actions</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
+								<View style={styles.button}>
+									<Button mode="outlined" onPress={() => reset()}>
+										Reset
+									</Button>
+								</View>
+								<View style={styles.button}>
+									<Button mode="outlined" onPress={() => erase()}>
+										Erase
+									</Button>
+								</View>
+								<View style={styles.button}>
+									<Button
+										mode="outlined"
+										onPress={() => disconnectDevice(device)}
+									>
+										Disconnect
+									</Button>
+								</View>
+								<View style={styles.button}>
+									<Button mode="outlined" onPress={() => triggerDfu()}>
+										DFU mode
+									</Button>
+								</View>
+							</View>
 						</View>
-					</View>
-				</ScrollView>
-			</View>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">Heartbeat</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
+								<View style={{ padding: spacing }}>
+									{HEARTBEAT.loaded && (
+										<WWText>
+											Current heartbeat:{" "}
+											{hbLoading ? (
+												"Loading..."
+											) : (
+												<WWText style={styles.bold}>{HEARTBEAT.value}</WWText>
+											)}
+										</WWText>
+									)}
+								</View>
+							</View>
+							<View style={styles.heartbeat}>
+								<WWTextInput
+									keyboardType="numeric"
+									value={heartbeat}
+									onChangeText={(value: string) => setHeartbeat(value)}
+									style={{ marginRight: spacing }}
+									placeholder={HEARTBEAT.value}
+								/>
+								<Button mode="outlined" onPress={triggerHeartbeat}>
+									Change Heartbeat
+								</Button>
+							</View>
+						</View>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">App EUI</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
+								<View style={{ padding: spacing }}>
+									{APPEUI.loaded && (
+										<WWText>
+											Current App EUI:{" "}
+											{aeLoading ? (
+												"Loading..."
+											) : (
+												<WWText style={styles.bold}>{APPEUI.value}</WWText>
+											)}
+										</WWText>
+									)}
+								</View>
+							</View>
+							<View style={styles.heartbeat}>
+								<WWTextInput
+									value={heartbeat}
+									onChangeText={(value: string) => setAppEui(value)}
+									style={{ marginRight: spacing }}
+									placeholder={APPEUI.value}
+								/>
+								<Button mode="outlined" onPress={triggerAppEui}>
+									Save
+								</Button>
+							</View>
+						</View>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">Dev EUI</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
+								<View style={{ padding: spacing }}>
+									{DEVEUI.loaded && (
+										<WWText>
+											Current Dev EUI:{" "}
+											{deLoading ? (
+												"Loading..."
+											) : (
+												<WWText style={styles.bold}>{DEVEUI.value}</WWText>
+											)}
+										</WWText>
+									)}
+								</View>
+							</View>
+							<View style={styles.heartbeat}>
+								<WWTextInput
+									value={heartbeat}
+									onChangeText={(value: string) => setDevEui(value)}
+									style={{ marginRight: spacing }}
+									placeholder={DEVEUI.value}
+								/>
+								<Button mode="outlined" onPress={triggerDevEui}>
+									Save
+								</Button>
+							</View>
+						</View>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">Sensor messages</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
+								<View style={[styles.button, { marginEnd: spacing }]}>
+									<Switch
+										disabled={sensorLoading}
+										value={localSensor}
+										onValueChange={triggerSensor}
+									/>
+								</View>
+								<WWText>
+									Sensor messages are{" "}
+									{SENSOR.value === "enable" ? (
+										<WWText style={styles.bold}>enabled</WWText>
+									) : (
+										<WWText style={styles.bold}>disabled</WWText>
+									)}
+									.
+								</WWText>
+							</View>
+						</View>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">Lorawan status</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
+								<WWText>
+									Lorawan is currently{" "}
+									<WWText style={styles.bold}>
+										{LORAWAN.value?.toLowerCase()}
+									</WWText>
+									.
+								</WWText>
+							</View>
+						</View>
+					</WWScrollView>
+				</View>
+			</WWScreenView>
 		</CustomKeyboardAvoidingView>
 	)
 }
 
 const styles = StyleSheet.create({
-	scrollContainer: { flex: 1, margin: 10 },
+	scrollContainer: { flex: 1 },
 	scroll: { flex: 1 },
 	view: { height: 200 },
 	fab: {
@@ -305,10 +466,8 @@ const styles = StyleSheet.create({
 		right: 20,
 	},
 	logs: {
-		fontSize: 8,
 		margin: 10,
 		marginBottom: 20,
-		paddingStart: 10,
 	},
 	input: {
 		flexDirection: "row",
@@ -320,12 +479,20 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		flexWrap: "wrap",
 		alignItems: "center",
-		padding: 5,
 	},
 	button: {
 		margin: 5,
 	},
 	bold: {
-		fontWeight: "900",
+		fontWeight: "400",
+	},
+	heartbeat: {
+		flex: 1,
+		flexDirection: "row",
+		alignItems: "center",
+		flexWrap: "wrap",
+	},
+	idversion: {
+		width: "100%",
 	},
 })
