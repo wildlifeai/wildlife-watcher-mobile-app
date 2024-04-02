@@ -5,6 +5,7 @@ import { useCallback } from "react"
 import { useEffect } from "react"
 
 import {
+	Keyboard,
 	NativeScrollEvent,
 	NativeSyntheticEvent,
 	StyleSheet,
@@ -130,6 +131,8 @@ export const Terminal = ({ embed }: Props) => {
 		setOffset(0)
 	}, [autoscroll, deviceLogs])
 
+	const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+
 	useEffect(() => {
 		if (isFocused) {
 			/**
@@ -137,6 +140,7 @@ export const Terminal = ({ embed }: Props) => {
 			 * right away.
 			 */
 			setTimeout(() => {
+				toggleAutoscroll(true)
 				scrollViewRef.current &&
 					scrollViewRef.current.scrollToEnd({ animated: true })
 			}, 50)
@@ -147,7 +151,7 @@ export const Terminal = ({ embed }: Props) => {
 			pingsPause(false)
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isFocused])
+	}, [isFocused, isKeyboardVisible])
 
 	useEffect(() => {
 		if (!embed && isFocused) {
@@ -179,6 +183,20 @@ export const Terminal = ({ embed }: Props) => {
 		}
 	}
 
+	useEffect(() => {
+		const showListener = Keyboard.addListener("keyboardDidShow", () => {
+			setIsKeyboardVisible(true)
+		})
+		const hideListener = Keyboard.addListener("keyboardDidHide", () => {
+			setIsKeyboardVisible(false)
+		})
+
+		return () => {
+			showListener.remove()
+			hideListener.remove()
+		}
+	}, [])
+
 	const { HEARTBEAT, APPEUI, SENSOR, LORAWAN, DEVEUI, BATTERY, VERSION, ID } =
 		config
 
@@ -199,30 +217,32 @@ export const Terminal = ({ embed }: Props) => {
 		<CustomKeyboardAvoidingView style={styles.scroll}>
 			<WWScreenView>
 				<View style={{ margin: spacing }}>
-					<View style={styles.view}>
-						<WWScrollView
-							ref={scrollViewRef}
-							onScroll={onScroll}
-							scrollEventThrottle={50}
-						>
-							<WWText variant="bodyMedium" style={styles.logs}>
-								{logs.replaceAll("\r", "")}
-							</WWText>
-						</WWScrollView>
-						{!autoscroll && (
-							<IconButton
-								icon="chevron-down"
-								mode="contained"
-								iconColor={colors.primary}
-								style={styles.fab}
-								onPress={() => {
-									toggleAutoscroll(true)
-									scrollViewRef.current &&
-										scrollViewRef.current.scrollToEnd({ animated: true })
-								}}
-							/>
-						)}
-					</View>
+					{!isKeyboardVisible && (
+						<View style={styles.view}>
+							<WWScrollView
+								ref={scrollViewRef}
+								onScroll={onScroll}
+								scrollEventThrottle={50}
+							>
+								<WWText variant="bodyMedium">
+									{logs.replaceAll("\r", "")}
+								</WWText>
+							</WWScrollView>
+							{!autoscroll && (
+								<IconButton
+									icon="chevron-down"
+									mode="contained"
+									iconColor={colors.primary}
+									style={styles.fab}
+									onPress={() => {
+										toggleAutoscroll(true)
+										scrollViewRef.current &&
+											scrollViewRef.current.scrollToEnd({ animated: true })
+									}}
+								/>
+							)}
+						</View>
+					)}
 					<View style={styles.input}>
 						<WWTextInput
 							autoCorrect={false}
@@ -242,6 +262,7 @@ export const Terminal = ({ embed }: Props) => {
 					</View>
 				</View>
 				<Divider style={{ marginVertical: appPadding }} bold />
+
 				<View style={styles.scrollContainer}>
 					<WWScrollView style={styles.scroll}>
 						<View style={{ paddingVertical: spacing }}>
@@ -459,15 +480,11 @@ export const Terminal = ({ embed }: Props) => {
 const styles = StyleSheet.create({
 	scrollContainer: { flex: 1 },
 	scroll: { flex: 1 },
-	view: { height: 200 },
+	view: { height: 150 },
 	fab: {
 		position: "absolute",
 		bottom: 20,
 		right: 20,
-	},
-	logs: {
-		margin: 10,
-		marginBottom: 20,
 	},
 	input: {
 		flexDirection: "row",
