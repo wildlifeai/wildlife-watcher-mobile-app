@@ -8,15 +8,17 @@ type DeviceItemProps = {
 	item: ExtendedPeripheral
 	disconnect: (item: ExtendedPeripheral) => Promise<void>
 	go: (item: ExtendedPeripheral) => Promise<void>
+	disabled?: boolean
 }
 
 export const DeviceItem = React.memo(
-	({ item, disconnect, go }: DeviceItemProps) => {
+	({ item, disconnect, go, disabled }: DeviceItemProps) => {
 		return (
 			<TouchableRipple
 				style={styles.card}
 				onPress={() => go(item)}
 				onLongPress={() => disconnect(item)}
+				disabled={disabled}
 			>
 				<View
 					style={[

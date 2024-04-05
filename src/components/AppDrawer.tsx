@@ -7,12 +7,13 @@ import {
 } from "react"
 import { StyleSheet, View } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
-import { Avatar, Button, Surface } from "react-native-paper"
+import { Avatar, Surface } from "react-native-paper"
 import { WWText } from "./ui/WWText"
 import { useExtendedTheme } from "../theme"
 import { useAuth } from "../providers/AuthProvider"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { getReadableVersion } from "react-native-device-info"
+import { SideNavigation } from "./SideNavigation"
 
 type DrawerContextProps = {
 	isOpen: boolean
@@ -25,13 +26,8 @@ export const useAppDrawer = () => useContext(DrawerContext)
 export const AppDrawer = ({ children }: PropsWithChildren<unknown>) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const { appPadding, spacing } = useExtendedTheme()
-	const { setIsLoggedIn, isLoggedIn } = useAuth()
+	const { isLoggedIn } = useAuth()
 	const { top } = useSafeAreaInsets()
-
-	const onLogout = () => {
-		setIsLoggedIn(false)
-		setIsOpen(false)
-	}
 
 	return (
 		<Drawer
@@ -49,10 +45,7 @@ export const AppDrawer = ({ children }: PropsWithChildren<unknown>) => {
 						]}
 					>
 						<Avatar.Image source={require("../assets/avatar.png")} />
-						<WWText variant="bodyLarge">I'm empty at the moment.</WWText>
-						<Button icon="logout" onPress={onLogout}>
-							Logout
-						</Button>
+						<SideNavigation drawerControls={setIsOpen} />
 						<View style={styles.version}>
 							<WWText>Current version:</WWText>
 							<WWText style={[styles.versionText, { marginStart: spacing }]}>
