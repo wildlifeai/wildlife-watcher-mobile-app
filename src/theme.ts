@@ -53,7 +53,7 @@ export const CombinedDefaultTheme = merge(
 			onError: "rgb(255, 255, 255)",
 			errorContainer: "rgb(255, 218, 214)",
 			onErrorContainer: "rgb(65, 0, 2)",
-			background: "rgb(38, 38, 43)",
+			background: "rgb(38, 38, 43)", // #26262b
 			onBackground: "rgb(255, 255, 255)",
 			surface: "rgb(38, 38, 43)",
 			onSurface: "rgb(255, 255, 255)",
