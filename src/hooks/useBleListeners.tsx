@@ -243,6 +243,7 @@ export const useBleListeners = () => {
 				...DEFAULT_PERIPHERAL(peripheral.id),
 				device: peripheral,
 				name: peripheral.name,
+				signalLost: false,
 			}
 
 			/**
@@ -267,41 +268,41 @@ export const useBleListeners = () => {
 		const peripherals: Peripheral[] = await guard(() =>
 			BleManager.getDiscoveredPeripherals(),
 		)
-		const filteredPeripherals = peripherals.filter(
-			(p) => p.name === DEVICE_NAME,
+		const filteredPeripherals = peripherals.filter((p) =>
+			p.name?.includes(DEVICE_NAME),
 		)
 
-		if (Array.isArray(filteredPeripherals) && filteredPeripherals.length > 0) {
-			const notFoundAnymore: Peripheral[] = []
+		const notFoundAnymore: Peripheral[] = []
 
-			Object.keys(devicesRef.current).forEach((key) => {
-				const peripheral = devicesRef.current[key]
-				if (
-					!filteredPeripherals.find(
-						(filteredPeripheral) => filteredPeripheral.id === peripheral.id,
-					)
-				) {
+		Object.keys(devicesRef.current).forEach((key) => {
+			const peripheral = devicesRef.current[key]
+			if (
+				!filteredPeripherals.find(
+					(filteredPeripheral) => filteredPeripheral.id === peripheral.id,
+				)
+			) {
+				if (peripheral.connected) {
 					log(`Disconnecting device ${peripheral.id} after scan stopped.`)
 					disconnectDevice(peripheral)
-					notFoundAnymore.push(peripheral)
 				}
-			})
+				notFoundAnymore.push(peripheral)
+			}
+		})
 
-			dispatch(
-				deviceSignalChanged({
-					data: [
-						...filteredPeripherals.map((peripheral) => ({
-							peripheral,
-							value: false,
-						})),
-						...notFoundAnymore.map((peripheral) => ({
-							peripheral,
-							value: true,
-						})),
-					],
-				}),
-			)
-		}
+		dispatch(
+			deviceSignalChanged({
+				data: [
+					...filteredPeripherals.map((peripheral) => ({
+						peripheral,
+						value: false,
+					})),
+					...notFoundAnymore.map((peripheral) => ({
+						peripheral,
+						value: true,
+					})),
+				],
+			}),
+		)
 
 		dispatch(scanStop())
 		log("Scan stopped.")

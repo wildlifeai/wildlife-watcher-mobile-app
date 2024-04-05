@@ -14,12 +14,22 @@ import { Login } from "./screens/Login"
 import { useAuth } from "../providers/AuthProvider"
 import { AppLoading } from "./screens/AppLoading"
 import { AppDrawer } from "../components/AppDrawer"
+import { Notifications } from "./screens/Notifications"
+import { CommunityDiscussion } from "./screens/CommunityDiscussion"
+import { Profile } from "./screens/Profile"
+import { Settings } from "./screens/Settings"
 
 export interface RootStackParamList extends ParamListBase {
+	CommunityDiscussion: undefined
+	Notifications: undefined
+	Profile: undefined
+	Settings: undefined
 	Home: undefined
 	DeviceNavigator: { deviceId: string }
 	Terminal: { deviceId: string }
 }
+
+export type Routes = keyof RootStackParamList
 
 export type AppParams<T extends keyof RootStackParamList> = RouteProp<
 	RootStackParamList,
@@ -109,6 +119,26 @@ export const MainNavigation = () => {
 							name="Home"
 							component={Home}
 							options={{ title: "Wildlife Watcher" }}
+						/>
+						<Stack.Screen
+							name="Notifications"
+							component={Notifications}
+							options={{ title: "Notifications" }}
+						/>
+						<Stack.Screen
+							name="CommunityDiscussion"
+							component={CommunityDiscussion}
+							options={{ title: "Community Discussion" }}
+						/>
+						<Stack.Screen
+							name="Profile"
+							component={Profile}
+							options={{ title: "Profile" }}
+						/>
+						<Stack.Screen
+							name="Settings"
+							component={Settings}
+							options={{ title: "Settings" }}
 						/>
 						<Stack.Screen
 							name="DeviceNavigator"

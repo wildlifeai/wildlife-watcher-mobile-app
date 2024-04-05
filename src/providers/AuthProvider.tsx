@@ -1,10 +1,4 @@
-import {
-	PropsWithChildren,
-	createContext,
-	useContext,
-	useEffect,
-	useState,
-} from "react"
+import { PropsWithChildren, createContext, useContext, useState } from "react"
 
 type AuthContextType = {
 	isLoggedIn: boolean | undefined
@@ -17,17 +11,6 @@ export const useAuth = () => useContext(AuthContext)
 
 export const AuthProvider = ({ children }: PropsWithChildren<unknown>) => {
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>()
-
-	// Mock
-	useEffect(() => {
-		const t = setTimeout(() => {
-			setIsLoggedIn(false)
-		}, 2000)
-
-		return () => {
-			clearTimeout(t)
-		}
-	}, [])
 
 	return (
 		<AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>

@@ -59,8 +59,13 @@ export const devicesSlice = createSlice({
 
 			if (state[id]) {
 				state[id].connected = false
+				state[id].signalLost = true
 			} else {
-				state[id] = { ...DEFAULT_PERIPHERAL(id), connected: false }
+				state[id] = {
+					...DEFAULT_PERIPHERAL(id),
+					connected: false,
+					signalLost: true,
+				}
 			}
 		},
 		deviceLoading: (
