@@ -124,7 +124,7 @@ export const COMMANDS: {
 	},
 	[CommandNames.PING]: {
 		name: CommandNames.PING,
-		readCommand: "ping",
+		writeCommand: () => "ping",
 	},
 	[CommandNames.RESET]: {
 		name: CommandNames.RESET,

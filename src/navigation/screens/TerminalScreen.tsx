@@ -86,6 +86,7 @@ export const Terminal = ({ embed }: Props) => {
 		command: COMMANDS.SENSOR,
 	})
 	const { set: reset } = useCommand({ deviceId, command: COMMANDS.RESET })
+	const { set: ping } = useCommand({ deviceId, command: COMMANDS.PING })
 	const { set: erase } = useCommand({ deviceId, command: COMMANDS.ERASE })
 	const { set: triggerDfu } = useCommand({
 		deviceId,
@@ -298,6 +299,11 @@ export const Terminal = ({ embed }: Props) => {
 								<View style={styles.button}>
 									<Button mode="outlined" onPress={() => erase()}>
 										Erase
+									</Button>
+								</View>
+								<View style={styles.button}>
+									<Button mode="outlined" onPress={() => ping()}>
+										Ping
 									</Button>
 								</View>
 								<View style={styles.button}>
