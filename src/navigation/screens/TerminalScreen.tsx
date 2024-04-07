@@ -1,8 +1,7 @@
 import { useRoute, useIsFocused } from "@react-navigation/native"
-import * as React from "react"
 import { useState } from "react"
 import { useCallback } from "react"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 import {
 	Keyboard,
@@ -38,7 +37,7 @@ type Props = {
 }
 
 export const Terminal = ({ embed }: Props) => {
-	const scrollViewRef = React.useRef<any>()
+	const scrollViewRef = useRef<any>()
 	const {
 		params: { deviceId },
 	} = useRoute<AppParams<"Terminal">>()
@@ -47,11 +46,12 @@ export const Terminal = ({ embed }: Props) => {
 	const isFocused = useIsFocused()
 	const { write, pingsPause, disconnectDevice } = useBleActions()
 	const device = useSelectDevice({ deviceId })
-	const [offset, setOffset] = useState(0)
 	const logs = deviceLogs[deviceId]
 	const configuration = useAppSelector((state) => state.configuration)
 	const config = configuration[deviceId]
 	const { spacing, colors, appPadding } = useExtendedTheme()
+
+	const offset = useRef(0)
 
 	const { get: getBattery, commandLoading: batteryLoading } = useCommand({
 		deviceId,
@@ -60,6 +60,10 @@ export const Terminal = ({ embed }: Props) => {
 	const { get: getVersion, commandLoading: versionLoading } = useCommand({
 		deviceId,
 		command: COMMANDS.VERSION,
+	})
+	const { get: getDevice, commandLoading: deviceLoading } = useCommand({
+		deviceId,
+		command: COMMANDS.DEVICE,
 	})
 	const { get: getId, commandLoading: idLoading } = useCommand({
 		deviceId,
@@ -135,7 +139,7 @@ export const Terminal = ({ embed }: Props) => {
 
 		scrollViewRef.current &&
 			scrollViewRef.current.scrollToEnd({ animated: true })
-		setOffset(0)
+		offset.current = 0
 	}, [autoscroll, deviceLogs])
 
 	const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
@@ -176,10 +180,10 @@ export const Terminal = ({ embed }: Props) => {
 	}: NativeSyntheticEvent<NativeScrollEvent>) => {
 		const { layoutMeasurement, contentOffset, contentSize } = nativeEvent
 		const currentOffset = nativeEvent.contentOffset.y
-		const goingUp = currentOffset < offset
+		const goingUp = currentOffset < offset.current
 		const isOnBottom =
-			layoutMeasurement.height + contentOffset.y >= contentSize.height - 15
-		setOffset(currentOffset)
+			layoutMeasurement.height + contentOffset.y >= contentSize.height - 50
+		offset.current = currentOffset
 
 		if (goingUp) {
 			toggleAutoscroll(false)
@@ -204,8 +208,17 @@ export const Terminal = ({ embed }: Props) => {
 		}
 	}, [])
 
-	const { HEARTBEAT, APPEUI, SENSOR, LORAWAN, DEVEUI, BATTERY, VERSION, ID } =
-		config
+	const {
+		HEARTBEAT,
+		APPEUI,
+		SENSOR,
+		LORAWAN,
+		DEVEUI,
+		BATTERY,
+		VERSION,
+		ID,
+		DEVICE,
+	} = config
 
 	if (
 		!HEARTBEAT?.loaded ||
@@ -215,6 +228,7 @@ export const Terminal = ({ embed }: Props) => {
 		!DEVEUI?.loaded ||
 		!BATTERY?.loaded ||
 		!VERSION?.loaded ||
+		!DEVICE?.loaded ||
 		!ID?.loaded
 	) {
 		return <AppLoading />
@@ -223,7 +237,7 @@ export const Terminal = ({ embed }: Props) => {
 	return (
 		<CustomKeyboardAvoidingView style={styles.scroll}>
 			<WWScreenView>
-				<View style={{ margin: spacing }}>
+				<View style={(styles.container, { margin: spacing })}>
 					{!isKeyboardVisible && (
 						<View style={styles.view}>
 							<WWScrollView
@@ -250,7 +264,7 @@ export const Terminal = ({ embed }: Props) => {
 							)}
 						</View>
 					)}
-					<View style={styles.input}>
+					<View style={[{ marginVertical: spacing }, styles.input]}>
 						<WWTextInput
 							autoCorrect={false}
 							autoCapitalize="none"
@@ -273,6 +287,35 @@ export const Terminal = ({ embed }: Props) => {
 				<View style={styles.scrollContainer}>
 					<WWScrollView style={styles.scroll}>
 						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">Actions</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
+								<View style={styles.button}>
+									<Button mode="outlined" onPress={() => reset()}>
+										Reset
+									</Button>
+								</View>
+								<View style={styles.button}>
+									<Button mode="outlined" onPress={() => erase()}>
+										Erase
+									</Button>
+								</View>
+								<View style={styles.button}>
+									<Button
+										mode="outlined"
+										onPress={() => disconnectDevice(device)}
+									>
+										Disconnect
+									</Button>
+								</View>
+								<View style={styles.button}>
+									<Button mode="outlined" onPress={() => triggerDfu()}>
+										DFU mode
+									</Button>
+								</View>
+							</View>
+						</View>
+						<View style={{ paddingVertical: spacing }}>
 							<WWText variant="titleMedium">ID</WWText>
 							<Divider />
 							<View style={[styles.buttons, { marginVertical: spacing }]}>
@@ -292,6 +335,29 @@ export const Terminal = ({ embed }: Props) => {
 							<View style={styles.heartbeat}>
 								<Button mode="outlined" onPress={getId}>
 									Refresh ID
+								</Button>
+							</View>
+						</View>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">Device</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
+								<View style={{ padding: spacing }}>
+									{DEVICE.loaded && (
+										<WWText>
+											Device name:{" "}
+											{deviceLoading ? (
+												"Loading..."
+											) : (
+												<WWText style={styles.bold}>{DEVICE.value}</WWText>
+											)}
+										</WWText>
+									)}
+								</View>
+							</View>
+							<View style={styles.heartbeat}>
+								<Button mode="outlined" onPress={getDevice}>
+									Refresh device
 								</Button>
 							</View>
 						</View>
@@ -339,35 +405,6 @@ export const Terminal = ({ embed }: Props) => {
 								<Button mode="outlined" onPress={getBattery}>
 									Refresh battery level
 								</Button>
-							</View>
-						</View>
-						<View style={{ paddingVertical: spacing }}>
-							<WWText variant="titleMedium">Actions</WWText>
-							<Divider />
-							<View style={[styles.buttons, { marginVertical: spacing }]}>
-								<View style={styles.button}>
-									<Button mode="outlined" onPress={() => reset()}>
-										Reset
-									</Button>
-								</View>
-								<View style={styles.button}>
-									<Button mode="outlined" onPress={() => erase()}>
-										Erase
-									</Button>
-								</View>
-								<View style={styles.button}>
-									<Button
-										mode="outlined"
-										onPress={() => disconnectDevice(device)}
-									>
-										Disconnect
-									</Button>
-								</View>
-								<View style={styles.button}>
-									<Button mode="outlined" onPress={() => triggerDfu()}>
-										DFU mode
-									</Button>
-								</View>
 							</View>
 						</View>
 						<View style={{ paddingVertical: spacing }}>
@@ -545,6 +582,12 @@ const formatHeartbeat = (s?: string) => {
 }
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+	},
 	scrollContainer: { flex: 1 },
 	scroll: { flex: 1 },
 	view: { height: 150 },
@@ -556,7 +599,6 @@ const styles = StyleSheet.create({
 	input: {
 		flexDirection: "row",
 		alignItems: "center",
-		height: 40,
 	},
 	inputText: { flex: 2 },
 	buttons: {

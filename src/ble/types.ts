@@ -20,6 +20,7 @@ export enum CommandNames {
 	SENSOR = "SENSOR",
 	TRAP = "TRAP",
 	LORAWAN = "LORAWAN",
+	DEVICE = "DEVICE",
 }
 
 /**
@@ -143,6 +144,10 @@ export const COMMANDS: {
 		name: CommandNames.DFU,
 		writeCommand: () => "dfu",
 		readRegex: /(Device will enter DFU mode after disconnecting.)\s*/,
+	},
+	[CommandNames.DEVICE]: {
+		name: CommandNames.DEVICE,
+		readCommand: "device",
 	},
 }
 
