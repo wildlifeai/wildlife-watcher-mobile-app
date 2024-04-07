@@ -100,7 +100,7 @@ export const COMMANDS: {
 	[CommandNames.HEARTBEAT]: {
 		name: CommandNames.HEARTBEAT,
 		readCommand: "get heartbeat",
-		readRegex: /\bheartbeat\s+is\s+(\d+s)\b/,
+		readRegex: /\bheartbeat\s+is\s+(\d+d|\d+h|\d+m|\d+s)\b/,
 		writeCommand: (value?: string) => `heartbeat ${value}`,
 	},
 	[CommandNames.DEVEUI]: {
