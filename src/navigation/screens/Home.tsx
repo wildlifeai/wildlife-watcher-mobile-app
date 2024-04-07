@@ -72,8 +72,10 @@ export const Home = memo(() => {
 	}, [isFocused])
 
 	useEffect(() => {
+		if (!isFocused) return
+
 		const interval = setInterval(() => {
-			if (!isBleBusy) {
+			if (!isBleBusy && isFocused) {
 				startScan(10)
 			} else {
 				log("Scanning already taking place, skipping.")

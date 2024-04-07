@@ -83,6 +83,19 @@ export const parseLogs = (finishedLog: string, lastLog: string) => {
 		}
 	}
 
+	// DEVICE
+	const lastDeviceLine = checkForLastLine(COMMANDS.DEVICE.readCommand!, lines)
+
+	if (lastDeviceLine) {
+		const value = valueChecker(lastDeviceLine, COMMANDS.DEVICE)
+		if (value) {
+			results.push({
+				value,
+				command: COMMANDS.DEVICE,
+			})
+		}
+	}
+
 	// SENSOR
 
 	const lastSensorLine = checkForLastLine(COMMANDS.SENSOR.readCommand!, lines)
