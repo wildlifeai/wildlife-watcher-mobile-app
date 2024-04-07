@@ -22,6 +22,7 @@ import {
 	Button,
 	Divider,
 	IconButton,
+	RadioButton,
 	Switch,
 	TextInput,
 } from "react-native-paper"
@@ -51,6 +52,7 @@ export const Terminal = ({ embed }: Props) => {
 	const configuration = useAppSelector((state) => state.configuration)
 	const config = configuration[deviceId]
 	const { spacing, colors, appPadding } = useExtendedTheme()
+
 	const { get: getBattery, commandLoading: batteryLoading } = useCommand({
 		deviceId,
 		command: COMMANDS.BATTERY,
@@ -58,6 +60,10 @@ export const Terminal = ({ embed }: Props) => {
 	const { get: getVersion, commandLoading: versionLoading } = useCommand({
 		deviceId,
 		command: COMMANDS.VERSION,
+	})
+	const { get: getId, commandLoading: idLoading } = useCommand({
+		deviceId,
+		command: COMMANDS.ID,
 	})
 	const { set: setHb, commandLoading: hbLoading } = useCommand({
 		deviceId,
@@ -85,6 +91,7 @@ export const Terminal = ({ embed }: Props) => {
 	const [autoscroll, setAutoscroll] = useState(true)
 
 	const [heartbeat, setHeartbeat] = useState<string>()
+	const [heartbeatTime, setHeartbeatTime] = useState<string>("s")
 	const [appEui, setAppEui] = useState<string>("")
 	const [devEui, setDevEui] = useState<string>("")
 	const [localSensor, setLocalSensor] = useState<boolean>()
@@ -102,7 +109,7 @@ export const Terminal = ({ embed }: Props) => {
 
 	const triggerHeartbeat = () => {
 		if (heartbeat && !hbLoading) {
-			setHb(`${heartbeat}s`)
+			setHb(`${heartbeat}${heartbeatTime}`)
 		}
 	}
 
@@ -266,16 +273,32 @@ export const Terminal = ({ embed }: Props) => {
 				<View style={styles.scrollContainer}>
 					<WWScrollView style={styles.scroll}>
 						<View style={{ paddingVertical: spacing }}>
-							<WWText variant="titleMedium">ID and Version</WWText>
+							<WWText variant="titleMedium">ID</WWText>
 							<Divider />
 							<View style={[styles.buttons, { marginVertical: spacing }]}>
-								<View style={[{ padding: spacing }, styles.idversion]}>
+								<View style={{ padding: spacing }}>
 									{ID.loaded && (
 										<WWText>
-											ID: <WWText style={styles.bold}>{ID.value}</WWText>
+											ID:{" "}
+											{idLoading ? (
+												"Loading..."
+											) : (
+												<WWText style={styles.bold}>{ID.value}</WWText>
+											)}
 										</WWText>
 									)}
 								</View>
+							</View>
+							<View style={styles.heartbeat}>
+								<Button mode="outlined" onPress={getId}>
+									Refresh ID
+								</Button>
+							</View>
+						</View>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">Version</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
 								<View style={{ padding: spacing }}>
 									{VERSION.loaded && (
 										<WWText>
@@ -358,7 +381,9 @@ export const Terminal = ({ embed }: Props) => {
 											{hbLoading ? (
 												"Loading..."
 											) : (
-												<WWText style={styles.bold}>{HEARTBEAT.value}</WWText>
+												<WWText style={styles.bold}>
+													{formatHeartbeat(HEARTBEAT.value)}
+												</WWText>
 											)}
 										</WWText>
 									)}
@@ -375,6 +400,28 @@ export const Terminal = ({ embed }: Props) => {
 								<Button mode="outlined" onPress={triggerHeartbeat}>
 									Change Heartbeat
 								</Button>
+							</View>
+							<View style={{ marginVertical: spacing }}>
+								<WWText variant="bodyLarge">
+									You are setting the value in: {formatHeartbeat(heartbeatTime)}
+								</WWText>
+								<RadioButton.Group
+									onValueChange={setHeartbeatTime}
+									value={heartbeatTime}
+								>
+									<View style={styles.radioButton}>
+										<RadioButton.Item label="Days" value="d" />
+									</View>
+									<View style={styles.radioButton}>
+										<RadioButton.Item label="Hours" value="h" />
+									</View>
+									<View style={styles.radioButton}>
+										<RadioButton.Item label="Minutes" value="m" />
+									</View>
+									<View style={styles.radioButton}>
+										<RadioButton.Item label="Seconds" value="s" />
+									</View>
+								</RadioButton.Group>
 							</View>
 						</View>
 						<View style={{ paddingVertical: spacing }}>
@@ -477,6 +524,26 @@ export const Terminal = ({ embed }: Props) => {
 	)
 }
 
+const formatHeartbeat = (s?: string) => {
+	if (!s) return ""
+
+	const heartbeat = s.slice(0, -1)
+	const time = s.slice(-1)
+
+	if (!["d", "h", "m", "s"].includes(time)) return "Invalid input"
+
+	switch (time) {
+		case "d":
+			return `${heartbeat} days`.trim()
+		case "h":
+			return `${heartbeat} hours`.trim()
+		case "m":
+			return `${heartbeat} minutes`.trim()
+		default:
+			return `${heartbeat} seconds`.trim()
+	}
+}
+
 const styles = StyleSheet.create({
 	scrollContainer: { flex: 1 },
 	scroll: { flex: 1 },
@@ -511,5 +578,9 @@ const styles = StyleSheet.create({
 	},
 	idversion: {
 		width: "100%",
+	},
+	radioButton: {
+		flexDirection: "row",
+		alignItems: "center",
 	},
 })
