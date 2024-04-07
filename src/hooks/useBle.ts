@@ -314,7 +314,7 @@ export const useBle = (): ReturnType => {
 					const ping = () =>
 						guard(() =>
 							write(newPeripheral, [
-								[CommandNames.ID, { control: CommandControlTypes.READ }],
+								[CommandNames.BATTERY, { control: CommandControlTypes.READ }],
 							]),
 						)
 
@@ -322,7 +322,7 @@ export const useBle = (): ReturnType => {
 
 					newPeripheral.connected = true
 					newPeripheral.intervals = {
-						ping: setInterval(async () => await ping(), 20000),
+						ping: setInterval(async () => await ping(), 40000),
 					}
 
 					dispatch(deviceUpdate({ ...newPeripheral }))

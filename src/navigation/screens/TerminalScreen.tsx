@@ -51,6 +51,7 @@ export const Terminal = ({ embed }: Props) => {
 	const configuration = useAppSelector((state) => state.configuration)
 	const config = configuration[deviceId]
 	const { spacing, colors, appPadding } = useExtendedTheme()
+
 	const { get: getBattery, commandLoading: batteryLoading } = useCommand({
 		deviceId,
 		command: COMMANDS.BATTERY,
@@ -58,6 +59,10 @@ export const Terminal = ({ embed }: Props) => {
 	const { get: getVersion, commandLoading: versionLoading } = useCommand({
 		deviceId,
 		command: COMMANDS.VERSION,
+	})
+	const { get: getId, commandLoading: idLoading } = useCommand({
+		deviceId,
+		command: COMMANDS.ID,
 	})
 	const { set: setHb, commandLoading: hbLoading } = useCommand({
 		deviceId,
@@ -266,16 +271,32 @@ export const Terminal = ({ embed }: Props) => {
 				<View style={styles.scrollContainer}>
 					<WWScrollView style={styles.scroll}>
 						<View style={{ paddingVertical: spacing }}>
-							<WWText variant="titleMedium">ID and Version</WWText>
+							<WWText variant="titleMedium">ID</WWText>
 							<Divider />
 							<View style={[styles.buttons, { marginVertical: spacing }]}>
-								<View style={[{ padding: spacing }, styles.idversion]}>
+								<View style={{ padding: spacing }}>
 									{ID.loaded && (
 										<WWText>
-											ID: <WWText style={styles.bold}>{ID.value}</WWText>
+											ID:{" "}
+											{idLoading ? (
+												"Loading..."
+											) : (
+												<WWText style={styles.bold}>{ID.value}</WWText>
+											)}
 										</WWText>
 									)}
 								</View>
+							</View>
+							<View style={styles.heartbeat}>
+								<Button mode="outlined" onPress={getId}>
+									Refresh ID
+								</Button>
+							</View>
+						</View>
+						<View style={{ paddingVertical: spacing }}>
+							<WWText variant="titleMedium">Version</WWText>
+							<Divider />
+							<View style={[styles.buttons, { marginVertical: spacing }]}>
 								<View style={{ padding: spacing }}>
 									{VERSION.loaded && (
 										<WWText>
