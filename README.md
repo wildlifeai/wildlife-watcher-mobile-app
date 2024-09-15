@@ -8,6 +8,8 @@ The Wildlife Watcher mobile app allows users to communicate with Wildlife Watche
 
 ## Prerequisites
 
+You need to make sure your environment is set up as per the official React Native documentation - [link here](https://reactnative.dev/docs/set-up-your-environment). If you can run a fresh React Native app, you should be able to run this one without any problems.
+
 Make sure you have the following prerequisites installed on your machine:
 
 - **Node.js**: Version 18 or higher
