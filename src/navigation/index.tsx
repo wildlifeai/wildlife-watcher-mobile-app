@@ -11,7 +11,6 @@ import { Terminal } from "./screens/TerminalScreen"
 import BootSplash from "react-native-bootsplash"
 import { NavigationBar } from "../components/NavigationBar"
 import { Login } from "./screens/Login"
-import { useAuth } from "../providers/AuthProvider"
 import { AppLoading } from "./screens/AppLoading"
 import { AppDrawer } from "../components/AppDrawer"
 import { Notifications } from "./screens/Notifications"
@@ -48,20 +47,17 @@ export const MainNavigation = () => {
 	const { initialized, initialLoad: bleLoading } = useAppSelector(
 		(state) => state.bleLibrary,
 	)
-	const { isLoggedIn } = useAuth()
+	const { auth, initialLoad: authLoading } = useAppSelector(
+		(state) => state.authentication,
+	)
 
-	const somethingWrong =
-		status !== "PoweredOn" || !locationEnabled || !initialized
-	const appLoading = blLoading || locLoading || bleLoading
+	const appLoading = blLoading || locLoading || bleLoading || authLoading
 
 	useEffect(() => {
-		if (!appLoading && somethingWrong) {
+		if (!appLoading) {
 			BootSplash.hide({ fade: true })
 		}
-		if (isLoggedIn !== undefined) {
-			BootSplash.hide({ fade: true })
-		}
-	}, [appLoading, somethingWrong, isLoggedIn])
+	}, [appLoading])
 
 	/*
 	 * Stops the app from running until every important component
@@ -80,6 +76,7 @@ export const MainNavigation = () => {
 			</Stack.Navigator>
 		)
 	}
+	console.log(auth?.accessToken.length)
 
 	return (
 		<AppDrawer>
@@ -107,12 +104,14 @@ export const MainNavigation = () => {
 						name="BLEProblems"
 						component={BleProblems}
 					/>
-				) : !isLoggedIn ? (
-					<Stack.Screen
-						options={{ headerShown: false }}
-						name="Login"
-						component={Login}
-					/>
+				) : !auth?.accessToken ? (
+					<Stack.Group>
+						<Stack.Screen
+							options={{ headerShown: false }}
+							name="Login"
+							component={Login}
+						/>
+					</Stack.Group>
 				) : (
 					<Stack.Group>
 						<Stack.Screen

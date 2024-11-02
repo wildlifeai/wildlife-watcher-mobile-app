@@ -10,6 +10,7 @@ import BleManager from "react-native-ble-manager"
 import { Buffer } from "buffer"
 import { readlineParserEmitter } from "../hooks/useBleListeners"
 import { Services } from "../ble/types"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 export const clearAllDeviceIntervals = (
 	device: ExtendedPeripheral | undefined | null,
@@ -164,5 +165,25 @@ export const extractServiceAndCharacteristic = (services?: Services) => {
 			readCharacteristic: BLE_CHARACTERISTIC_READ_UUID,
 			serviceCharacteristic: BLE_SERVICE_UUID,
 		}
+	}
+}
+
+export const storeDataToStorage = async <T>(key: string, value: T) => {
+	try {
+		const jsonValue = JSON.stringify(value)
+		await AsyncStorage.setItem(key, jsonValue)
+	} catch (e: any) {
+		console.error(`Could not save to storage. Reason: ${e.message}`)
+	}
+}
+
+export const getStorageData = async <T>(
+	key: string,
+): Promise<T | undefined> => {
+	try {
+		const jsonValue = await AsyncStorage.getItem(key)
+		return jsonValue != null ? JSON.parse(jsonValue) : undefined
+	} catch (e: any) {
+		console.error(`Could not read from storage. Reason: ${e.message}`)
 	}
 }
