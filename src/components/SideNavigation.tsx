@@ -1,9 +1,10 @@
 import { StyleSheet, View } from "react-native"
 import { Button } from "react-native-paper"
 import { useAppNavigation } from "../hooks/useAppNavigation"
-import { useAuth } from "../providers/AuthProvider"
 import { useExtendedTheme } from "../theme"
 import { Dispatch } from "react"
+import { useAppDispatch } from "../redux"
+import { logout } from "../redux/slices/authSlice"
 
 type Props = {
 	drawerControls: Dispatch<React.SetStateAction<boolean>>
@@ -11,7 +12,7 @@ type Props = {
 
 export const SideNavigation = ({ drawerControls }: Props) => {
 	const navigation = useAppNavigation()
-	const { setIsLoggedIn } = useAuth()
+	const dispatch = useAppDispatch()
 	const { spacing, colors, appPadding } = useExtendedTheme()
 
 	const goTo = (link: string) => {
@@ -20,7 +21,8 @@ export const SideNavigation = ({ drawerControls }: Props) => {
 	}
 
 	const onLogout = () => {
-		setIsLoggedIn(false)
+		dispatch(logout())
+		console.log("im here")
 		drawerControls(false)
 	}
 

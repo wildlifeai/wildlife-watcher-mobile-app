@@ -10,10 +10,10 @@ import { Drawer } from "react-native-drawer-layout"
 import { Avatar, Surface } from "react-native-paper"
 import { WWText } from "./ui/WWText"
 import { useExtendedTheme } from "../theme"
-import { useAuth } from "../providers/AuthProvider"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { getReadableVersion } from "react-native-device-info"
 import { SideNavigation } from "./SideNavigation"
+import { useAppSelector } from "../redux"
 
 type DrawerContextProps = {
 	isOpen: boolean
@@ -26,12 +26,12 @@ export const useAppDrawer = () => useContext(DrawerContext)
 export const AppDrawer = ({ children }: PropsWithChildren<unknown>) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const { appPadding, spacing } = useExtendedTheme()
-	const { isLoggedIn } = useAuth()
+	const { auth } = useAppSelector((state) => state.authentication)
 	const { top } = useSafeAreaInsets()
 
 	return (
 		<Drawer
-			swipeEnabled={isLoggedIn}
+			swipeEnabled={!!auth?.accessToken}
 			open={isOpen}
 			onOpen={() => setIsOpen(true)}
 			onClose={() => setIsOpen(false)}

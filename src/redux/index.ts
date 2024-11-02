@@ -8,6 +8,7 @@ import devicesReducer from "./slices/devicesSlice"
 import locationStatusReducer from "./slices/locationStatusSlice"
 import logsReducer from "./slices/logsSlice"
 import scanningReducer from "./slices/scanningSlice"
+import authReducer from "./slices/authSlice"
 import { Action, ThunkAction, configureStore } from "@reduxjs/toolkit"
 
 const store = configureStore({
@@ -20,6 +21,7 @@ const store = configureStore({
 		blStatus: blStatusReducer,
 		locationStatus: locationStatusReducer,
 		androidPermissions: androidPermissionsReducer,
+		authentication: authReducer,
 	},
 })
 

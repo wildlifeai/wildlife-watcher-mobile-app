@@ -1,37 +1,29 @@
+import { PropsWithChildren, useEffect } from "react"
+import { AuthorizeResult } from "react-native-app-auth"
+import { useAppDispatch, useAppSelector } from "../redux"
 import {
-	PropsWithChildren,
-	createContext,
-	useContext,
-	useEffect,
-	useState,
-} from "react"
-
-type AuthContextType = {
-	isLoggedIn: boolean | undefined
-	setIsLoggedIn: (value: boolean) => void
-}
-
-export const AuthContext = createContext<AuthContextType>({} as AuthContextType)
-
-export const useAuth = () => useContext(AuthContext)
+	authStart,
+	authDone,
+	AUTH_STORAGE_KEY,
+} from "../redux/slices/authSlice"
+import { getStorageData } from "../utils/helpers"
 
 export const AuthProvider = ({ children }: PropsWithChildren<unknown>) => {
-	const [isLoggedIn, setIsLoggedIn] = useState<boolean>()
+	const dispatch = useAppDispatch()
+	const { auth } = useAppSelector((state) => state.authentication)
 
-	// Mock
 	useEffect(() => {
-		const t = setTimeout(() => {
-			setIsLoggedIn(false)
-		}, 2000)
-
-		return () => {
-			clearTimeout(t)
+		const init = async () => {
+			dispatch(authStart())
+			dispatch(
+				authDone(await getStorageData<AuthorizeResult>(AUTH_STORAGE_KEY)),
+			)
 		}
-	}, [])
 
-	return (
-		<AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
-			{children}
-		</AuthContext.Provider>
-	)
+		if (!auth?.accessToken) {
+			init()
+		}
+	}, [dispatch, auth])
+
+	return children
 }

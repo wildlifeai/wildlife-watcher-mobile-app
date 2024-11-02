@@ -1,25 +1,20 @@
 import { Button } from "react-native-paper"
 import { StyleSheet, View } from "react-native"
 import { CustomKeyboardAvoidingView } from "../../components/CustomKeyboardAvoidingView"
-import { useAuth } from "../../providers/AuthProvider"
-import { WWTextInput } from "../../components/ui/WWTextInput"
 import { WWScreenView } from "../../components/ui/WWScreenView"
+import { login } from "../../redux/slices/authSlice"
+import { useAppDispatch } from "../../redux"
 
 export const Login = () => {
-	const { setIsLoggedIn } = useAuth()
+	const dispatch = useAppDispatch()
+	const loginPressed = () => dispatch(login())
 
 	return (
 		<CustomKeyboardAvoidingView>
 			<WWScreenView style={[styles.view]}>
-				<View style={styles.element}>
-					<WWTextInput value="Email" />
-				</View>
-				<View style={styles.element}>
-					<WWTextInput value="Password" />
-				</View>
 				<View style={styles.elementTwo}>
-					<Button mode="contained" onPress={() => setIsLoggedIn(true)}>
-						Proceed for now
+					<Button mode="contained" onPress={loginPressed}>
+						Login with Azure
 					</Button>
 				</View>
 			</WWScreenView>
