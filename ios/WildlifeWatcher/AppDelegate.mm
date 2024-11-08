@@ -18,6 +18,16 @@
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
+- (BOOL) application: (UIApplication *)application
+             openURL: (NSURL *)url
+             options: (NSDictionary<UIApplicationOpenURLOptionsKey, id> *) options
+{
+  if ([self.authorizationFlowManagerDelegate resumeExternalUserAgentFlowWithURL:url]) {
+    return YES;
+  }
+  return [RCTLinkingManager application:application openURL:url options:options];
+}
+
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
   return [self getBundleURL];
@@ -42,6 +52,21 @@
   [RNBootSplash initWithStoryboard:@"BootSplash" rootView:rootView]; // ⬅️ initialize the splash screen
 
   return rootView;
+}
+
+- (BOOL) application: (UIApplication *) application
+continueUserActivity: (nonnull NSUserActivity *)userActivity
+  restorationHandler: (nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
+{
+  if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+    if (self.authorizationFlowManagerDelegate) {
+      BOOL resumableAuth = [self.authorizationFlowManagerDelegate resumeExternalUserAgentFlowWithURL:userActivity.webpageURL];
+      if (resumableAuth) {
+        return YES;
+      }
+    }
+  }
+  return [RCTLinkingManager application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
 }
 
 @end

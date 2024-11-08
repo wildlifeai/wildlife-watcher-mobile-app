@@ -22,7 +22,6 @@ export const SideNavigation = ({ drawerControls }: Props) => {
 
 	const onLogout = () => {
 		dispatch(logout())
-		console.log("im here")
 		drawerControls(false)
 	}
 
