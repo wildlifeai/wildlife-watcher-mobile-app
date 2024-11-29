@@ -76,7 +76,6 @@ export const MainNavigation = () => {
 			</Stack.Navigator>
 		)
 	}
-	console.log(auth?.accessToken.length)
 
 	return (
 		<AppDrawer>

@@ -10,9 +10,11 @@ import logsReducer from "./slices/logsSlice"
 import scanningReducer from "./slices/scanningSlice"
 import authReducer from "./slices/authSlice"
 import { Action, ThunkAction, configureStore } from "@reduxjs/toolkit"
+import { api } from "./api"
 
 const store = configureStore({
 	reducer: {
+		[api.reducerPath]: api.reducer,
 		devices: devicesReducer,
 		logs: logsReducer,
 		configuration: configurationReducer,
@@ -23,6 +25,8 @@ const store = configureStore({
 		androidPermissions: androidPermissionsReducer,
 		authentication: authReducer,
 	},
+	middleware: (getDefaultMiddleware) =>
+		getDefaultMiddleware().concat(api.middleware),
 })
 
 export default store

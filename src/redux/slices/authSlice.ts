@@ -93,8 +93,6 @@ export const authSlice = createSlice({
 			state.loading = false
 			state.initialLoad = false
 			state.auth = undefined
-
-			console.log("im here 4")
 		})
 		builder.addMatcher(isAnyOf(login.pending, logout.pending), (state) => {
 			state.loading = true
