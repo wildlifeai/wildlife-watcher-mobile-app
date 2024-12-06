@@ -67,6 +67,10 @@ For Android development, run the project in development mode:
 npx react-native run-android
 ```
 
+## Releasing
+
+Building the app is fully automated via GitHub actions, however, since it's still in Beta you can only release it until the AppTester/Testflight step. Will update the docs once the app is ready for production.
+
 ## Contributing
 
 If you wish to contribute to this project, submit a [pull request](https://github.com/wildlifeai/wildlife-watcher-mobile-app/pulls).
