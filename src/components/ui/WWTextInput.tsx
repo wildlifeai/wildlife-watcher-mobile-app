@@ -66,9 +66,11 @@ export const WWTextInput = forwardRef<RNTextInput, WWTextInputProps>(
 const styles = StyleSheet.create({
 	container: {
 		width: "100%",
+		margin: 0,
 	},
 	input: {
 		width: "100%",
+		marginVertical: 0,
 	},
 	errorText: {
 		color: "red",

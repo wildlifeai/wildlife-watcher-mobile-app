@@ -53,7 +53,7 @@ export const Field = <
 	const hasError = error?.message ? true : undefined
 
 	return (
-		<View style={[styles.fieldWrapper, style]}>
+		<View style={[style, styles.fieldWrapper]}>
 			{label && (
 				<View style={styles.labelContainer}>
 					<WWText style={styles.label}>
@@ -92,7 +92,7 @@ export const UncontrolledField = ({
 	errorText,
 }: PropsWithChildren<UncontrolledFieldProps>) => {
 	return (
-		<View style={[styles.fieldWrapper, style]}>
+		<View style={[style, styles.fieldWrapper]}>
 			{label && (
 				<View style={styles.labelContainer}>
 					<WWText style={styles.label}>{label}</WWText>
