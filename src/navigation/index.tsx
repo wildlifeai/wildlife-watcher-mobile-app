@@ -85,7 +85,7 @@ export const MainNavigation = () => {
 					header: NavigationBar,
 				}}
 			>
-				{status !== "PoweredOn" ? (
+				{!["PoweredOn", "Unsupported"].includes(status) ? (
 					<Stack.Screen
 						name="BluetoothProblems"
 						component={BluetoothProblems}
