@@ -91,7 +91,7 @@ export const Home = memo(() => {
 	)
 
 	const scan = () => {
-		if (!isBleBusy) {
+		if (!isBleBusy && !isScanning) {
 			startScan()
 		} else {
 			log("Scanning already taking place, skipping.")
@@ -223,12 +223,7 @@ export const Home = memo(() => {
 				{/* <StatusBar barStyle="light-content" backgroundColor="#ffffff" /> */}
 				<View style={styles.headerView}>
 					<View style={styles.buttonRow}>
-						<WWButton
-							hasError={true}
-							mode="contained"
-							onPress={scan}
-							loading={isScanning}
-						>
+						<WWButton mode="contained" onPress={scan} loading={isScanning}>
 							{isScanning ? "Scanning" : "Scan"}
 						</WWButton>
 					</View>

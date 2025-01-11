@@ -55,6 +55,7 @@ export const WWSelect = forwardRef<View, WWSelectProps>(
 					onSelect={onSelect}
 					disabled={disabled}
 					error={hasError}
+					hideMenuHeader={true}
 				/>
 				{hasError && errorText && (
 					<WWText style={styles.errorText}>{errorText}</WWText>
