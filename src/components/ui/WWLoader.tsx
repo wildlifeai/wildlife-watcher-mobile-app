@@ -1,20 +1,13 @@
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native"
-import LoaderKit from "react-native-loader-kit"
+import { StyleSheet, View } from "react-native"
+import { ActivityIndicator } from "react-native-paper"
+import { useExtendedTheme } from "../../theme"
 
-type Props = {
-	style?: StyleProp<ViewStyle>
-	name?: string
-	color?: string
-}
+export const WWLoader = () => {
+	const { colors } = useExtendedTheme()
 
-export const WWLoader = ({
-	style,
-	name = "BallSpinFadeLoader",
-	color = "#fff",
-}: Props) => {
 	return (
-		<View style={[styles.container, style]}>
-			<LoaderKit style={styles.defaultLoader} name={name} color={color} />
+		<View style={styles.container}>
+			<ActivityIndicator size="large" color={colors.primary} />
 		</View>
 	)
 }
@@ -24,9 +17,5 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-	},
-	defaultLoader: {
-		width: 50,
-		height: 50,
 	},
 })
