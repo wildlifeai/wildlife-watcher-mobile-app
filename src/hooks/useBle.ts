@@ -5,7 +5,7 @@ import { Platform } from "react-native"
 import BleManager from "react-native-ble-manager"
 import { Peripheral } from "react-native-ble-manager"
 
-import { BLE_SERVICE_UUID } from "../utils/constants"
+import { BLE_SERVICE_UUID, DEVICE_NAMES } from "../utils/constants"
 import {
 	extractServiceAndCharacteristic,
 	invokeWithTimeout,
@@ -350,7 +350,9 @@ export const useBle = (): ReturnType => {
 
 		BleManager.getConnectedPeripherals([]).then(async (results) => {
 			// Otherwise we unpair everything, ups.
-			results = results.filter((device) => device.name === "WW")
+			results = results.filter(
+				(device) => device.name && DEVICE_NAMES.includes(device.name),
+			)
 
 			if (results.length === 0) {
 				log("No connected devices found when checking cached peripherals")
