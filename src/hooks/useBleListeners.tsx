@@ -20,7 +20,7 @@ import {
 import { deviceLogChange } from "./../redux/slices/logsSlice"
 import { useInterval } from "../hooks/useInterval"
 import { scanStop } from "../redux/slices/scanningSlice"
-import { DEVICE_NAME } from "../utils/constants"
+import { DEVICE_NAMES } from "../utils/constants"
 import { parseLogs } from "../ble/parser"
 import {
 	DeviceConfiguration,
@@ -237,7 +237,7 @@ export const useBleListeners = () => {
 
 	const discoveredPeripheralEvent = useCallback(
 		(peripheral: ExtendedPeripheral) => {
-			if (!peripheral.name?.includes(DEVICE_NAME)) return
+			if (!peripheral.name || !DEVICE_NAMES.includes(peripheral.name)) return
 
 			peripheral = {
 				...DEFAULT_PERIPHERAL(peripheral.id),
@@ -268,8 +268,8 @@ export const useBleListeners = () => {
 		const peripherals: Peripheral[] = await guard(() =>
 			BleManager.getDiscoveredPeripherals(),
 		)
-		const filteredPeripherals = peripherals.filter((p) =>
-			p.name?.includes(DEVICE_NAME),
+		const filteredPeripherals = peripherals.filter(
+			(p) => p.name && DEVICE_NAMES.includes(p.name),
 		)
 
 		const notFoundAnymore: Peripheral[] = []
