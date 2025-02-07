@@ -59,9 +59,6 @@ PODS:
   - hermes-engine (0.74.6):
     - hermes-engine/Pre-built (= 0.74.6)
   - hermes-engine/Pre-built (0.74.6)
-  - NVActivityIndicatorView (5.1.1):
-    - NVActivityIndicatorView/Base (= 5.1.1)
-  - NVActivityIndicatorView/Base (5.1.1)
   - PromisesObjC (2.4.0)
   - RCT-Folly (2024.01.01.00):
     - boost
@@ -1000,9 +997,6 @@ PODS:
     - react-native-config/App (= 1.5.3)
   - react-native-config/App (1.5.3):
     - React-Core
-  - react-native-loader-kit (2.0.8):
-    - NVActivityIndicatorView (= 5.1.1)
-    - React-Core
   - react-native-safe-area-context (4.14.0):
     - React-Core
   - React-nativeconfig (0.74.6)
@@ -1439,7 +1433,6 @@ DEPENDENCIES:
   - react-native-app-auth (from `../node_modules/react-native-app-auth`)
   - react-native-ble-manager (from `../node_modules/react-native-ble-manager`)
   - react-native-config (from `../node_modules/react-native-config`)
-  - react-native-loader-kit (from `../node_modules/react-native-loader-kit`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -1485,7 +1478,6 @@ SPEC REPOS:
     - FirebaseCoreInternal
     - FirebaseInstallations
     - GoogleUtilities
-    - NVActivityIndicatorView
     - PromisesObjC
     - SocketRocket
 
@@ -1557,8 +1549,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-ble-manager"
   react-native-config:
     :path: "../node_modules/react-native-config"
-  react-native-loader-kit:
-    :path: "../node_modules/react-native-loader-kit"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   React-nativeconfig:
@@ -1644,7 +1634,6 @@ SPEC CHECKSUMS:
   glog: fdfdfe5479092de0c4bdbebedd9056951f092c4f
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   hermes-engine: 2102c92e54a031a270fd1fe84169ec8a0901b7bd
-  NVActivityIndicatorView: 1f6c5687f1171810aa27a3296814dc2d7dec3667
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCT-Folly: 02617c592a293bd6d418e0a88ff4ee1f88329b47
   RCTDeprecation: 5f1d7e1f8ef6c53f0207e3ac0d0ca23575e8a6ab
@@ -1673,7 +1662,6 @@ SPEC CHECKSUMS:
   react-native-app-auth: 79605228ffe689f63ad5b046319f5e154e3e96c2
   react-native-ble-manager: 59a0c7178d6fa0272a1b86f976469b800ce08eba
   react-native-config: 8f7283449bbb048902f4e764affbbf24504454af
-  react-native-loader-kit: ed18c8ce83b69083211912326897d8286f37d797
   react-native-safe-area-context: 4532f1a0c5d34a46b9324ccaaedcb5582a302b7d
   React-nativeconfig: bf6ea7351e761f3ab837b9fc406576c56492f57a
   React-NativeModulesApple: d127c66e52964d33c7fb694ce98c078ea899dd16
@@ -1713,4 +1701,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 89f1bbb0db36f947d13810e4b47cad167f6ba4fb
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.14.3
