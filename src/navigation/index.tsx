@@ -51,7 +51,8 @@ export const MainNavigation = () => {
 		(state) => state.authentication,
 	)
 
-	const appLoading = blLoading || locLoading || bleLoading || authLoading
+	// const appLoading = blLoading || locLoading || bleLoading || authLoading
+	const appLoading = blLoading || locLoading || bleLoading
 
 	useEffect(() => {
 		if (!appLoading) {
@@ -103,15 +104,16 @@ export const MainNavigation = () => {
 						name="BLEProblems"
 						component={BleProblems}
 					/>
-				) : !auth?.accessToken ? (
-					<Stack.Group>
-						<Stack.Screen
-							options={{ headerShown: false }}
-							name="Login"
-							component={Login}
-						/>
-					</Stack.Group>
 				) : (
+					// : !auth?.accessToken ? (
+					// 	<Stack.Group>
+					// 		<Stack.Screen
+					// 			options={{ headerShown: false }}
+					// 			name="Login"
+					// 			component={Login}
+					// 		/>
+					// 	</Stack.Group>
+					// )
 					<Stack.Group>
 						<Stack.Screen
 							name="Home"
