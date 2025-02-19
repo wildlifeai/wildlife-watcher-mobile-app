@@ -20,7 +20,6 @@ import {
 import { deviceLogChange } from "./../redux/slices/logsSlice"
 import { useInterval } from "../hooks/useInterval"
 import { scanStop } from "../redux/slices/scanningSlice"
-import { DEVICE_NAMES } from "../utils/constants"
 import { parseLogs } from "../ble/parser"
 import {
 	DeviceConfiguration,
@@ -28,6 +27,7 @@ import {
 } from "../redux/slices/configurationSlice"
 import isEmpty from "lodash.isempty"
 import { useBleActions } from "../providers/BleEngineProvider"
+import { isOurDevice } from "../utils/helpers"
 
 export const bleManagerEmitter = new NativeEventEmitter(
 	NativeModules.BleManager,
@@ -237,7 +237,8 @@ export const useBleListeners = () => {
 
 	const discoveredPeripheralEvent = useCallback(
 		(peripheral: ExtendedPeripheral) => {
-			if (!peripheral.name || !DEVICE_NAMES.includes(peripheral.name)) return
+			console.log("peripheral", peripheral.id, peripheral.name)
+			if (!peripheral.name || !isOurDevice(peripheral.name)) return
 
 			peripheral = {
 				...DEFAULT_PERIPHERAL(peripheral.id),
@@ -268,9 +269,11 @@ export const useBleListeners = () => {
 		const peripherals: Peripheral[] = await guard(() =>
 			BleManager.getDiscoveredPeripherals(),
 		)
-		const filteredPeripherals = peripherals.filter(
-			(p) => p.name && DEVICE_NAMES.includes(p.name),
-		)
+
+		const filteredPeripherals = peripherals.filter((p) => {
+			console.log("p", p.name)
+			return p.name && isOurDevice(p.name)
+		})
 
 		const notFoundAnymore: Peripheral[] = []
 

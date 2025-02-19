@@ -5,6 +5,7 @@ import {
 	BLE_CHARACTERISTIC_READ_UUID,
 	BLE_CHARACTERISTIC_WRITE_UUID,
 	BLE_SERVICE_UUID,
+	DEVICE_NAMES,
 } from "./constants"
 import BleManager from "react-native-ble-manager"
 import { Buffer } from "buffer"
@@ -186,4 +187,8 @@ export const getStorageData = async <T>(
 	} catch (e: any) {
 		console.error(`Could not read from storage. Reason: ${e.message}`)
 	}
+}
+
+export const isOurDevice = (name: string) => {
+	return !!DEVICE_NAMES.find((deviceName) => name.includes(deviceName))
 }
