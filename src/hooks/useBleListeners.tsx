@@ -237,7 +237,6 @@ export const useBleListeners = () => {
 
 	const discoveredPeripheralEvent = useCallback(
 		(peripheral: ExtendedPeripheral) => {
-			console.log("peripheral", peripheral.id, peripheral.name)
 			if (!peripheral.name || !isOurDevice(peripheral.name)) return
 
 			peripheral = {
