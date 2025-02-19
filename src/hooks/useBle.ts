@@ -5,10 +5,11 @@ import { Platform } from "react-native"
 import BleManager from "react-native-ble-manager"
 import { Peripheral } from "react-native-ble-manager"
 
-import { BLE_SERVICE_UUID, DEVICE_NAMES } from "../utils/constants"
+import { BLE_SERVICE_UUID } from "../utils/constants"
 import {
 	extractServiceAndCharacteristic,
 	invokeWithTimeout,
+	isOurDevice,
 	sleep,
 } from "../utils/helpers"
 import { guard, log, logError } from "../utils/logger"
@@ -351,7 +352,7 @@ export const useBle = (): ReturnType => {
 		BleManager.getConnectedPeripherals([]).then(async (results) => {
 			// Otherwise we unpair everything, ups.
 			results = results.filter(
-				(device) => device.name && DEVICE_NAMES.includes(device.name),
+				(device) => device.name && isOurDevice(device.name),
 			)
 
 			if (results.length === 0) {
