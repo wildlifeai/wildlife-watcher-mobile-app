@@ -90,6 +90,13 @@ export const Home = memo(() => {
 		[connectDevice, navigation],
 	)
 
+	const upgrade = useCallback(
+		(item: ExtendedPeripheral) => {
+			navigation.navigate("DfuScreen", { deviceId: item.id })
+		},
+		[navigation],
+	)
+
 	const scan = () => {
 		if (!isBleBusy && !isScanning) {
 			startScan()
@@ -218,7 +225,7 @@ export const Home = memo(() => {
 	}
 
 	return (
-		<WWScreenView>
+		<WWScreenView scrollable={false}>
 			<View style={[styles.wrapper, { paddingBottom: bottom }]}>
 				{/* <StatusBar barStyle="light-content" backgroundColor="#ffffff" /> */}
 				<View style={styles.headerView}>
@@ -244,6 +251,7 @@ export const Home = memo(() => {
 								item={item}
 								disconnect={disconnect}
 								go={go}
+								upgrade={upgrade}
 							/>
 						)}
 						keyExtractor={(item: ExtendedPeripheral) => item.id}

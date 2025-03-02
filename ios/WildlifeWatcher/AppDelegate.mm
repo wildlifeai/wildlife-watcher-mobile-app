@@ -1,6 +1,7 @@
 #import "AppDelegate.h"
 #import "RNBootSplash.h"
 #import <Firebase.h>
+#import "RNNordicDfu.h"
 
 #import <React/RCTBundleURLProvider.h>
 
@@ -14,6 +15,19 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
+
+  [RNNordicDfu setCentralManagerGetter:^() {
+    return [[CBCentralManager alloc] initWithDelegate:nil 
+        queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
+  }];
+
+  [RNNordicDfu setOnDFUComplete:^() {
+    NSLog(@"onDFUComplete");
+  }];
+
+  [RNNordicDfu setOnDFUError:^() {
+    NSLog(@"onDFUError");
+  }];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

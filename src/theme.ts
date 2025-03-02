@@ -19,77 +19,115 @@ const { LightTheme, DarkTheme } = adaptNavigationTheme({
 const extendThemes = (theme: MD3Theme) => {
 	return {
 		...theme,
-		colors: {
-			...theme.colors,
-			primary: "#4caf50",
-			secondary: "#fed54e",
-			tertiary: "#ffffff",
-		},
 		appPadding: 20,
 		roundness: 10,
 		spacing: 10,
 	}
 }
 
+const darkColors = {
+	primary: "rgb(76, 175, 80)",
+	onPrimary: "rgb(255, 255, 255)",
+	primaryContainer: "rgb(76, 175, 80)",
+	onPrimaryContainer: "rgb(255, 255, 255)",
+	secondary: "rgb(254, 213, 78)",
+	onSecondary: "rgb(255, 255, 255)",
+	secondaryContainer: "rgb(254, 213, 78)",
+	onSecondaryContainer: "rgb(255, 255, 255)",
+	tertiary: "rgb(255, 255, 255)",
+	onTertiary: "rgb(255, 255, 255)",
+	tertiaryContainer: "rgb(255, 255, 255)",
+	onTertiaryContainer: "rgb(255, 255, 255)",
+	error: "rgb(255, 180, 171)",
+	onError: "rgb(255, 255, 255)",
+	errorContainer: "rgb(147, 0, 10)",
+	onErrorContainer: "rgb(255, 255, 255)",
+	background: "rgb(26, 28, 25)",
+	onBackground: "rgb(255, 255, 255)",
+	surface: "rgb(26, 28, 25)",
+	onSurface: "rgb(255, 255, 255)",
+	surfaceVariant: "rgb(66, 73, 64)",
+	onSurfaceVariant: "rgb(255, 255, 255)",
+	outline: "rgb(140, 147, 136)",
+	outlineVariant: "rgb(66, 73, 64)",
+	shadow: "rgb(0, 0, 0)",
+	scrim: "rgb(0, 0, 0)",
+	inverseSurface: "rgb(226, 227, 221)",
+	inverseOnSurface: "rgb(255, 255, 255)",
+	inversePrimary: "rgb(0, 110, 28)",
+	elevation: {
+		level0: "transparent",
+		level1: "rgb(31, 38, 30)",
+		level2: "rgb(34, 43, 33)",
+		level3: "rgb(36, 49, 35)",
+		level4: "rgb(37, 51, 36)",
+		level5: "rgb(39, 55, 38)",
+	},
+	surfaceDisabled: "rgba(226, 227, 221, 0.12)",
+	onSurfaceDisabled: "rgba(226, 227, 221, 0.38)",
+	backdrop: "rgba(44, 50, 42, 0.4)",
+	primaryDisabled: "rgba(120, 220, 119, 0.38)", // Using primary with 38% opacity
+}
+
+const lightColors = {
+	primary: "rgb(0, 110, 28)",
+	onPrimary: "rgb(255, 255, 255)",
+	primaryContainer: "rgb(148, 249, 144)",
+	onPrimaryContainer: "rgb(0, 34, 4)",
+	secondary: "rgb(115, 92, 0)",
+	onSecondary: "rgb(255, 255, 255)",
+	secondaryContainer: "rgb(255, 224, 133)",
+	onSecondaryContainer: "rgb(35, 27, 0)",
+	tertiary: "rgb(0, 104, 116)",
+	onTertiary: "rgb(255, 255, 255)",
+	tertiaryContainer: "rgb(151, 240, 255)",
+	onTertiaryContainer: "rgb(0, 31, 36)",
+	error: "rgb(186, 26, 26)",
+	onError: "rgb(255, 255, 255)",
+	errorContainer: "rgb(255, 218, 214)",
+	onErrorContainer: "rgb(65, 0, 2)",
+	background: "rgb(252, 253, 246)",
+	onBackground: "rgb(26, 28, 25)",
+	surface: "rgb(252, 253, 246)",
+	onSurface: "rgb(26, 28, 25)",
+	surfaceVariant: "rgb(222, 229, 216)",
+	onSurfaceVariant: "rgb(66, 73, 64)",
+	outline: "rgb(114, 121, 111)",
+	outlineVariant: "rgb(194, 201, 189)",
+	shadow: "rgb(0, 0, 0)",
+	scrim: "rgb(0, 0, 0)",
+	inverseSurface: "rgb(47, 49, 45)",
+	inverseOnSurface: "rgb(240, 241, 235)",
+	inversePrimary: "rgb(120, 220, 119)",
+	elevation: {
+		level0: "transparent",
+		level1: "rgb(239, 246, 235)",
+		level2: "rgb(232, 242, 229)",
+		level3: "rgb(224, 237, 222)",
+		level4: "rgb(222, 236, 220)",
+		level5: "rgb(217, 233, 216)",
+	},
+	surfaceDisabled: "rgba(26, 28, 25, 0.12)",
+	onSurfaceDisabled: "rgba(26, 28, 25, 0.38)",
+	backdrop: "rgba(44, 50, 42, 0.4)",
+	primaryDisabled: "rgba(0, 110, 28, 0.38)", // Using primary with 38% opacity
+}
+
 export const CombinedDefaultTheme = merge(
+	DarkTheme,
+	extendThemes({
+		...MD3DarkTheme,
+		colors: darkColors,
+	}),
+)
+
+export const CombinedLightTheme = merge(
 	LightTheme,
 	extendThemes({
 		...MD3LightTheme,
-		colors: {
-			...MD3LightTheme.colors,
-			primary: "rgb(76, 175, 80)",
-			onPrimary: "rgb(255, 255, 255)",
-			primaryContainer: "rgb(240, 219, 255)",
-			onPrimaryContainer: "rgb(44, 0, 81)",
-			secondary: "rgb(254, 213, 78)",
-			onSecondary: "rgb(255, 255, 255)",
-			secondaryContainer: "rgb(237, 221, 246)",
-			onSecondaryContainer: "rgb(33, 24, 42)",
-			tertiary: "rgb(255, 255, 255)",
-			onTertiary: "rgb(255, 255, 255)",
-			tertiaryContainer: "rgb(255, 217, 221)",
-			onTertiaryContainer: "rgb(50, 16, 23)",
-			error: "rgb(186, 26, 26)",
-			onError: "rgb(255, 255, 255)",
-			errorContainer: "rgb(255, 218, 214)",
-			onErrorContainer: "rgb(65, 0, 2)",
-			background: "rgb(38, 38, 43)", // #26262b
-			onBackground: "rgb(255, 255, 255)",
-			surface: "rgb(38, 38, 43)",
-			onSurface: "rgb(255, 255, 255)",
-			surfaceVariant: "rgb(233, 223, 235)",
-			onSurfaceVariant: "rgb(74, 69, 78)",
-			outline: "rgb(124, 117, 126)",
-			outlineVariant: "rgb(204, 196, 206)",
-			shadow: "rgb(0, 0, 0)",
-			scrim: "rgb(0, 0, 0)",
-			inverseSurface: "rgb(50, 47, 51)",
-			inverseOnSurface: "rgb(245, 239, 244)",
-			inversePrimary: "rgb(220, 184, 255)",
-			elevation: {
-				level0: "rgb(38, 38, 43)",
-				level1: "rgb(38, 38, 43)",
-				level2: "rgb(38, 38, 43)",
-				level3: "rgb(38, 38, 43)",
-				level4: "rgb(38, 38, 43)",
-				level5: "rgb(38, 38, 43)",
-			},
-			surfaceDisabled: "rgba(29, 27, 30, 0.12)",
-			onSurfaceDisabled: "rgba(29, 27, 30, 0.38)",
-			backdrop: "rgba(51, 47, 55, 0.4)",
-		},
+		colors: lightColors,
 	}),
-)
-
-export const CombinedDarkTheme = merge(
-	extendThemes({
-		...MD3DarkTheme,
-		colors: {
-			...MD3DarkTheme.colors,
-		},
-	}),
-	DarkTheme,
 )
 
 export const useExtendedTheme = () =>
-	useTheme<typeof CombinedDarkTheme | typeof CombinedDefaultTheme>()
+	useTheme<typeof CombinedDefaultTheme | typeof CombinedLightTheme>()
