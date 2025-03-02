@@ -1,4 +1,4 @@
-import { useCallback } from "react"
+import { forwardRef, useCallback } from "react"
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native"
 import { Checkbox, CheckboxProps } from "react-native-paper"
 import { useExtendedTheme } from "../../theme"
@@ -12,24 +12,26 @@ type Props = {
 	label?: string
 } & Omit<CheckboxProps, "status" | "onPress">
 
-export const WWCheckbox = ({
-	style,
-	hasError,
-	value = false,
-	onChange,
-	disabled,
-	label,
-	...props
-}: Props) => {
+export const WWCheckbox = forwardRef<View, Props>((props, ref) => {
+	const {
+		style,
+		hasError,
+		value = false,
+		onChange,
+		disabled,
+		label,
+		...rest
+	} = props
+
 	const { colors } = useExtendedTheme()
 	const handleChange = useCallback(() => {
 		onChange?.(!value)
 	}, [onChange, value])
 
 	return (
-		<View style={styles.wrapper}>
+		<View style={styles.wrapper} ref={ref}>
 			<Checkbox.Item
-				{...props}
+				{...rest}
 				label={label || ""}
 				status={value ? "checked" : "unchecked"}
 				onPress={handleChange}
@@ -42,7 +44,7 @@ export const WWCheckbox = ({
 			/>
 		</View>
 	)
-}
+})
 
 const styles = StyleSheet.create({
 	wrapper: {

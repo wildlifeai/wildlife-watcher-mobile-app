@@ -101,6 +101,13 @@ export const devicesSlice = createSlice({
 				}
 			})
 		},
+		removeDevice: (state, action: PayloadAction<{ id: string }>) => {
+			const { id } = action.payload
+			if (state[id]) {
+				clearAllDeviceIntervals(state[id])
+				delete state[id]
+			}
+		},
 	},
 })
 
@@ -109,6 +116,7 @@ export const {
 	deviceDisconnect,
 	deviceLoading,
 	deviceSignalChanged,
+	removeDevice,
 } = devicesSlice.actions
 
 export default devicesSlice.reducer

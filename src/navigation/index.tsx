@@ -10,13 +10,13 @@ import { Home } from "./screens/Home"
 import { Terminal } from "./screens/TerminalScreen"
 import BootSplash from "react-native-bootsplash"
 import { NavigationBar } from "../components/NavigationBar"
-import { Login } from "./screens/Login"
 import { AppLoading } from "./screens/AppLoading"
 import { AppDrawer } from "../components/AppDrawer"
 import { Notifications } from "./screens/Notifications"
 import { CommunityDiscussion } from "./screens/CommunityDiscussion"
 import { Profile } from "./screens/Profile"
 import { Settings } from "./screens/Settings"
+import { DfuScreen } from "./screens/DfuScreen"
 
 export interface RootStackParamList extends ParamListBase {
 	CommunityDiscussion: undefined
@@ -26,6 +26,7 @@ export interface RootStackParamList extends ParamListBase {
 	Home: undefined
 	DeviceNavigator: { deviceId: string }
 	Terminal: { deviceId: string }
+	DfuScreen: { deviceId: string }
 }
 
 export type Routes = keyof RootStackParamList
@@ -47,9 +48,9 @@ export const MainNavigation = () => {
 	const { initialized, initialLoad: bleLoading } = useAppSelector(
 		(state) => state.bleLibrary,
 	)
-	const { auth, initialLoad: authLoading } = useAppSelector(
-		(state) => state.authentication,
-	)
+	// const { auth, initialLoad: authLoading } = useAppSelector(
+	// 	(state) => state.authentication,
+	// )
 
 	// const appLoading = blLoading || locLoading || bleLoading || authLoading
 	const appLoading = blLoading || locLoading || bleLoading
@@ -144,6 +145,11 @@ export const MainNavigation = () => {
 							name="DeviceNavigator"
 							options={{ title: "Configure device" }}
 							component={DeviceNavigation} // Nested navigator here
+						/>
+						<Stack.Screen
+							name="DfuScreen"
+							component={DfuScreen}
+							options={{ title: "Firmware Update" }}
 						/>
 					</Stack.Group>
 				)}

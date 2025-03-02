@@ -1,88 +1,82 @@
 import React from "react"
-
 import { StyleSheet, View } from "react-native"
 import { ExtendedPeripheral } from "../redux/slices/devicesSlice"
 import { ActivityIndicator, Text, TouchableRipple } from "react-native-paper"
+import { WWButton, WWIconButton } from "./ui/WWButton"
 
 type DeviceItemProps = {
 	item: ExtendedPeripheral
 	disconnect: (item: ExtendedPeripheral) => Promise<void>
 	go: (item: ExtendedPeripheral) => Promise<void>
+	upgrade: (item: ExtendedPeripheral) => void
 	disabled?: boolean
 }
 
-export const DeviceItem = React.memo(
-	({ item, disconnect, go, disabled }: DeviceItemProps) => {
-		return (
-			<TouchableRipple
-				style={styles.card}
-				onPress={() => go(item)}
-				onLongPress={() => disconnect(item)}
-				disabled={disabled}
-			>
-				<View
-					style={[
-						styles.cardContent,
-						item.connected ? { ...styles.connected } : styles.disconnected,
-					]}
-				>
-					<View style={styles.leftView}>
-						<Text variant="bodyLarge" numberOfLines={1} style={[styles.uuid]}>
-							{item.device.name}
-						</Text>
-					</View>
-					<View style={styles.rightView}>
-						{item.loading ? <ActivityIndicator size={22} /> : null}
-					</View>
+export const DeviceItem = ({
+	item,
+	disconnect,
+	go,
+	upgrade,
+	disabled,
+}: DeviceItemProps) => {
+	const showUpgradeButton = item.name?.toLowerCase().includes("dfu")
+
+	return (
+		<TouchableRipple
+			disabled={disabled || item.loading || showUpgradeButton}
+			onPress={() => go(item)}
+		>
+			<View style={styles.container}>
+				<View style={styles.info}>
+					<Text variant="titleMedium">{item.device.name}</Text>
+					<Text variant="bodySmall">
+						RSSI: {item.rssi === 127 ? "N/A" : item.rssi}
+					</Text>
 				</View>
-			</TouchableRipple>
-		)
-	},
-)
+				<View style={styles.actions}>
+					{item.loading ? (
+						<ActivityIndicator />
+					) : (
+						<>
+							{showUpgradeButton && (
+								<WWButton
+									mode="outlined"
+									onPress={() => upgrade(item)}
+									disabled={disabled}
+								>
+									Upgrade
+								</WWButton>
+							)}
+							{item.connected && (
+								<WWIconButton
+									icon="exit-to-app"
+									onPress={() => disconnect(item)}
+									disabled={disabled}
+								/>
+							)}
+						</>
+					)}
+				</View>
+			</View>
+		</TouchableRipple>
+	)
+}
 
 const styles = StyleSheet.create({
-	card: {
-		paddingVertical: 8,
-	},
-	connected: { borderRightWidth: 4, borderRightColor: "blue" },
-	disconnected: { paddingRight: 4 },
-	cardContent: { flexDirection: "row" },
-	uuid: {
-		fontWeight: "700",
-		margin: 2,
-	},
-	leftView: {
-		width: "75%",
-	},
-	middleView: {
-		width: "15%",
+	container: {
+		flexDirection: "row",
+		padding: 16,
 		alignItems: "center",
-		justifyContent: "space-around",
-		height: 70,
-		alignSelf: "center",
+		justifyContent: "space-between",
+		borderBottomWidth: 1,
+		borderBottomColor: "#eee",
 	},
-	rightView: { width: "10%", alignItems: "center", justifyContent: "center" },
-	leftButton: {
-		marginEnd: 10,
+	info: {
+		flex: 1,
 	},
-	noconn: { marginStart: "auto" },
-	text: {
-		margin: 2,
-	},
-	disabled: {
-		backgroundColor: "grey",
-	},
-	warning: {
+	actions: {
 		flexDirection: "row",
 		alignItems: "center",
-		paddingTop: 5,
-		justifyContent: "flex-start",
-	},
-	warningIcon: {
-		marginRight: 5,
-	},
-	warningText: {
-		fontWeight: "700",
-		flex: 1,
+		gap: 8,
 	},
 })
