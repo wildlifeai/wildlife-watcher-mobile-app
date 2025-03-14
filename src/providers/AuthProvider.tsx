@@ -1,29 +1,20 @@
 import { PropsWithChildren, useEffect } from "react"
-import { AuthorizeResult } from "react-native-app-auth"
-import { useAppDispatch, useAppSelector } from "../redux"
-import {
-	authStart,
-	authDone,
-	AUTH_STORAGE_KEY,
-} from "../redux/slices/authSlice"
+import { useAppDispatch } from "../redux"
+import { AUTH_STORAGE_KEY, setInitialState } from "../redux/slices/authSlice"
 import { getStorageData } from "../utils/helpers"
+import { AuthResponse } from "../redux/api/auth/types"
 
 export const AuthProvider = ({ children }: PropsWithChildren<unknown>) => {
 	const dispatch = useAppDispatch()
-	const { auth } = useAppSelector((state) => state.authentication)
 
 	useEffect(() => {
 		const init = async () => {
-			dispatch(authStart())
-			dispatch(
-				authDone(await getStorageData<AuthorizeResult>(AUTH_STORAGE_KEY)),
-			)
+			const authData = await getStorageData<AuthResponse>(AUTH_STORAGE_KEY)
+			dispatch(setInitialState(authData))
 		}
 
-		if (!auth?.accessToken) {
-			init()
-		}
-	}, [dispatch, auth])
+		init()
+	}, [dispatch])
 
 	return children
 }

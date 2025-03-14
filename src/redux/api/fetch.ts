@@ -5,7 +5,7 @@ import Config from "react-native-config"
 export const extendedBaseQuery = fetchBaseQuery({
 	baseUrl: Config.API_BASE,
 	prepareHeaders: (headers, { getState }) => {
-		const token = (getState() as RootState).authentication.auth?.accessToken
+		const token = (getState() as RootState).authentication.token
 
 		// If we have a token set in state, let's assume that we should be passing it.
 		if (token) {

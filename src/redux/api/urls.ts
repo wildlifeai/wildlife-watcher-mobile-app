@@ -2,7 +2,7 @@ import Config from "react-native-config"
 
 const { API_BASE } = Config
 
-const prefixUrl = (path: string) => `${API_BASE}${path}`
+const prefixUrl = (path: string) => `${API_BASE}/api${path}`
 
 export const API_URLS = {
 	// Users
@@ -36,4 +36,9 @@ export const API_URLS = {
 	// API Logs
 	API_LOGS: prefixUrl("/api-logs"),
 	API_LOG_BY_ID: (id: string) => prefixUrl(`/api-logs/${id}`),
+
+	// Auth
+	AUTH_LOGIN: prefixUrl("/auth/local"),
+	AUTH_REGISTER: prefixUrl("/auth/local/register"),
+	AUTH_ME: prefixUrl("/users/me"),
 } as const
