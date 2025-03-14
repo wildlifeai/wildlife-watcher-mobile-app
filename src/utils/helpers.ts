@@ -178,14 +178,13 @@ export const storeDataToStorage = async <T>(key: string, value: T) => {
 	}
 }
 
-export const getStorageData = async <T>(
-	key: string,
-): Promise<T | undefined> => {
+export const getStorageData = async <T>(key: string): Promise<T | null> => {
 	try {
 		const jsonValue = await AsyncStorage.getItem(key)
-		return jsonValue != null ? JSON.parse(jsonValue) : undefined
+		return jsonValue != null ? JSON.parse(jsonValue) : null
 	} catch (e: any) {
 		console.error(`Could not read from storage. Reason: ${e.message}`)
+		return null
 	}
 }
 

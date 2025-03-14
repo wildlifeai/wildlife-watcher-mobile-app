@@ -17,6 +17,8 @@ import { CommunityDiscussion } from "./screens/CommunityDiscussion"
 import { Profile } from "./screens/Profile"
 import { Settings } from "./screens/Settings"
 import { DfuScreen } from "./screens/DfuScreen"
+import { Login } from "./screens/Login"
+import { Register } from "./screens/Register"
 
 export interface RootStackParamList extends ParamListBase {
 	CommunityDiscussion: undefined
@@ -27,6 +29,8 @@ export interface RootStackParamList extends ParamListBase {
 	DeviceNavigator: { deviceId: string }
 	Terminal: { deviceId: string }
 	DfuScreen: { deviceId: string }
+	Login: undefined
+	Register: undefined
 }
 
 export type Routes = keyof RootStackParamList
@@ -48,12 +52,11 @@ export const MainNavigation = () => {
 	const { initialized, initialLoad: bleLoading } = useAppSelector(
 		(state) => state.bleLibrary,
 	)
-	// const { auth, initialLoad: authLoading } = useAppSelector(
-	// 	(state) => state.authentication,
-	// )
+	const { token, initialLoad: authLoading } = useAppSelector(
+		(state) => state.authentication,
+	)
 
-	// const appLoading = blLoading || locLoading || bleLoading || authLoading
-	const appLoading = blLoading || locLoading || bleLoading
+	const appLoading = blLoading || locLoading || bleLoading || authLoading
 
 	useEffect(() => {
 		if (!appLoading) {
@@ -105,16 +108,12 @@ export const MainNavigation = () => {
 						name="BLEProblems"
 						component={BleProblems}
 					/>
+				) : !token ? (
+					<Stack.Group screenOptions={{ headerShown: false }}>
+						<Stack.Screen name="Login" component={Login} />
+						<Stack.Screen name="Register" component={Register} />
+					</Stack.Group>
 				) : (
-					// : !auth?.accessToken ? (
-					// 	<Stack.Group>
-					// 		<Stack.Screen
-					// 			options={{ headerShown: false }}
-					// 			name="Login"
-					// 			component={Login}
-					// 		/>
-					// 	</Stack.Group>
-					// )
 					<Stack.Group>
 						<Stack.Screen
 							name="Home"

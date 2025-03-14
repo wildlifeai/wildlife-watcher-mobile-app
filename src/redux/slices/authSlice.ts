@@ -1,114 +1,49 @@
-import {
-	PayloadAction,
-	createAsyncThunk,
-	createSlice,
-	isAnyOf,
-} from "@reduxjs/toolkit"
-import { authorize, AuthorizeResult, revoke } from "react-native-app-auth"
+import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { storeDataToStorage } from "../../utils/helpers"
-import { RootState } from ".."
+import { AuthResponse } from "../api/auth/types"
 
-const TENANT_ID = "56bdb921-ae1e-4375-8bcd-2a978870cacb"
-const CLIENT_ID = "bde3bf0d-0793-40e4-9fb1-e267d84cf766"
 export const AUTH_STORAGE_KEY = "auth"
 
-const config = {
-	issuer: `https://login.microsoftonline.com/${TENANT_ID}/v2.0`,
-	clientId: CLIENT_ID,
-	redirectUrl: "com.wildlife.auth://callback/",
-	scopes: ["openid", "profile", "email"],
-	// serviceConfiguration: {
-	// 	authorizationEndpoint: `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize`,
-	// 	tokenEndpoint: `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,
-	// 	revocationEndpoint: `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/logout`,
-	// },
-}
-
-interface ScanningState {
+type AuthState = {
+	token?: string
+	user?: AuthResponse["user"]
 	loading: boolean
 	initialLoad: boolean
 	error?: Error
-	auth?: AuthorizeResult
 }
 
-const initialState: ScanningState = {
+const initialState: AuthState = {
 	loading: false,
 	initialLoad: true,
 }
 
-export const login = createAsyncThunk("authentication/login", async () => {
-	const authData = await authorize(config)
-	await storeDataToStorage(AUTH_STORAGE_KEY, authData)
-
-	return authData
-})
-
-export const logout = createAsyncThunk(
-	"authentication/logout",
-	async (_, { getState }) => {
-		const {
-			authentication: { auth },
-		} = getState() as RootState
-
-		try {
-			await revoke(config, {
-				tokenToRevoke: `${auth?.accessToken}`,
-				includeBasicAuth: true,
-				sendClientId: true,
-			})
-		} catch (e: any) {
-			console.log(e?.message)
-		}
-
-		await storeDataToStorage(AUTH_STORAGE_KEY, null)
-	},
-)
-
 export const authSlice = createSlice({
 	name: "authentication",
-	initialState: initialState,
+	initialState,
 	reducers: {
-		authStart: (state) => {
-			state.loading = true
-			state.error = undefined
+		setCredentials: (state, action: PayloadAction<AuthResponse>) => {
+			state.token = action.payload.jwt
+			state.user = action.payload.user
+			state.loading = false
+			state.initialLoad = false
+			storeDataToStorage(AUTH_STORAGE_KEY, action.payload)
 		},
-		authDone: (state, action: PayloadAction<AuthorizeResult | undefined>) => {
+		logout: (state) => {
+			state.token = undefined
+			state.user = undefined
 			state.loading = false
 			state.initialLoad = false
-			state.auth = action.payload
+			storeDataToStorage(AUTH_STORAGE_KEY, null)
 		},
-		authError: (state, action: PayloadAction<Error>) => {
-			state.error = action.payload
-			state.loading = false
+		setInitialState: (state, action: PayloadAction<AuthResponse | null>) => {
+			if (action.payload) {
+				state.token = action.payload.jwt
+				state.user = action.payload.user
+			}
 			state.initialLoad = false
 		},
-	},
-	extraReducers: (builder) => {
-		builder.addCase(login.fulfilled, (state, { payload }) => {
-			state.loading = false
-			state.initialLoad = false
-			state.auth = payload
-		})
-		builder.addCase(logout.fulfilled, (state) => {
-			state.loading = false
-			state.initialLoad = false
-			state.auth = undefined
-		})
-		builder.addMatcher(isAnyOf(login.pending, logout.pending), (state) => {
-			state.loading = true
-			state.error = undefined
-		})
-		builder.addMatcher(
-			isAnyOf(login.rejected, logout.rejected),
-			(state, { payload }) => {
-				state.error = payload as Error
-				state.loading = false
-				state.initialLoad = false
-			},
-		)
 	},
 })
 
-export const { authStart, authDone, authError } = authSlice.actions
-
+export const { setCredentials, logout, setInitialState } = authSlice.actions
 export default authSlice.reducer
