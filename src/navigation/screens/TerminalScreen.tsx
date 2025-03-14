@@ -271,7 +271,7 @@ export const Terminal = ({ embed }: Props) => {
 							autoCapitalize="none"
 							style={styles.inputText}
 							value={text}
-							onChangeText={(value: string) => setText(value)}
+							onChange={(value: string) => setText(value)}
 							right={
 								<TextInput.Icon
 									size={30}

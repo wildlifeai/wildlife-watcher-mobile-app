@@ -23,6 +23,7 @@ export const WWTextInput = forwardRef<RNTextInput, WWTextInputProps>(
 			style,
 			disabled,
 			errorText,
+			right,
 			...props
 		},
 		ref,
@@ -36,6 +37,14 @@ export const WWTextInput = forwardRef<RNTextInput, WWTextInputProps>(
 
 		const sanitizedValue = value ?? ""
 
+		const rightIcon = disabled ? (
+			<RNPTextInput.Icon icon="lock" />
+		) : right ? (
+			right
+		) : hasError ? (
+			<RNPTextInput.Icon icon="alert-circle" color="red" />
+		) : null
+
 		return (
 			<View style={styles.container}>
 				<RNPTextInput
@@ -47,13 +56,7 @@ export const WWTextInput = forwardRef<RNTextInput, WWTextInputProps>(
 					value={sanitizedValue}
 					onChangeText={innerOnChange}
 					style={[styles.input, style]}
-					right={
-						disabled ? (
-							<RNPTextInput.Icon icon="lock" />
-						) : hasError ? (
-							<RNPTextInput.Icon icon="alert-circle" color="red" />
-						) : null
-					}
+					right={rightIcon}
 				/>
 				{hasError && errorText && (
 					<WWText style={styles.errorText}>{errorText}</WWText>
