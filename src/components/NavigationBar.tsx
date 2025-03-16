@@ -1,9 +1,9 @@
 import { NativeStackHeaderProps } from "@react-navigation/native-stack"
-import { Appbar, Avatar } from "react-native-paper"
+import { Appbar } from "react-native-paper"
 import { getHeaderTitle } from "@react-navigation/elements"
 import { useAppDrawer } from "./AppDrawer"
 import { useExtendedTheme } from "../theme"
-import { StyleSheet } from "react-native"
+import { WWAvatar } from "./ui/WWAvatar"
 
 export const NavigationBar = ({
 	navigation,
@@ -32,19 +32,7 @@ export const NavigationBar = ({
 				/>
 			)}
 			{title && <Appbar.Content title={title} />}
-			{!isOpen && (
-				<Avatar.Image
-					style={styles.avatar}
-					size={40}
-					source={require("../assets/avatar.png")}
-				/>
-			)}
+			{!isOpen && <WWAvatar onPress={() => navigation.navigate("Profile")} />}
 		</Appbar.Header>
 	)
 }
-
-const styles = StyleSheet.create({
-	avatar: {
-		marginEnd: 6,
-	},
-})

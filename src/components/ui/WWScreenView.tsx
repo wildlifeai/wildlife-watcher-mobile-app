@@ -5,11 +5,11 @@ import {
 	StyleSheet,
 	TouchableWithoutFeedback,
 	View,
+	ViewProps,
 } from "react-native"
-import { SafeAreaView, SafeAreaViewProps } from "react-native-safe-area-context"
 import { useExtendedTheme } from "../../theme"
 
-type Props = PropsWithChildren<SafeAreaViewProps> & {
+type Props = PropsWithChildren<ViewProps> & {
 	scrollable?: boolean
 }
 
@@ -22,7 +22,7 @@ export const WWScreenView = ({
 
 	return (
 		<TouchableWithoutFeedback style={styles.view} onPress={Keyboard.dismiss}>
-			<SafeAreaView style={[{ padding: appPadding }, styles.view, props.style]}>
+			<View style={[{ padding: appPadding }, styles.view, props.style]}>
 				{scrollable ? (
 					<ScrollView
 						style={styles.scrollView}
@@ -34,7 +34,7 @@ export const WWScreenView = ({
 				) : (
 					<View style={styles.view}>{children}</View>
 				)}
-			</SafeAreaView>
+			</View>
 		</TouchableWithoutFeedback>
 	)
 }
@@ -45,6 +45,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	scrollContent: {
-		flexGrow: 1,
+		minHeight: "100%",
 	},
 })

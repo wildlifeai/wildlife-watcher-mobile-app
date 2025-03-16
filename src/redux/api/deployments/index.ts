@@ -1,10 +1,12 @@
 import { api } from ".."
 import { API_URLS } from "../urls"
 import {
+	ApiResponse,
 	Deployment,
 	DeploymentCreate,
 	DeploymentUpdate,
 	HttpMethod,
+	StrapiRequest,
 } from "../types"
 
 export const deploymentsApi = api.injectEndpoints({
@@ -14,12 +16,13 @@ export const deploymentsApi = api.injectEndpoints({
 				url: API_URLS.DEPLOYMENTS,
 				method: HttpMethod.GET,
 			}),
+			transformResponse: (response: ApiResponse<Deployment[]>) => response.data,
 			providesTags: (_result) =>
 				_result
 					? [
-							..._result.map(({ _id }) => ({
+							..._result.map(({ id }) => ({
 								type: "Deployment" as const,
-								id: _id,
+								id,
 							})),
 							{ type: "Deployment", id: "LIST" },
 					  ]
@@ -31,15 +34,20 @@ export const deploymentsApi = api.injectEndpoints({
 				url: API_URLS.DEPLOYMENT_BY_ID(id),
 				method: HttpMethod.GET,
 			}),
+			transformResponse: (response: ApiResponse<Deployment>) => response.data,
 			providesTags: (_result, _error, id) => [{ type: "Deployment", id }],
 		}),
 
-		createDeployment: builder.mutation<Deployment, DeploymentCreate>({
+		createDeployment: builder.mutation<
+			Deployment,
+			StrapiRequest<DeploymentCreate>
+		>({
 			query: (body) => ({
 				url: API_URLS.DEPLOYMENTS,
 				method: HttpMethod.POST,
 				body,
 			}),
+			transformResponse: (response: ApiResponse<Deployment>) => response.data,
 			invalidatesTags: [{ type: "Deployment", id: "LIST" }],
 		}),
 
@@ -52,6 +60,7 @@ export const deploymentsApi = api.injectEndpoints({
 				method: HttpMethod.PUT,
 				body,
 			}),
+			transformResponse: (response: ApiResponse<Deployment>) => response.data,
 			invalidatesTags: (_result, _error, { id }) => [
 				{ type: "Deployment", id },
 				{ type: "Deployment", id: "LIST" },
