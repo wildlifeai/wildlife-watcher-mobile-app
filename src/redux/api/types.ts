@@ -7,15 +7,19 @@ export enum HttpMethod {
 }
 
 // Common Types
-export interface BaseEntity {
-	_id: string
+export type BaseEntity = {
+	id: string
 }
 
-export interface BaseResponse {
+export type BaseResponse = {
 	code: number
 	message: string
 	type?: string
 	details?: string
+}
+
+export type StrapiRequest<T> = {
+	data: T
 }
 
 // Enums
@@ -26,61 +30,68 @@ export enum ProjectRole {
 }
 
 // Shared Types
-export interface ProjectMembership {
+export type ProjectMembership = {
 	projectID: string
 	role: ProjectRole
 }
 
-export interface GeoLocation {
+export type GeoLocation = {
 	latitude: number
 	longitude: number
 }
 
-export interface ExifData {
+export type ExifData = {
 	[key: string]: string
 }
 
 // User Types
-export interface User extends BaseEntity {
-	userId: string
+export type User = BaseEntity & {
+	userID: string
+	username: string
+	email: string
+	provider?: string
+	confirmed?: boolean
+	blocked?: boolean
 	name?: string
-	email?: string
-	profilePicUrl?: string
+	publicProfileUrl?: string
 	membershipProjects?: ProjectMembership[]
 }
 
-export type UserCreate = Omit<User, "_id" | "userId">
+export type UserCreate = Omit<User, "id" | "userID">
 export type UserUpdate = UserCreate
 
 // Device Types
-export interface Device extends BaseEntity {
+export type Device = BaseEntity & {
 	deviceId: string
 	deviceType?: string
 	deviceModel?: string
+	deploymentID?: string
 }
 
-export type DeviceCreate = Omit<Device, "_id" | "deviceId">
+export type DeviceCreate = Omit<Device, "id" | "deviceId">
 export type DeviceUpdate = Partial<DeviceCreate>
 
 // Media Types
-export interface Media extends BaseEntity {
+export type Media = BaseEntity & {
 	mediaID: string
-	deploymentId?: string
-	fileMediatype?: string
+	deploymentID?: string
+	fileMediaType?: string
 	filePath?: string
 	filePublic?: boolean
-	exifData?: ExifData
+	exifData?: Record<string, any>
+	observations?: string[]
+	sensorRecords?: string[]
 }
 
-export type MediaCreate = Omit<Media, "_id" | "mediaID">
-export interface MediaUpdate extends MediaCreate {
+export type MediaCreate = Omit<Media, "id" | "mediaID">
+export type MediaUpdate = MediaCreate & {
 	id: string
 }
 
 // Observation Types
-export interface Observation extends BaseEntity {
-	observationId: string
-	deploymentId?: string
+export type Observation = BaseEntity & {
+	observationID: string
+	deploymentID?: string
 	mediaID?: string
 	eventID?: string
 	eventStart?: string
@@ -95,19 +106,15 @@ export interface Observation extends BaseEntity {
 	classificationTimestamp?: string
 	classificationProbability?: number
 	observationComments?: string
+	classifiedByModelID?: string
 }
 
-export type ObservationCreate = Omit<Observation, "_id" | "observationId">
+export type ObservationCreate = Omit<Observation, "id" | "observationID">
 export type ObservationUpdate = ObservationCreate
 
 // Project Types
-export interface ProjectTeamMember {
-	role: string
-	userId: string
-}
-
-export interface Project extends BaseEntity {
-	projectId: string
+export type Project = BaseEntity & {
+	projectID: string
 	title?: string
 	acronym?: string
 	description?: string
@@ -115,57 +122,53 @@ export interface Project extends BaseEntity {
 	captureMethod?: string
 	individualAnimals?: number
 	observationLevel?: string
-	projectTeam?: ProjectTeamMember[]
+	projectTeam?: Record<string, any>
 	projectPrivacy?: string
+	deployments?: string[]
 }
 
-export type ProjectCreate = Omit<Project, "_id" | "projectId">
-export type ProjectUpdate = Omit<ProjectCreate, "projectTeam"> & {
-	projectTeam?: ProjectTeamMember[]
-}
+export type ProjectCreate = Omit<Project, "id" | "projectID">
+export type ProjectUpdate = ProjectCreate
 
 // Sensor Record Types
-export interface SensorRecord extends BaseEntity {
-	sensorRecordID: string
-	deploymentId?: string
+export type SensorRecord = BaseEntity & {
+	sensorID: string
+	sensorRecordID?: string
+	deploymentID?: string
 	provider?: string
-	sensor_id?: string
 	mediaID?: string
 	date?: string
 	submissionDate?: string
-	status?: string
+	sensorStatus?: string
 	network?: string
 	gateway?: string
 	rssi?: number
 	sequence?: number
 	counter?: number
-	battery_voltage?: number
+	batteryVoltage?: number
 	deviceMemoryAvailable?: number
 	snr?: number
 	timeout?: number
 	extra?: Record<string, unknown>
-	meta?: Record<string, unknown>
+	metadata?: Record<string, unknown>
 }
 
-export type SensorRecordCreate = Omit<
-	SensorRecord,
-	"_id" | "sensorRecordID" | "extra" | "meta"
->
+export type SensorRecordCreate = Omit<SensorRecord, "id" | "sensorID">
 export type SensorRecordUpdate = SensorRecordCreate
 
 // Deployment Types
-export interface Deployment extends BaseEntity {
-	deploymentId: string
+export type Deployment = BaseEntity & {
+	deploymentID: string
 	locationID?: string
 	locationName?: string
-	projectId?: string
+	projectID?: string
 	latitude?: number
 	longitude?: number
 	coordinateUncertainty?: number
 	deploymentStart?: string
 	deploymentEnd?: string
 	setupBy?: string
-	deviceId?: string
+	deviceID?: string
 	deviceDelay?: number
 	deviceHeight?: number
 	deviceTilt?: number
@@ -175,32 +178,35 @@ export interface Deployment extends BaseEntity {
 	habitat?: string
 	deploymentComments?: string
 	deploymentPhotos?: string[]
+	mediaID?: string
+	observations?: string[]
 }
 
-export type DeploymentCreate = Omit<Deployment, "_id" | "deploymentId">
+// export type DeploymentCreate = Omit<Deployment, "id" | "deploymentID">
+export type DeploymentCreate = Omit<Deployment, "id"> // TODO: Remove this and use above line
 export type DeploymentUpdate = DeploymentCreate
 
 // API Log Types
-export interface ApiLog extends BaseEntity {
-	logId: string
+export type ApiLog = BaseEntity & {
+	logID: string
 	apiEndpoint?: string
 	requestDate?: string
 	responseStatus?: number
-	userId?: string
+	userID?: string
 }
 
-export type ApiLogCreate = Omit<ApiLog, "_id" | "logId">
+export type ApiLogCreate = Omit<ApiLog, "id" | "logID">
 export type ApiLogUpdate = ApiLogCreate
 
 // Response Types
-export interface PaginatedResponse<T> {
+export type PaginatedResponse<T> = {
 	data: T[]
 	total: number
 	page: number
 	limit: number
 }
 
-export interface ApiResponse<T> {
+export type ApiResponse<T> = {
 	data: T
 	success: boolean
 	error?: BaseResponse
