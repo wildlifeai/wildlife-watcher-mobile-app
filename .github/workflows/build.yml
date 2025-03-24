@@ -59,6 +59,8 @@ jobs:
         run: echo -n "${{ secrets.IOS_CERT_PRIVATE_KEY }}" | base64 --decode > ./fastlane/cert.p12
       - name: Copy Google Services plist file
         run: echo -n "${{ secrets.IOS_GOOGLE_SERVICES_PLIST }}" | base64 --decode > ./ios/GoogleService-Info.plist
+      - name: Create .env file
+        run: echo "API_BASE=${{ vars.API_BASE }}" > .env
       - name: Install npm dependency
         run: npm install
       - name: Install bundler
@@ -107,6 +109,8 @@ jobs:
         run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" | base64 --decode > ./android/keystores/release.keystore
       - name: Copy keystore properties file
         run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE_PROPS }}" | base64 --decode > ./android/keystores/release.keystore.properties
+      - name: Create .env file
+        run: echo "API_BASE=${{ vars.API_BASE }}" > .env
       - name: Install npm dependency
         run: npm install
       - name: Install bundler
