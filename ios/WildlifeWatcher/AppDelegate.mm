@@ -10,7 +10,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [GMSServices provideAPIKey:@"AIzaSyC-o6fbL_C4IcGLVTahHerKFaXunP3HuRc"];
+  [GMSServices provideAPIKey:@"google_api_key"];
   [FIRApp configure];
   
   self.moduleName = @"WildlifeWatcher";
