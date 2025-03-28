@@ -114,20 +114,18 @@ export type ObservationUpdate = ObservationCreate
 
 // Project Types
 export type Project = BaseEntity & {
-	projectID: string
-	title?: string
-	acronym?: string
-	description?: string
-	samplingDesign?: string
-	captureMethod?: string
-	individualAnimals?: number
-	observationLevel?: string
-	projectTeam?: Record<string, any>
-	projectPrivacy?: string
-	deployments?: string[]
+	title: string
+	acronym: string
+	description: string
+	samplingDesign: string
+	captureMethod: string
+	individualAnimals: number
+	observationLevel: string
+	projectTeam: string
+	projectPrivacy: string
 }
 
-export type ProjectCreate = Omit<Project, "id" | "projectID">
+export type ProjectCreate = Omit<Project, "id">
 export type ProjectUpdate = ProjectCreate
 
 // Sensor Record Types

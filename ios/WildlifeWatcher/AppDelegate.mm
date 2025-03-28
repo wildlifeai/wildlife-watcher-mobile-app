@@ -2,6 +2,7 @@
 #import "RNBootSplash.h"
 #import <Firebase.h>
 #import "RNNordicDfu.h"
+#import <GoogleMaps/GoogleMaps.h>
 
 #import <React/RCTBundleURLProvider.h>
 
@@ -9,6 +10,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [GMSServices provideAPIKey:@"AIzaSyC-o6fbL_C4IcGLVTahHerKFaXunP3HuRc"];
   [FIRApp configure];
   
   self.moduleName = @"WildlifeWatcher";

@@ -6,7 +6,6 @@ import { BluetoothProblems } from "./screens/BluetoothProblems"
 import { LocationProblems } from "./screens/LocationProblems"
 import { BleProblems } from "./screens/BleProblems"
 import { DeviceReconnectProvider } from "../providers/DeviceReconnectProvider"
-import { Home } from "./screens/Home"
 import { Terminal } from "./screens/TerminalScreen"
 import BootSplash from "react-native-bootsplash"
 import { NavigationBar } from "../components/NavigationBar"
@@ -19,6 +18,10 @@ import { Settings } from "./screens/Settings"
 import { DfuScreen } from "./screens/DfuScreen"
 import { Login } from "./screens/Login"
 import { Register } from "./screens/Register"
+import { AddDeployment } from "./screens/AddDeployment"
+import type { Option } from "../components/ui/WWSelect"
+import { AddProject } from "./screens/AddProject"
+import { BottomTabs } from "./BottomTabs"
 
 export interface RootStackParamList extends ParamListBase {
 	CommunityDiscussion: undefined
@@ -31,6 +34,8 @@ export interface RootStackParamList extends ParamListBase {
 	DfuScreen: { deviceId: string }
 	Login: undefined
 	Register: undefined
+	AddDeployment: { selectedProject?: Option } | undefined
+	AddProject: undefined
 }
 
 export type Routes = keyof RootStackParamList
@@ -117,7 +122,7 @@ export const MainNavigation = () => {
 					<Stack.Group>
 						<Stack.Screen
 							name="Home"
-							component={Home}
+							component={BottomTabs}
 							options={{ title: "Wildlife Watcher" }}
 						/>
 						<Stack.Screen
@@ -149,6 +154,16 @@ export const MainNavigation = () => {
 							name="DfuScreen"
 							component={DfuScreen}
 							options={{ title: "Firmware Update" }}
+						/>
+						<Stack.Screen
+							name="AddDeployment"
+							component={AddDeployment}
+							options={{ title: "Start deployment" }}
+						/>
+						<Stack.Screen
+							name="AddProject"
+							component={AddProject}
+							options={{ title: "New project details" }}
 						/>
 					</Stack.Group>
 				)}

@@ -12,6 +12,7 @@
 	},
 	"dependencies": {
 		"@react-native-async-storage/async-storage": "^2.0.0",
+		"@react-native-community/geolocation": "^3.4.0",
 		"@react-native-firebase/app": "^18.7.3",
 		"@react-native-firebase/app-distribution": "^18.7.3",
 		"@react-navigation/native": "^6.1.12",
@@ -36,6 +37,7 @@
 		"react-native-drawer-layout": "^3.3.0",
 		"react-native-fs": "^2.20.0",
 		"react-native-gesture-handler": "^2.18.1",
+		"react-native-maps": "^1.20.1",
 		"react-native-nordic-dfu": "github:Salt-PepperEngineering/react-native-nordic-dfu",
 		"react-native-paper": "^5.12.3",
 		"react-native-paper-dropdown": "^2.3.1",

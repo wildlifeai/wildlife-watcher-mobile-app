@@ -3,7 +3,7 @@ import { StyleSheet, View, StyleProp, ViewStyle } from "react-native"
 import { Dropdown, DropdownProps } from "react-native-paper-dropdown"
 import { WWText } from "./WWText"
 
-type Option = {
+export type Option = {
 	label: string
 	value: string
 }
@@ -11,6 +11,7 @@ type Option = {
 type CommonProps = {
 	hasError?: boolean
 	onChange?: (value: string) => void
+	onSelectEffect?: (value: string) => void
 	errorText?: string
 	label: string
 	options: Option[]
@@ -25,6 +26,7 @@ export const WWSelect = forwardRef<View, WWSelectProps>(
 		{
 			hasError,
 			onChange,
+			onSelectEffect,
 			value,
 			disabled,
 			errorText,
@@ -38,9 +40,10 @@ export const WWSelect = forwardRef<View, WWSelectProps>(
 			(selectedValue?: string) => {
 				if (selectedValue) {
 					onChange?.(selectedValue)
+					onSelectEffect?.(selectedValue)
 				}
 			},
-			[onChange],
+			[onChange, onSelectEffect],
 		)
 
 		return (

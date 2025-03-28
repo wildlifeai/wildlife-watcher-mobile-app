@@ -1,6 +1,13 @@
 import { api } from ".."
 import { API_URLS } from "../urls"
-import { Project, ProjectCreate, ProjectUpdate, HttpMethod } from "../types"
+import {
+	Project,
+	ProjectCreate,
+	ProjectUpdate,
+	HttpMethod,
+	ApiResponse,
+	StrapiRequest,
+} from "../types"
 
 export const projectsApi = api.injectEndpoints({
 	endpoints: (builder) => ({
@@ -9,12 +16,13 @@ export const projectsApi = api.injectEndpoints({
 				url: API_URLS.PROJECTS,
 				method: HttpMethod.GET,
 			}),
+			transformResponse: (response: ApiResponse<Project[]>) => response.data,
 			providesTags: (_result) =>
 				_result
 					? [
-							..._result.map(({ _id }) => ({
+							..._result.map(({ id }) => ({
 								type: "Project" as const,
-								id: _id,
+								id,
 							})),
 							{ type: "Project", id: "LIST" },
 					  ]
@@ -26,15 +34,17 @@ export const projectsApi = api.injectEndpoints({
 				url: API_URLS.PROJECT_BY_ID(id),
 				method: HttpMethod.GET,
 			}),
+			transformResponse: (response: ApiResponse<Project>) => response.data,
 			providesTags: (_result, _error, id) => [{ type: "Project", id }],
 		}),
 
-		createProject: builder.mutation<Project, ProjectCreate>({
+		createProject: builder.mutation<Project, StrapiRequest<ProjectCreate>>({
 			query: (body) => ({
 				url: API_URLS.PROJECTS,
 				method: HttpMethod.POST,
 				body,
 			}),
+			transformResponse: (response: ApiResponse<Project>) => response.data,
 			invalidatesTags: [{ type: "Project", id: "LIST" }],
 		}),
 
@@ -47,6 +57,7 @@ export const projectsApi = api.injectEndpoints({
 				method: HttpMethod.PUT,
 				body,
 			}),
+			transformResponse: (response: ApiResponse<Project>) => response.data,
 			invalidatesTags: (_result, _error, { id }) => [
 				{ type: "Project", id },
 				{ type: "Project", id: "LIST" },

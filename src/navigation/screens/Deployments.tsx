@@ -1,6 +1,5 @@
 import { memo, useEffect, useMemo, useCallback } from "react"
 import { FlatList, StyleSheet, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useAppNavigation } from "../../hooks/useAppNavigation"
 import { useBleActions } from "../../providers/BleEngineProvider"
 import { useAppSelector } from "../../redux"
@@ -12,22 +11,17 @@ import { log } from "../../utils/logger"
 import { useIsFocused } from "@react-navigation/native"
 import { WWButton } from "../../components/ui/WWButton"
 import { WWLoader } from "../../components/ui/WWLoader"
-import {
-	useGetDeploymentsQuery,
-	useCreateDeploymentMutation,
-} from "../../redux/api/deployments"
+import { useGetDeploymentsQuery } from "../../redux/api/deployments"
 import { DeploymentCard } from "../../components/DeploymentCard"
 
-export const Home = memo(() => {
+export const Deployments = memo(() => {
 	const { isBleConnecting, startScan, connectDevice, disconnectDevice } =
 		useBleActions()
 	const devices = useAppSelector((state) => state.devices)
 	const { isScanning } = useAppSelector((state) => state.scanning)
 	const navigation = useAppNavigation()
-	const { bottom } = useSafeAreaInsets()
 	const isFocused = useIsFocused()
 	const { data: deployments, isLoading } = useGetDeploymentsQuery()
-	const [createDeployment] = useCreateDeploymentMutation()
 
 	const isBleBusy = isBleConnecting || isScanning
 
@@ -106,29 +100,13 @@ export const Home = memo(() => {
 		console.log(`pressed deployment ${deploymentId}`)
 	}
 
-	const handleAddDeployment = async () => {
-		try {
-			const result = await createDeployment({
-				data: {
-					deploymentID: Math.random().toString(36).substring(2, 10),
-					locationName: "Test Location",
-					locationID: "3",
-					latitude: 45.4215,
-					longitude: -75.6972,
-					deploymentStart: new Date().toISOString(),
-					deploymentEnd: new Date(Date.now() + 86400000).toISOString(), // 24 hours from now
-					setupBy: "Test User",
-				},
-			}).unwrap()
-			console.log("Deployment created:", result)
-		} catch (error) {
-			console.error("Failed to create deployment:", error)
-		}
+	const handleAddDeployment = () => {
+		navigation.navigate("AddDeployment")
 	}
 
 	return (
 		<WWScreenView scrollable>
-			<View style={[styles.wrapper, { paddingBottom: bottom }]}>
+			<View style={styles.wrapper}>
 				<View style={styles.headerView}>
 					<View style={styles.buttonRow}>
 						<WWButton mode="contained" onPress={scan} loading={isScanning}>
