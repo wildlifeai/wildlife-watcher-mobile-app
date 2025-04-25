@@ -96,7 +96,8 @@ android {
         resConfigs "en"
 
         manifestPlaceholders = [
-            appAuthRedirectScheme: 'com.wildlife.auth'
+            appAuthRedirectScheme: 'com.wildlife.auth',
+            googleMapsApiKey: project.env.get("GOOGLE_MAPS_API_KEY_ANDROID") ?: ""
         ]
     }
     signingConfigs {
@@ -111,15 +112,13 @@ android {
             keyPassword keystoreProperties['keyPassword']
             storeFile file(keystoreProperties['storeFile'])
             storePassword keystoreProperties['storePassword']
-        }  
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"

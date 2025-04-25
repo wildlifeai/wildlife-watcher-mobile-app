@@ -60,7 +60,10 @@ jobs:
       - name: Copy Google Services plist file
         run: echo -n "${{ secrets.IOS_GOOGLE_SERVICES_PLIST }}" | base64 --decode > ./ios/GoogleService-Info.plist
       - name: Create .env file
-        run: echo "API_BASE=${{ vars.API_BASE }}" > .env
+        run: |
+          echo "API_BASE=${{ vars.API_BASE }}" > .env
+          echo "GOOGLE_MAPS_API_KEY_ANDROID=${{ secrets.GOOGLE_MAPS_API_KEY_ANDROID }}" >> .env
+          echo "GOOGLE_MAPS_API_KEY_IOS=${{ secrets.GOOGLE_MAPS_API_KEY_IOS }}" >> .env
       - name: Install npm dependency
         run: npm install
       - name: Install bundler
@@ -110,7 +113,10 @@ jobs:
       - name: Copy keystore properties file
         run: echo -n "${{ secrets.ANDROID_RELEASE_KEYSTORE_PROPS }}" | base64 --decode > ./android/keystores/release.keystore.properties
       - name: Create .env file
-        run: echo "API_BASE=${{ vars.API_BASE }}" > .env
+        run: |
+          echo "API_BASE=${{ vars.API_BASE }}" > .env
+          echo "GOOGLE_MAPS_API_KEY_ANDROID=${{ secrets.GOOGLE_MAPS_API_KEY_ANDROID }}" >> .env
+          echo "GOOGLE_MAPS_API_KEY_IOS=${{ secrets.GOOGLE_MAPS_API_KEY_IOS }}" >> .env
       - name: Install npm dependency
         run: npm install
       - name: Install bundler

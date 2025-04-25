@@ -4,7 +4,7 @@ interface LocationStatusState {
 	locationEnabled: boolean
 	loading: boolean
 	initialLoad: boolean
-	error?: Error
+	error?: string
 }
 
 const initialState: LocationStatusState = {
@@ -26,7 +26,7 @@ export const locationStatusSlice = createSlice({
 			state.error = undefined
 			state.initialLoad = false
 		},
-		locationStatusError: (state, action: PayloadAction<Error>) => {
+		locationStatusError: (state, action: PayloadAction<string>) => {
 			state.loading = false
 			state.error = action.payload
 			state.initialLoad = false

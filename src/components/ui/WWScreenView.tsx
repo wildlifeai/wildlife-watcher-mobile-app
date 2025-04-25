@@ -27,10 +27,11 @@ export const WWScreenView = ({
 		<TouchableWithoutFeedback style={styles.view} onPress={Keyboard.dismiss}>
 			{scrollable ? (
 				<ScrollView
-					style={[styles.scrollView, props.style]}
+					style={styles.scrollView}
 					contentContainerStyle={[
 						{ padding: appPadding, paddingBottom: appPadding + bottom },
 						styles.scrollContent,
+						props.style,
 					]}
 					keyboardShouldPersistTaps="handled"
 				>

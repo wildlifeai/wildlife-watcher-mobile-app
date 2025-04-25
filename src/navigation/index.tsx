@@ -16,8 +16,8 @@ import { CommunityDiscussion } from "./screens/CommunityDiscussion"
 import { Profile } from "./screens/Profile"
 import { Settings } from "./screens/Settings"
 import { DfuScreen } from "./screens/DfuScreen"
-import { Login } from "./screens/Login"
-import { Register } from "./screens/Register"
+// import { Login } from "./screens/Login"
+// import { Register } from "./screens/Register"
 import { AddDeployment } from "./screens/AddDeployment"
 import type { Option } from "../components/ui/WWSelect"
 import { AddProject } from "./screens/AddProject"
@@ -57,11 +57,11 @@ export const MainNavigation = () => {
 	const { initialized, initialLoad: bleLoading } = useAppSelector(
 		(state) => state.bleLibrary,
 	)
-	const { token, initialLoad: authLoading } = useAppSelector(
-		(state) => state.authentication,
-	)
+	// const { token, initialLoad: authLoading } = useAppSelector(
+	// 	(state) => state.authentication,
+	// )
 
-	const appLoading = blLoading || locLoading || bleLoading || authLoading
+	const appLoading = blLoading || locLoading || bleLoading // || authLoading
 
 	useEffect(() => {
 		if (!appLoading) {
@@ -113,12 +113,12 @@ export const MainNavigation = () => {
 						name="BLEProblems"
 						component={BleProblems}
 					/>
-				) : !token ? (
-					<Stack.Group screenOptions={{ headerShown: false }}>
-						<Stack.Screen name="Login" component={Login} />
-						<Stack.Screen name="Register" component={Register} />
-					</Stack.Group>
 				) : (
+					// ) : !token ? (
+					// 	<Stack.Group screenOptions={{ headerShown: false }}>
+					// 		<Stack.Screen name="Login" component={Login} />
+					// 		<Stack.Screen name="Register" component={Register} />
+					// 	</Stack.Group>
 					<Stack.Group>
 						<Stack.Screen
 							name="Home"

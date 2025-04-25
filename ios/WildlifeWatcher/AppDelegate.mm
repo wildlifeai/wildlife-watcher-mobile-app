@@ -3,14 +3,17 @@
 #import <Firebase.h>
 #import "RNNordicDfu.h"
 #import <GoogleMaps/GoogleMaps.h>
-
 #import <React/RCTBundleURLProvider.h>
+#import "RNCConfig.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [GMSServices provideAPIKey:@"google_api_key"];
+  NSString *googleMapsApiKey = [RNCConfig envFor:@"GOOGLE_MAPS_API_KEY_IOS"];
+  if (googleMapsApiKey && ![googleMapsApiKey isEqualToString:@""]) {
+    [GMSServices provideAPIKey:googleMapsApiKey];
+  }
   [FIRApp configure];
   
   self.moduleName = @"WildlifeWatcher";

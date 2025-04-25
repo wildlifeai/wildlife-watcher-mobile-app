@@ -18,8 +18,8 @@ export const useLocationStatus = () => {
 		try {
 			const enabled = await deviceInfoModule.isLocationEnabled()
 			dispatch(done(enabled))
-		} catch (e) {
-			dispatch(locationStatusError(e as Error))
+		} catch (e: any) {
+			dispatch(locationStatusError(e.message))
 		}
 	}, [dispatch])
 
